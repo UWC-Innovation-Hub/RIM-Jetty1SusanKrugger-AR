@@ -1,0 +1,72 @@
+# PROPRIETARY LICENSE AGREEMENT
+# ROBBEN ISLAND MUSEUM XR APPLICATIONS
+
+## 1. DEFINITIONS
+
+**"Software"** refers to the Robben Island XR Applications, including but not limited to the AR application for Android tablets and VR application for Meta Quest 3/3S devices, along with all source code, object code, interfaces, content, fonts, documentation, and any updates or modifications.
+
+**"Client"** refers to Robben Island Museum, the entity commissioning the development of the Software.
+
+**"Developer"** refers to UWC Innovation Hub and its development team members as outlined in the project documentation.
+
+**"User"** refers to any individual or entity that accesses or uses the Software.
+
+## 2. OWNERSHIP AND COPYRIGHT
+
+The Software is protected by copyright laws and international copyright treaties, as well as other intellectual property laws and treaties. The Software is licensed, not sold.
+
+All rights, title, and interest in and to the Software (including but not limited to any images, photographs, animations, video, audio, music, text, and "applets" incorporated into the Software), and any copies of the Software are owned by the Client.
+
+## 3. LICENSE GRANT
+
+### 3.1 Internal Development
+Developer is granted a limited, non-exclusive license to use, reproduce, and modify the Software solely for the purpose of developing, testing, and delivering the Software to the Client as specified in the project documentation.
+
+### 3.2 Client Usage
+Upon full payment and delivery, Client is granted an exclusive, perpetual, worldwide license to:
+- Install and use the Software for the purpose of providing experiences at Robben Island Museum
+- Make copies of the Software for backup, archival, and installation purposes
+- Modify the Software as necessary for maintenance and updates
+
+## 4. RESTRICTIONS
+
+Unless explicitly authorized by this License or by law, You may not:
+- Distribute, sell, lease, rent, lend, or sublicense the Software to any third party
+- Use the Software for any purpose other than as authorized in the project documentation
+- Reverse engineer, decompile, disassemble, or attempt to derive the source code of the Software
+- Remove, alter, or obscure any proprietary notices on the Software
+- Use the Software in any manner that infringes the intellectual property rights of any party
+
+## 5. CONFIDENTIALITY
+
+The Software, including its source code, architecture, and design documents, constitutes confidential information of the Client. Developer agrees to maintain the confidentiality of the Software and not to disclose such information to any third party without Client's prior written consent.
+
+## 6. TERM AND TERMINATION
+
+This License remains in effect for the duration of the copyright in the Software, unless earlier terminated in accordance with this agreement.
+
+Developer's license rights automatically terminate upon completion and delivery of the final Software to Client, except for rights necessary to fulfill ongoing maintenance obligations as specified in the project documentation.
+
+## 7. MAINTENANCE AND UPDATES
+
+The terms for maintenance, updates, and support services shall be as specified in the Service Level Agreement between Client and Developer.
+
+## 8. WARRANTIES AND DISCLAIMERS
+
+The Software is provided "as is" without warranty of any kind, either express or implied, including, but not limited to, the implied warranties of merchantability and fitness for a particular purpose. The entire risk as to the quality and performance of the Software is with the Client.
+
+## 9. LIMITATION OF LIABILITY
+
+In no event shall Developer be liable for any special, incidental, indirect, or consequential damages whatsoever (including, without limitation, damages for loss of business profits, business interruption, loss of business information, or any other pecuniary loss) arising out of the use of or inability to use the Software, even if Developer has been advised of the possibility of such damages.
+
+## 10. GOVERNING LAW
+
+This License shall be governed by the laws of South Africa. Any dispute arising out of or in connection with this License shall be resolved through arbitration in Cape Town, South Africa.
+
+## 11. ENTIRE AGREEMENT
+
+This License constitutes the entire agreement between the parties with respect to the Software and supersedes all prior or contemporaneous understandings regarding such subject matter.
+
+---
+
+Copyright © 2025 Robben Island Museum. All rights reserved.
