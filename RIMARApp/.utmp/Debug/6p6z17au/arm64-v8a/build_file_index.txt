@@ -1,0 +1,2 @@
+C:\Users\Christiaan Cupido\Desktop\Unity\RIM-Jetty1SusanKrugger-AR\RIMARApp\Library\Bee\Android\Prj\IL2CPP\Gradle\unityLibrary\src\main\cpp\CMakeLists.txt
+C:\Users\Christiaan Cupido\Desktop\Unity\RIM-Jetty1SusanKrugger-AR\RIMARApp\Library\Bee\Android\Prj\IL2CPP\Gradle\unityLibrary\src\main\cpp\GameActivity\CMakeLists.txt
