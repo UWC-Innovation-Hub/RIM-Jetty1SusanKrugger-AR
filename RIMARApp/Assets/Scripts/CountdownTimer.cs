@@ -4,19 +4,31 @@ using TMPro;
 
 public class CountdownTimer : MonoBehaviour
 {
-    [Tooltip("Total countdown time in seconds.")]
+    [Header("Timer Settings")]
     public int countdownTime = 300; // 5 minutes = 300 seconds
-
-    [Tooltip("Reference to the TMP text for the timer.")]
     public TextMeshProUGUI timerText;
+
+    [Header("Clue Settings")]
+    public TextMeshProUGUI clueText;         // reference to the clue TMP
+    public TextMeshProUGUI instructionText;  // reference to the instruction TMP
+    [TextArea] public string[] clues;        // list of clues to rotate through
 
     private float currentTime;
     private bool isFlashing = false;
+    private int clueIndex = 0;
 
 
     void Start()
     {
         ResetTimer();
+
+        // Set default instruction
+        if (instructionText != null)
+            instructionText.text = "Tap on a checkpoint to interact with the clue.";
+
+        // Show first clue if available
+        if (clues != null && clues.Length > 0)
+            clueText.text = clues[clueIndex];
     }
 
 
@@ -26,6 +38,7 @@ public class CountdownTimer : MonoBehaviour
 
         if (currentTime <= 0)
         {
+            NextClue();
             ResetTimer();
             return;
         }
@@ -67,5 +80,14 @@ public class CountdownTimer : MonoBehaviour
     {
         currentTime = countdownTime;
         timerText.color = Color.white;
+    }
+
+
+    void NextClue()
+    {
+        if (clues == null || clues.Length == 0) return;
+
+        clueIndex = (clueIndex + 1) % clues.Length; // loop back to start
+        clueText.text = clues[clueIndex];
     }
 }
