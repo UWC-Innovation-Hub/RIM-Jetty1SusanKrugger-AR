@@ -53,8 +53,8 @@ public class CountdownTimer : MonoBehaviour
         int seconds = Mathf.FloorToInt(currentTime % 60);
         timerText.text = $"{minutes:00}:{seconds:00}";
 
-        // Flash red in the last 10 seconds
-        if (currentTime <= 10f)
+        // Flash red in the last 30 seconds
+        if (currentTime <= 30f)
         {
             if (!isFlashing)
                 StartCoroutine(FlashRed());
@@ -65,7 +65,7 @@ public class CountdownTimer : MonoBehaviour
     System.Collections.IEnumerator FlashRed()
     {
         isFlashing = true;
-        while (currentTime > 0 && currentTime <= 10f)
+        while (currentTime > 0 && currentTime <= 30f)
         {
             timerText.color = Color.red;
             yield return new WaitForSeconds(0.5f);
