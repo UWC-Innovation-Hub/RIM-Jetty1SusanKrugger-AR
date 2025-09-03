@@ -2,10 +2,12 @@ using UnityEngine;
 using UnityEngine.XR.ARFoundation;
 using UnityEngine.XR.ARSubsystems;
 using TMPro;
+using UnityEngine.UI;
 using UnityEngine.Video;
 using System.Collections;
 
-public class ImageRecognitionHandler : MonoBehaviour
+
+public class ARPopupHandler : MonoBehaviour
 {
     public ARTrackedImageManager trackedImageManager;
 
@@ -13,34 +15,38 @@ public class ImageRecognitionHandler : MonoBehaviour
     public GameObject popupPanel;
     public TMP_Text titleText;
     public TMP_Text descriptionText;
-    public TMP_Text instructionsText;
+    public RawImage videoDisplay;
+    public Button playButton;
     public VideoPlayer videoPlayer;
 
     private float lastTapTime;
     private int tapCount;
-    private Coroutine instructionsCoroutine;
+    private bool expanded = false;
+
 
     void OnEnable()
     {
         trackedImageManager.trackedImagesChanged += OnTrackedImagesChanged;
     }
 
+
     void OnDisable()
     {
         trackedImageManager.trackedImagesChanged -= OnTrackedImagesChanged;
     }
 
+
     void OnTrackedImagesChanged(ARTrackedImagesChangedEventArgs args)
     {
         foreach (var trackedImage in args.added)
         {
-            ShowPopup(trackedImage.referenceImage.name);
+            ShowPopup("Clue: " + trackedImage.referenceImage.name);
         }
 
         foreach (var trackedImage in args.updated)
         {
             if (trackedImage.trackingState == TrackingState.Tracking)
-                ShowPopup(trackedImage.referenceImage.name);
+                ShowPopup("Clue: " + trackedImage.referenceImage.name);
             else
                 HidePopup();
         }
@@ -51,36 +57,27 @@ public class ImageRecognitionHandler : MonoBehaviour
         }
     }
 
-    void ShowPopup(string imageName)
+
+    void ShowPopup(string clueTitle)
     {
         popupPanel.SetActive(true);
-        titleText.text = "Clue Found: " + imageName;
-        descriptionText.text = "Here is more information.";
-        instructionsText.gameObject.SetActive(true);
-        instructionsText.text = "Tap once to expand, double tap to collect.";
 
-        videoPlayer.Play();
+        // Title only
+        titleText.text = clueTitle;
+        descriptionText.gameObject.SetActive(false);
+        videoDisplay.gameObject.SetActive(false);
+        playButton.gameObject.SetActive(false);
 
-        // Reset & start timer for hiding instructions
-        if (instructionsCoroutine != null)
-            StopCoroutine(instructionsCoroutine);
-        instructionsCoroutine = StartCoroutine(HideInstructionsAfterDelay(5f));
+        expanded = false;
     }
+
 
     void HidePopup()
     {
         popupPanel.SetActive(false);
         videoPlayer.Stop();
-
-        if (instructionsCoroutine != null)
-            StopCoroutine(instructionsCoroutine);
     }
 
-    IEnumerator HideInstructionsAfterDelay(float delay)
-    {
-        yield return new WaitForSeconds(delay);
-        instructionsText.gameObject.SetActive(false);
-    }
 
     void Update()
     {
@@ -93,8 +90,10 @@ public class ImageRecognitionHandler : MonoBehaviour
                 tapCount++;
                 if (tapCount == 2)
                 {
-                    CollectClue();
+                    // double tap
+                    StartCoroutine(CaptureScreenshotAndClose());
                     tapCount = 0;
+                    return;
                 }
             }
             else
@@ -103,13 +102,43 @@ public class ImageRecognitionHandler : MonoBehaviour
             }
 
             lastTapTime = timeNow;
+
+            // single tap: expand if not already expanded
+            if (!expanded)
+            {
+                ExpandPanel();
+            }
         }
     }
 
-    void CollectClue()
+
+    void ExpandPanel()
     {
-        Debug.Log("Clue collected! Move to next.");
-        popupPanel.SetActive(false);
-        videoPlayer.Stop();
+        expanded = true;
+        descriptionText.gameObject.SetActive(true);
+        videoDisplay.gameObject.SetActive(true);
+        playButton.gameObject.SetActive(true);
+
+        descriptionText.text = "This is a detailed clue description.";
+        playButton.onClick.RemoveAllListeners();
+        playButton.onClick.AddListener(() =>
+        {
+            if (videoPlayer.isPlaying)
+                videoPlayer.Pause();
+            else
+                videoPlayer.Play();
+        });
+    }
+
+
+    IEnumerator CaptureScreenshotAndClose()
+    {
+        yield return new WaitForEndOfFrame();
+
+        string path = System.IO.Path.Combine(Application.persistentDataPath, "AR_ClueScreenshot.png");
+        ScreenCapture.CaptureScreenshot(path);
+        Debug.Log("Screenshot saved at: " + path);
+
+        HidePopup();
     }
 }
