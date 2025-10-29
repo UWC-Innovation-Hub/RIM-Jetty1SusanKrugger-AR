@@ -1,2 +1,2 @@
-# u_rim_jetty1susankruggerANDROID
-Robben Island Museum XR Applications Development aka UIH RIM J1SK XR Application ANDROID solution for Tablets
+This project aims to create an immersive, informative journey through a crucial period in South African history, honouring the legacy of those who passed through the Jetty 1 and Susan Kruger sites during the struggle against apartheid. 
+The solutions involve AR-based applications.
