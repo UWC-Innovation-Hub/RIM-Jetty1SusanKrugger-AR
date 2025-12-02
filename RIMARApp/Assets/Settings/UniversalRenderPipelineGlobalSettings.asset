@@ -61,19 +61,9 @@ MonoBehaviour:
       - rid: 5887708183875551236
       - rid: 5887708183875551237
       - rid: 5887708183875551238
+      - rid: 6221837287197769728
     m_RuntimeSettings:
-      m_List:
-      - rid: 9145189647983312896
-      - rid: 9145189647983312897
-      - rid: 9145189647983312898
-      - rid: 9145189647983312900
-      - rid: 9145189647983312901
-      - rid: 9145189647983312904
-      - rid: 9145189647983312906
-      - rid: 9145189647983312914
-      - rid: 9145189647983312915
-      - rid: 9145189647983312916
-      - rid: 7882832277972975622
+      m_List: []
   m_AssetVersion: 8
   m_ObsoleteDefaultVolumeProfile: {fileID: 0}
   m_RenderingLayerNames:
@@ -241,6 +231,11 @@ MonoBehaviour:
           - {r: 0.5, g: 0, b: 0.5, a: 1}
           - {r: 0.5, g: 0.5, b: 0.5, a: 1}
           - {r: 0, g: 0, b: 1, a: 1}
+    - rid: 6221837287197769728
+      type: {class: RenderingDebuggerRuntimeResources, ns: UnityEngine.Rendering,
+        asm: Unity.RenderPipelines.Core.Runtime}
+      data:
+        m_version: 0
     - rid: 9145189647983312896
       type: {class: RenderGraphSettings, ns: UnityEngine.Rendering.Universal, asm: Unity.RenderPipelines.Universal.Runtime}
       data:
@@ -365,12 +360,6 @@ MonoBehaviour:
         m_AutodeskInteractiveTransparent: {fileID: 4800000, guid: 5c81372d981403744adbdda4433c9c11,
           type: 3}
         m_AutodeskInteractiveMasked: {fileID: 4800000, guid: 80aa867ac363ac043847b06ad71604cd,
-          type: 3}
-        m_TerrainDetailLit: {fileID: 4800000, guid: f6783ab646d374f94b199774402a5144,
-          type: 3}
-        m_TerrainDetailGrassBillboard: {fileID: 4800000, guid: 29868e73b638e48ca99a19ea58c48d90,
-          type: 3}
-        m_TerrainDetailGrass: {fileID: 4800000, guid: e507fdfead5ca47e8b9a768b51c291a1,
           type: 3}
         m_DefaultSpeedTree7Shader: {fileID: 4800000, guid: 0f4122b9a743b744abe2fb6a0a88868b,
           type: 3}
