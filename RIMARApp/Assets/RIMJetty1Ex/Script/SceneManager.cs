@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -133,5 +134,10 @@ public class SceneManager : MonoBehaviour
     private void OnMouseDown()
     {
         LoadScene();
+    }
+
+    internal static void LoadScene(int sceneIndex)
+    {
+        throw new NotImplementedException();
     }
 }
