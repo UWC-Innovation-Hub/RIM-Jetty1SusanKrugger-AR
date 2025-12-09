@@ -19,6 +19,8 @@ public class GestureManager : MonoBehaviour
     int currentPeriodIndex = 0;
     int currentLayerIndex = 0;
 
+    public bool gesturesEnabled = false;
+
     void Start()
     {
         // init placeholders to first child active
@@ -28,6 +30,8 @@ public class GestureManager : MonoBehaviour
 
     void Update()
     {
+        if (!gesturesEnabled) return;   // do not process gestures yet
+
         var touches = Touchscreen.current?.touches;
         if (touches == null) return;
 
