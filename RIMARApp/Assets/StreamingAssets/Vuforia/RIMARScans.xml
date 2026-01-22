@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<QCARConfig>
+    <Tracking>
+        <ImageTarget name="remoteTest.Left" size="0.180000 0.019991"/>
+        <ImageTarget name="remoteTest.Front" size="0.045000 0.020000"/>
+        <ImageTarget name="remoteTest.Right" size="0.180000 0.019969"/>
+        <ImageTarget name="remoteTest.Top" size="0.045000 0.179831"/>
+        <ImageTarget name="remoteTest.Bottom" size="0.045000 0.180150"/>
+        <ImageTarget name="remoteTest.Back" size="0.045000 0.020077"/>
+        <MultiTarget name="remoteTest">
+            <Part name="remoteTest.Left" translation="-0.02250000089406967 0 0" rotation="AD: 0 1 0 -90"/>
+            <Part name="remoteTest.Right" translation="0.02250000089406967 0 0" rotation="AD: 0 1 0 90"/>
+            <Part name="remoteTest.Front" translation="0 0 0.09000000357627869" rotation="AD: 1 0 0 0"/>
+            <Part name="remoteTest.Back" translation="0 0 -0.09000000357627869" rotation="AD: 0 1 0 180"/>
+            <Part name="remoteTest.Top" translation="0 0.009999999776482582 0" rotation="AD: 1 0 0 -90"/>
+            <Part name="remoteTest.Bottom" translation="0 -0.009999999776482582 0" rotation="AD: 1 0 0 90"/>
+        </MultiTarget>
+    </Tracking>
+</QCARConfig>
