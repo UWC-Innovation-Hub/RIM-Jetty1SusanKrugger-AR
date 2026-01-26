@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<QCARInfo>
+    <TargetSet version="36.0" toolVersion="v7.3.1">
+        <ModelTarget name="RemoteScaled" targetId="38b27a0d84f746e596bfdcb22af2708d" bbox="0.000401467 0.000670645 0.000593718 0.180441 0.0203411 0.0497027" version="14.0" toolVersion="v7.3.1" trackingMode="scan" upVector="0.0 1.0 0.0" optimizeTrackingFor="default" realisticTextures="yes" />
+        <ModelTarget name="BookScaled" targetId="ebc58463d6174d6eba3d25d81edc3d62" bbox="-0.00921078 0.000707563 -0.477807 0.223652 0.0187969 -0.29407" version="14.0" toolVersion="v7.3.1" trackingMode="scan" upVector="0.0 1.0 0.0" optimizeTrackingFor="default" realisticTextures="yes" />
+    </TargetSet>
+    <Assembly name="RemoteScaled" assemblyId="955d5bac73344550a578b1af3b1d3410">
+        <Part name="RemoteScaled" translation="0 0 0" rotation="AD: 0 0 1 0" />
+        <EntryPoint name="(none)" trained="yes" />
+    </Assembly>
+    <Assembly name="BookScaled" assemblyId="fabc373dd52e40d18ed0046084712d6e">
+        <Part name="BookScaled" translation="0 0 0" rotation="AD: 0 0 1 0" />
+        <EntryPoint name="(none)" trained="yes" />
+    </Assembly>
+    <ModelTargetDatabase mtDBid="a4fc8007322046968fca566be05506f5" name="Testers" toolVersion="v7.3.1" version="36.0" />
+</QCARInfo>
