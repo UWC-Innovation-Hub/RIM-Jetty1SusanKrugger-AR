@@ -26,9 +26,12 @@ EditorBuildSettings:
   - enabled: 0
     path: Assets/Scenes/Templates/3. GestureSwipeInteractions.unity
     guid: df35853bb0804fc43a563dbfa0c4c993
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/VuforiaTest.unity
     guid: 854361d50e4073a48bb3031e1fa03aa8
+  - enabled: 1
+    path: Assets/Scenes/EasyARTest.unity
+    guid: 84039c4ca7467f446802fc9a6c24de34
   m_configObjects:
     EasyAR.Settings: {fileID: 11400000, guid: 310dd62c4e6c4b9469cfe27dcad50f8d, type: 2}
     UnityEditor.XR.ARCore.ARCoreSettings: {fileID: 11400000, guid: 6ee72d15cf39dd748a13eac57397b9af,
