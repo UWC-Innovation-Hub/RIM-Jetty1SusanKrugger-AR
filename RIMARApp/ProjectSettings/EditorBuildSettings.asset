@@ -30,6 +30,7 @@ EditorBuildSettings:
     path: Assets/Scenes/VuforiaTest.unity
     guid: 854361d50e4073a48bb3031e1fa03aa8
   m_configObjects:
+    EasyAR.Settings: {fileID: 11400000, guid: 310dd62c4e6c4b9469cfe27dcad50f8d, type: 2}
     UnityEditor.XR.ARCore.ARCoreSettings: {fileID: 11400000, guid: 6ee72d15cf39dd748a13eac57397b9af,
       type: 2}
     UnityEditor.XR.ARKit.ARKitSettings: {fileID: 11400000, guid: 0465d33c6aee55f44b0237db8b0e0259,
