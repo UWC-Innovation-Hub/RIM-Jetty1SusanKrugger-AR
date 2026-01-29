@@ -1,5 +1,13 @@
 {
   "dependencies": {
+    "com.easyar.sense": {
+      "version": "file:C:/Users/sarai/Downloads/EasyARSenseUnityPlugin_4000.0.1+4885.aaa733e51 (2)/com.easyar.sense-4000.0.1+4885.aaa733e51/package",
+      "depth": 0,
+      "source": "local",
+      "dependencies": {
+        "com.unity.ugui": "1.0.0"
+      }
+    },
     "com.ptc.vuforia.engine": {
       "version": "file:com.ptc.vuforia.engine-11.4.4.tgz",
       "depth": 0,
