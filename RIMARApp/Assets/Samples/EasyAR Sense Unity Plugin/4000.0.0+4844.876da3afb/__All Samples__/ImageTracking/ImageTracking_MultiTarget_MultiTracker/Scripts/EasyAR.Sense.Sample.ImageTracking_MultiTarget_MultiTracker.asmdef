@@ -1,0 +1,22 @@
+{
+	"name": "EasyAR.Sense.Sample.ImageTracking_MultiTarget_MultiTracker",
+	"references": [
+		"EasyAR.Sense",
+		"Unity.InputSystem"
+	],
+	"includePlatforms": [],
+	"excludePlatforms": [],
+	"allowUnsafeCode": true,
+	"overrideReferences": false,
+	"precompiledReferences": [],
+	"autoReferenced": true,
+	"defineConstraints": [],
+	"versionDefines": [
+		{
+			"name": "com.unity.inputsystem",
+			"expression": "",
+			"define": "INPUTSYSTEM_PACKAGE_INSTALLED"
+		}
+	],
+	"noEngineReferences": false
+}

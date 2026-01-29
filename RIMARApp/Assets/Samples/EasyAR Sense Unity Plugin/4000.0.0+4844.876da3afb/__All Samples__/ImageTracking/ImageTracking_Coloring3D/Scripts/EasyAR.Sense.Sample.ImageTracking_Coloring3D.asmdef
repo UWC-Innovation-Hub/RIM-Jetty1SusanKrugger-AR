@@ -1,0 +1,22 @@
+{
+	"name": "EasyAR.Sense.Sample.ImageTracking_Coloring3D",
+	"references": [
+		"EasyAR.Sense",
+		"Unity.InputSystem"
+	],
+	"includePlatforms": [],
+	"excludePlatforms": [],
+	"allowUnsafeCode": false,
+	"overrideReferences": false,
+	"precompiledReferences": [],
+	"autoReferenced": true,
+	"defineConstraints": [],
+	"versionDefines": [
+		{
+			"name": "com.unity.inputsystem",
+			"expression": "",
+			"define": "INPUTSYSTEM_PACKAGE_INSTALLED"
+		}
+	],
+	"noEngineReferences": false
+}

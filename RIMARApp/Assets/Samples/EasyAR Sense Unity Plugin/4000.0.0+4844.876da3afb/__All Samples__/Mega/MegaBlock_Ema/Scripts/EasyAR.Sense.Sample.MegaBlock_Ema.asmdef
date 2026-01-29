@@ -1,0 +1,37 @@
+{
+	"name": "EasyAR.Sense.Sample.MegaBlock_Ema",
+	"references": [
+		"EasyAR.Sense",
+		"EasyAR.Mega.Scene",
+		"EasyAR.Mega.Ema",
+		"EasyAR.Mega.Primitive",
+		"Unity.RenderPipelines.Core.Runtime",
+		"Unity.RenderPipelines.Universal.Runtime",
+		"Unity.InputSystem"
+	],
+	"includePlatforms": [],
+	"excludePlatforms": [],
+	"allowUnsafeCode": false,
+	"overrideReferences": false,
+	"precompiledReferences": [],
+	"autoReferenced": true,
+	"defineConstraints": [],
+	"versionDefines": [
+		{
+			"name": "com.easyar.mega",
+			"expression": "",
+			"define": "EASYAR_ENABLE_MEGA"
+		},
+		{
+			"name": "com.unity.render-pipelines.universal",
+			"expression": "7.0.0",
+			"define": "EASYAR_URP_ENABLE"
+		},
+		{
+			"name": "com.unity.inputsystem",
+			"expression": "",
+			"define": "INPUTSYSTEM_PACKAGE_INSTALLED"
+		}
+	],
+	"noEngineReferences": false
+}

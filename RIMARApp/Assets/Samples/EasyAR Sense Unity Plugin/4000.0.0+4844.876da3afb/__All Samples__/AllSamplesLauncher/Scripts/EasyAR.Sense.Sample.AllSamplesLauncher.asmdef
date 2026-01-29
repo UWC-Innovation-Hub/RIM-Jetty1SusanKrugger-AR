@@ -1,0 +1,28 @@
+{
+	"name": "EasyAR.Sense.Sample.AllSamplesLauncher",
+	"references": [
+		"EasyAR.Sense",
+		"Unity.XR.ARFoundation",
+		"Unity.InputSystem"
+	],
+	"includePlatforms": [],
+	"excludePlatforms": [],
+	"allowUnsafeCode": false,
+	"overrideReferences": false,
+	"precompiledReferences": [],
+	"autoReferenced": true,
+	"defineConstraints": [],
+	"versionDefines": [
+		{
+			"name": "com.unity.xr.arfoundation",
+			"expression": "5.0.0",
+			"define": "ENABLE_ARFOUNDATION"
+		},
+		{
+			"name": "com.unity.inputsystem",
+			"expression": "",
+			"define": "INPUTSYSTEM_PACKAGE_INSTALLED"
+		}
+	],
+	"noEngineReferences": false
+}

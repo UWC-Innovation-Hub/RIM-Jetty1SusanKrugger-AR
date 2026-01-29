@@ -1,5 +1,6 @@
 {
-    "dependencies": {
+  "dependencies": {
+    "com.easyar.sense": "file:C:/Users/sarai/Downloads/EasyARSenseUnityPlugin_4000.0.0+4844.876da3afb/com.easyar.sense-4000.0.0+4844.876da3afb/package",
     "com.ptc.vuforia.engine": "file:com.ptc.vuforia.engine-11.4.4.tgz",
     "com.unity.collab-proxy": "2.9.3",
     "com.unity.feature.development": "1.0.2",

@@ -1,0 +1,28 @@
+{
+	"name": "EasyAR.Sense.Sample.MegaBlock_Basic",
+	"references": [
+		"EasyAR.Sense",
+		"EasyAR.Mega.Scene",
+		"Unity.InputSystem"
+	],
+	"includePlatforms": [],
+	"excludePlatforms": [],
+	"allowUnsafeCode": false,
+	"overrideReferences": false,
+	"precompiledReferences": [],
+	"autoReferenced": true,
+	"defineConstraints": [],
+	"versionDefines": [
+		{
+			"name": "com.easyar.mega",
+			"expression": "",
+			"define": "EASYAR_ENABLE_MEGA"
+		},
+		{
+			"name": "com.unity.inputsystem",
+			"expression": "",
+			"define": "INPUTSYSTEM_PACKAGE_INSTALLED"
+		}
+	],
+	"noEngineReferences": false
+}

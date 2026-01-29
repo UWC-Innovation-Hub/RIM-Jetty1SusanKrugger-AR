@@ -1,0 +1,43 @@
+{
+	"name": "EasyAR.Sense.Sample.Combination_BasedOn_MotionTracking",
+	"references": [
+		"EasyAR.Sense",
+		"Unity.XR.CoreUtils",
+		"Unity.InputSystem"
+	],
+	"includePlatforms": [],
+	"excludePlatforms": [],
+	"allowUnsafeCode": false,
+	"overrideReferences": false,
+	"precompiledReferences": [],
+	"autoReferenced": true,
+	"defineConstraints": [],
+	"versionDefines": [
+		{
+			"name": "com.unity.xr.arfoundation",
+			"expression": "5.0.0",
+			"define": "ENABLE_ARFOUNDATION"
+		},
+		{
+			"name": "com.unity.xr.arcore",
+			"expression": "",
+			"define": "ENABLE_ARFOUNDATION_ARCORE"
+		},
+		{
+			"name": "com.unity.xr.arkit",
+			"expression": "",
+			"define": "ENABLE_ARFOUNDATION_ARKIT"
+		},
+		{
+			"name": "com.easyar.mega",
+			"expression": "",
+			"define": "EASYAR_ENABLE_MEGA"
+		},
+		{
+			"name": "com.unity.inputsystem",
+			"expression": "",
+			"define": "INPUTSYSTEM_PACKAGE_INSTALLED"
+		}
+	],
+	"noEngineReferences": false
+}

@@ -1,0 +1,30 @@
+{
+	"name": "EasyAR.Sense.Sample.MotionTracking_DeviceMotionAndPlaneDetection",
+	"references": [
+		"EasyAR.Sense",
+		"Unity.XR.CoreUtils",
+		"Unity.XR.ARFoundation",
+		"Unity.XR.ARSubsystems",
+		"Unity.InputSystem"
+	],
+	"includePlatforms": [],
+	"excludePlatforms": [],
+	"allowUnsafeCode": false,
+	"overrideReferences": false,
+	"precompiledReferences": [],
+	"autoReferenced": true,
+	"defineConstraints": [],
+	"versionDefines": [
+		{
+			"name": "com.unity.xr.arfoundation",
+			"expression": "5.0.0",
+			"define": "ENABLE_ARFOUNDATION"
+		},
+		{
+			"name": "com.unity.inputsystem",
+			"expression": "",
+			"define": "INPUTSYSTEM_PACKAGE_INSTALLED"
+		}
+	],
+	"noEngineReferences": false
+}

@@ -1,0 +1,220 @@
+﻿//================================================================================================================================
+//
+//  Copyright (c) 2015-2025 VisionStar Information Technology (Shanghai) Co., Ltd. All Rights Reserved.
+//  EasyAR is the registered trademark or trademark of VisionStar Information Technology (Shanghai) Co., Ltd in China
+//  and other countries for the augmented reality technology developed by VisionStar Information Technology (Shanghai) Co., Ltd.
+//
+//================================================================================================================================
+
+using easyar;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using UnityEngine;
+
+namespace ImageTracking_ImageTarget
+{
+    public class ImageTrackingSample : MonoBehaviour
+    {
+        public ARSession Session;
+        public List<Texture2D> TargetTextures;
+        public GameObject Panda;
+
+        private List<ImageTargetController> targets = new List<ImageTargetController>();
+        private ImageTrackerFrameFilter imageTracker;
+        private CameraDeviceFrameSource cameraDevice;
+
+#if UNITY_EDITOR
+        private static readonly string[] streamingAssetsFiles = new string[] {
+            "EasyARSamples/ImageTargets/idback.etd",
+            "EasyARSamples/ImageTargets/namecard.jpg",
+        };
+
+        [UnityEditor.InitializeOnLoadMethod]
+        public static void ImportSampleStreamingAssets()
+        {
+            var pacakge = $"Packages/{UnityPackage.Name}/Samples~/StreamingAssets/ImageTargets/ImageTargets.unitypackage";
+
+            if (streamingAssetsFiles.Where(f => !File.Exists(Path.Combine(Application.streamingAssetsPath, f))).Any() && File.Exists(Path.GetFullPath(pacakge)))
+            {
+                UnityEditor.AssetDatabase.ImportPackage(pacakge, false);
+            }
+        }
+#endif
+
+        private void Awake()
+        {
+            AdaptInputSystem();
+            imageTracker = Session.GetComponentInChildren<ImageTrackerFrameFilter>();
+            cameraDevice = Session.GetComponentInChildren<CameraDeviceFrameSource>();
+
+            // targets from scene
+            foreach (var controller in
+#if UNITY_2022_3_OR_NEWER
+                GameObject.FindObjectsByType<ImageTargetController>(FindObjectsSortMode.None)
+#else
+                GameObject.FindObjectsOfType<ImageTargetController>()
+#endif
+                )
+            {
+                targets.Add(controller);
+                HandleTargetEvents(controller);
+                if (!Session.SpecificTargetCenter)
+                {
+                    Session.SpecificTargetCenter = controller.gameObject;
+                }
+            }
+
+            HandleTrackerEvents(imageTracker);
+            CreateTargets();
+        }
+
+        public void Tracking(bool on)
+        {
+            imageTracker.enabled = on;
+        }
+
+        public void UnloadTargets()
+        {
+            foreach (var target in targets)
+            {
+                target.Tracker = null;
+            }
+        }
+
+        public void LoadTargets()
+        {
+            foreach (var target in targets)
+            {
+                target.Tracker = imageTracker;
+            }
+        }
+
+        public void SwitchCenterMode()
+        {
+            if (Session.AvailableCenterMode.Count == 0) { return; }
+            while (true)
+            {
+                Session.CenterMode = (ARSession.ARCenterMode)(((int)Session.CenterMode + 1) % Enum.GetValues(typeof(ARSession.ARCenterMode)).Length);
+                if (Session.AvailableCenterMode.Contains(Session.CenterMode)) { break; }
+            }
+        }
+
+        public void EnableCamera(bool enable)
+        {
+            cameraDevice.enabled = enable;
+        }
+
+        public void SwitchHFlipMode()
+        {
+            Session.HorizontalFlip.FrontCamera = (ARSession.ARHorizontalFlipMode)(((int)Session.HorizontalFlip.FrontCamera + 1) % Enum.GetValues(typeof(ARSession.ARHorizontalFlipMode)).Length);
+            Session.HorizontalFlip.BackCamera = (ARSession.ARHorizontalFlipMode)(((int)Session.HorizontalFlip.BackCamera + 1) % Enum.GetValues(typeof(ARSession.ARHorizontalFlipMode)).Length);
+        }
+
+        public void NextCamera()
+        {
+            if (!cameraDevice || !cameraDevice.Opened) { return; }
+            if (CameraDeviceFrameSource.CameraCount == 0)
+            {
+                cameraDevice.Close();
+                return;
+            }
+
+            var index = cameraDevice.Index;
+            index = (index + 1) % CameraDeviceFrameSource.CameraCount;
+            cameraDevice.CameraOpenMethod = CameraDeviceFrameSource.CameraDeviceOpenMethod.DeviceIndex;
+            cameraDevice.CameraOpenIndex = index;
+
+            cameraDevice.Close();
+            cameraDevice.Open();
+        }
+
+        private void CreateTargets()
+        {
+            // dynamically load from StreamingAssets file (*.jpg, *.png, *.etd)
+            var targetController = CreateTargetNode("ImageTarget-idback");
+            targetController.Tracker = imageTracker;
+            targetController.Source = new ImageTargetController.TargetDataFileSourceData
+            {
+                PathType = PathType.StreamingAssets,
+                Path = "EasyARSamples/ImageTargets/idback.etd",
+            };
+
+            var panda = Instantiate(Panda);
+            panda.transform.parent = targetController.gameObject.transform;
+
+            // dynamically load from Texture2D
+            foreach (var texture in TargetTextures)
+            {
+                targetController = CreateTargetNode("ImageTarget-" + texture.name);
+                targetController.Tracker = imageTracker;
+                targetController.Source = new ImageTargetController.Texture2DSourceData
+                {
+                    Texture = texture,
+                    Name = texture.name,
+                    Scale = 0.1f,
+                };
+
+                var panda2 = Instantiate(Panda);
+                panda2.transform.parent = targetController.gameObject.transform;
+            }
+        }
+
+        private ImageTargetController CreateTargetNode(string targetName)
+        {
+            GameObject go = new GameObject(targetName);
+            var targetController = go.AddComponent<ImageTargetController>();
+            HandleTargetEvents(targetController);
+            targets.Add(targetController);
+            return targetController;
+        }
+
+        private void HandleTargetEvents(ImageTargetController controller)
+        {
+            controller.TargetDataLoad += (status) =>
+            {
+                Debug.Log($"Load data from {controller.Source.GetType()} resource into target {(controller.Target == null ? string.Empty : $"{{id = {controller.Target.runtimeID()}, name = {controller.Target.name()}}} ")}=> {status}");
+            };
+            controller.TargetFound += () =>
+            {
+                Debug.Log($"Found target {{id = {controller.Target.runtimeID()}, name = {controller.Target.name()}}}");
+            };
+            controller.TargetLost += () =>
+            {
+                if (!controller) { return; }
+                Debug.Log($"Lost target {{id = {controller.Target.runtimeID()}, name = {controller.Target.name()}}}");
+            };
+        }
+
+        private void HandleTrackerEvents(ImageTrackerFrameFilter tracker)
+        {
+            tracker.TargetLoad += (controller, status) =>
+            {
+                if (!controller) { return; }
+                Debug.Log($"Load target {{id = {controller.Target.runtimeID()}, name = {controller.Target.name()}, size = {controller.Size}}} into {tracker.name} => {status}");
+            };
+            tracker.TargetUnload += (controller, status) =>
+            {
+                if (!controller) { return; }
+                Debug.Log($"Unload target {{id = {controller.Target.runtimeID()}, name = {controller.Target.name()}}} from {tracker.name} => {status}");
+            };
+        }
+
+        private void AdaptInputSystem()
+        {
+            if (!UnityEngine.EventSystems.EventSystem.current) { return; }
+#if ENABLE_INPUT_SYSTEM && INPUTSYSTEM_PACKAGE_INSTALLED
+#if ENABLE_LEGACY_INPUT_MANAGER
+            var inputMD = typeof(UnityEngine.InputSystem.UI.InputSystemUIInputModule);
+            var inputM = typeof(UnityEngine.EventSystems.StandaloneInputModule);
+#else
+            var inputMD = typeof(UnityEngine.EventSystems.StandaloneInputModule);
+            var inputM = typeof(UnityEngine.InputSystem.UI.InputSystemUIInputModule);
+#endif
+            if (UnityEngine.EventSystems.EventSystem.current.GetComponent(inputMD)) { Destroy(UnityEngine.EventSystems.EventSystem.current.GetComponent(inputMD)); }
+            if (!UnityEngine.EventSystems.EventSystem.current.GetComponent(inputM)) { UnityEngine.EventSystems.EventSystem.current.gameObject.AddComponent(inputM); }
+#endif
+        }
+    }
+}
