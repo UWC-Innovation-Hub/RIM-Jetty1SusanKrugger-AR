@@ -701,6 +701,7 @@ PlayerSettings:
   webWasm2023: 0
   webEnableSubmoduleStrippingCompatibility: 0
   scriptingDefineSymbols:
+    Android: EASYAR_DISABLE_ARFOUNDATION
     Standalone: EASYAR_DISABLE_ARFOUNDATION
     iPhone: UNITY_XR_ARKIT_LOADER_ENABLED
   additionalCompilerArguments: {}
