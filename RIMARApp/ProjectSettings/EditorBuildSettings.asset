@@ -26,9 +26,15 @@ EditorBuildSettings:
   - enabled: 0
     path: Assets/Scenes/Templates/3. GestureSwipeInteractions.unity
     guid: df35853bb0804fc43a563dbfa0c4c993
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/VuforiaTest.unity
     guid: 854361d50e4073a48bb3031e1fa03aa8
+  - enabled: 0
+    path: Assets/Scenes/CC_AR-Interactions.unity
+    guid: 6c9a24b9cda0a8f448f94ecd419c991e
+  - enabled: 1
+    path: Assets/Scenes/CC_AR-Interactions1.unity
+    guid: 881c062095d313f4797c918175b9d996
   m_configObjects:
     UnityEditor.XR.ARCore.ARCoreSettings: {fileID: 11400000, guid: 6ee72d15cf39dd748a13eac57397b9af,
       type: 2}
