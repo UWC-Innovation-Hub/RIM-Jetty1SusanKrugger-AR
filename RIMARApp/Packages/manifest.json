@@ -1,6 +1,5 @@
 {
   "dependencies": {
-    "com.easyar.sense": "file:C:/Users/sarai/Downloads/EasyARSenseUnityPlugin_4000.0.1+4885.aaa733e51 (2)/com.easyar.sense-4000.0.1+4885.aaa733e51/package",
     "com.unity.collab-proxy": "2.9.3",
     "com.unity.feature.development": "1.0.2",
     "com.unity.inputsystem": "1.14.2",
@@ -13,6 +12,7 @@
     "com.unity.xr.arkit": "6.2.0",
     "com.unity.xr.interaction.toolkit": "3.2.2",
     "com.unity.xr.management": "4.5.4",
+    "com.unity.xr.openxr": "1.15.1",
     "com.unity.modules.accessibility": "1.0.0",
     "com.unity.modules.ai": "1.0.0",
     "com.unity.modules.androidjni": "1.0.0",
