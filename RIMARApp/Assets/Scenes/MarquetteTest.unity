@@ -711,7 +711,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 616978326}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: deafb1e260aedff438cb894d949a273a, type: 3}
   m_Name: 
@@ -803,7 +803,8 @@ MonoBehaviour:
   m_SerializedLibrary: {fileID: 11400000, guid: 81afb9bf8a21df3408a76dfb9183ed03,
     type: 2}
   m_MaxNumberOfMovingImages: 30
-  m_TrackedImagePrefab: {fileID: 0}
+  m_TrackedImagePrefab: {fileID: 5398057272220340603, guid: ec5b0baf26cc3f54da0f12a7b81dc1d5,
+    type: 3}
 --- !u!114 &616978329
 MonoBehaviour:
   m_ObjectHideFlags: 0
