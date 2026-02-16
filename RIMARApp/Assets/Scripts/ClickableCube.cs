@@ -84,11 +84,9 @@ public class ClickableCube : MonoBehaviour
         
         spawnedObject = Instantiate(objectToSpawn, spawnPosition, Quaternion.identity);
         
-        // Only apply spawnScale if it's different from 1, otherwise keep prefab's scale
-        if (spawnScale != 1f)
-        {
-            spawnedObject.transform.localScale = objectToSpawn.transform.localScale * spawnScale;
-        }
+        // ALWAYS apply the prefab's scale multiplied by spawnScale
+        Vector3 prefabScale = objectToSpawn.transform.localScale;
+        spawnedObject.transform.localScale = prefabScale * spawnScale;
         
         spawnedObject.name = $"{objectToSpawn.name}_SpawnedBy_{gameObject.name}";
         
@@ -99,7 +97,7 @@ public class ClickableCube : MonoBehaviour
             cubeMaterial.color = selectedColor;
         }
         
-        Debug.Log($"Spawned {spawnedObject.name} at position {spawnPosition}");
+        Debug.Log($"Spawned {spawnedObject.name} at position {spawnPosition} with scale {spawnedObject.transform.localScale}");
     }
 
     private void CreateDefaultObject()
