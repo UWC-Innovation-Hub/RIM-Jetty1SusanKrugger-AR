@@ -1,0 +1,59 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 848409ee8ba454f42a5ddff137688a27, type: 3}
+  m_Name: QRColors_ReferenceImageLibrary
+  m_EditorClassIdentifier: Unity.XR.ARSubsystems::UnityEngine.XR.ARSubsystems.XRReferenceImageLibrary
+  m_GuidLow: 4829964988016753792
+  m_GuidHigh: 14258245653533728182
+  m_DataStore:
+    m_Storage: []
+  m_Images:
+  - m_SerializedGuid:
+      m_GuidLow: 5719530261550015874
+      m_GuidHigh: 18040534910580695182
+    m_SerializedTextureGuid:
+      m_GuidLow: 14939665379732452826
+      m_GuidHigh: 4273292293521421400
+    m_Size: {x: 0.025, y: 0.025}
+    m_SpecifySize: 1
+    m_Name: QR_TopLeft
+    m_Texture: {fileID: 0}
+  - m_SerializedGuid:
+      m_GuidLow: 5630933487845872865
+      m_GuidHigh: 1206734717588080279
+    m_SerializedTextureGuid:
+      m_GuidLow: 8031126586629693449
+      m_GuidHigh: 17021826973478062153
+    m_Size: {x: 0.025, y: 0.025}
+    m_SpecifySize: 1
+    m_Name: QR_TopRight
+    m_Texture: {fileID: 0}
+  - m_SerializedGuid:
+      m_GuidLow: 4616338505970220606
+      m_GuidHigh: 9881833754362499229
+    m_SerializedTextureGuid:
+      m_GuidLow: 15574594502609546176
+      m_GuidHigh: 183092929987762954
+    m_Size: {x: 0.025, y: 0.025}
+    m_SpecifySize: 1
+    m_Name: QR_BottomLeft
+    m_Texture: {fileID: 0}
+  - m_SerializedGuid:
+      m_GuidLow: 4932655825123057825
+      m_GuidHigh: 13815402558061602199
+    m_SerializedTextureGuid:
+      m_GuidLow: 17975141918953195313
+      m_GuidHigh: 8273638575213531738
+    m_Size: {x: 0.025, y: 0.025}
+    m_SpecifySize: 1
+    m_Name: QR_BottomRight
+    m_Texture: {fileID: 0}
