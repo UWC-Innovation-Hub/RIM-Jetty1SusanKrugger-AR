@@ -1,0 +1,116 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7382a53fffa55e54e8b57aedcec740a9, type: 3}
+  m_Name: ExampleGridLayout
+  m_EditorClassIdentifier: Assembly-CSharp::GridContentLayout
+  qrCodeIdentifier: GridPattern
+  layoutName: Colorful Grid Pattern
+  placedObjects:
+  - gridX: 10
+    gridZ: 10
+    prefab: {fileID: 4333436206527766339, guid: 230c48fd191a9664081b9ad877b5bee8,
+      type: 3}
+    heightOffset: 0.04
+    rotationY: 0
+  - gridX: 11
+    gridZ: 10
+    prefab: {fileID: 1313312176119766729, guid: d326b5f98f0de9945ad74e296df5d7fc,
+      type: 3}
+    heightOffset: 0.05
+    rotationY: 0
+  - gridX: 9
+    gridZ: 10
+    prefab: {fileID: 8524622045893147838, guid: e1a4990cf47d22f4889a6096683fd2ae,
+      type: 3}
+    heightOffset: 0.1
+    rotationY: 0
+  - gridX: 10
+    gridZ: 11
+    prefab: {fileID: 4071267629114117427, guid: a1d1e0217a10ff1489ac43bbff48dcd1,
+      type: 3}
+    heightOffset: 0.08
+    rotationY: 45
+  - gridX: 11
+    gridZ: 11
+    prefab: {fileID: 207834650645645959, guid: 53e859d18b0e23641b80a44fd4d37783, type: 3}
+    heightOffset: 0.03
+    rotationY: 30
+  - gridX: 9
+    gridZ: 11
+    prefab: {fileID: 1053450082764108919, guid: 13ad11b62ce17634883ac20dd80f5cc0,
+      type: 3}
+    heightOffset: 0.04
+    rotationY: 0
+  - gridX: 10
+    gridZ: 9
+    prefab: {fileID: 359197133177624091, guid: 6b2b0d5efc03a2245bcdc2823dde0c45, type: 3}
+    heightOffset: 0.12
+    rotationY: 0
+  - gridX: 11
+    gridZ: 9
+    prefab: {fileID: 7253648631472251614, guid: 408a900ac69480e4a85659e41d1188a0,
+      type: 3}
+    heightOffset: 0.1
+    rotationY: 60
+  - gridX: 9
+    gridZ: 9
+    prefab: {fileID: 4333436206527766339, guid: 230c48fd191a9664081b9ad877b5bee8,
+      type: 3}
+    heightOffset: 0.04
+    rotationY: 45
+  - gridX: 8
+    gridZ: 12
+    prefab: {fileID: 1313312176119766729, guid: d326b5f98f0de9945ad74e296df5d7fc,
+      type: 3}
+    heightOffset: 0.05
+    rotationY: 0
+  - gridX: 12
+    gridZ: 12
+    prefab: {fileID: 8524622045893147838, guid: e1a4990cf47d22f4889a6096683fd2ae,
+      type: 3}
+    heightOffset: 0.1
+    rotationY: 0
+  - gridX: 8
+    gridZ: 8
+    prefab: {fileID: 4071267629114117427, guid: a1d1e0217a10ff1489ac43bbff48dcd1,
+      type: 3}
+    heightOffset: 0.08
+    rotationY: 90
+  - gridX: 12
+    gridZ: 8
+    prefab: {fileID: 207834650645645959, guid: 53e859d18b0e23641b80a44fd4d37783, type: 3}
+    heightOffset: 0.03
+    rotationY: 15
+  - gridX: 10
+    gridZ: 12
+    prefab: {fileID: 1053450082764108919, guid: 13ad11b62ce17634883ac20dd80f5cc0,
+      type: 3}
+    heightOffset: 0.04
+    rotationY: 0
+  - gridX: 10
+    gridZ: 8
+    prefab: {fileID: 359197133177624091, guid: 6b2b0d5efc03a2245bcdc2823dde0c45, type: 3}
+    heightOffset: 0.12
+    rotationY: 0
+  - gridX: 8
+    gridZ: 10
+    prefab: {fileID: 7253648631472251614, guid: 408a900ac69480e4a85659e41d1188a0,
+      type: 3}
+    heightOffset: 0.1
+    rotationY: 0
+  - gridX: 12
+    gridZ: 10
+    prefab: {fileID: 4333436206527766339, guid: 230c48fd191a9664081b9ad877b5bee8,
+      type: 3}
+    heightOffset: 0.04
+    rotationY: 60
+  description: A pattern of colorful 3D shapes arranged on the grid

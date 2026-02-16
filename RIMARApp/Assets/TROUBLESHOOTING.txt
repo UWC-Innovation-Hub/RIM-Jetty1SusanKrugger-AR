@@ -1,0 +1,161 @@
+========================================
+CLICKABLE CUBES TROUBLESHOOTING GUIDE
+========================================
+
+I've added a diagnostic tool to help identify issues!
+
+STEP 1: RUN DIAGNOSTIC TEST
+---------------------------
+
+1. Enter Play Mode
+2. Click anywhere in the Game view
+3. Check Console for diagnostic output:
+
+Expected Output:
+   ✓ Camera: Main Camera
+   ✓ Ray Origin: (x, y, z)
+   ✓ Ray Direction: (x, y, z)
+   ✓ HIT OBJECT: A1 (or whichever cube)
+   ✓ Has ClickableCube component!
+   ✓ BoxCollider enabled: True
+
+COMMON ISSUES & SOLUTIONS
+-------------------------
+
+ISSUE 1: "Raycast hit nothing!"
+   Problem: Camera can't see the cubes
+   Solutions:
+   ✓ Adjust Scene camera to see GridRoot in Scene view
+   ✓ Check GridRoot is active (checkbox enabled)
+   ✓ Position camera to face the grid
+   ✓ GridRoot might be behind camera
+
+ISSUE 2: "NO ClickableCube component"
+   Problem: Component missing from cube
+   Solutions:
+   ✓ Select GridClickManager
+   ✓ Right-click component → "Setup All Cubes"
+   ✓ Or I can add them programmatically
+
+ISSUE 3: Objects spawn but wrong size/position
+   Problem: Scale or offset incorrect
+   Solutions:
+   ✓ Check ExampleSpawnObject prefab scale (should be 0.018)
+   ✓ Check ClickableCube spawn offset (should be 0.01)
+   ✓ Verify spawn scale = 1
+
+ISSUE 4: Click detected but nothing happens
+   Problem: ARTouchHandler not triggering ClickableCube
+   Solutions:
+   ✓ Verify ARTouchHandler has Main Camera assigned
+   ✓ Check ARTouchHandler is enabled
+   ✓ Ensure ClickableCube script has no errors
+
+ISSUE 5: Works in Editor but not on device
+   Problem: AR-specific setup needed
+   Solutions:
+   ✓ ARTouchHandler uses different input for device
+   ✓ Ensure GridRoot is child of tracked image
+   ✓ Grid must be visible in AR to be clickable
+
+MANUAL VERIFICATION CHECKLIST
+-----------------------------
+
+□ ARTouchHandler exists in scene
+□ ARTouchHandler has Main Camera assigned
+□ GridClickManager exists in scene
+□ GridClickManager has GridRoot assigned
+□ GridClickManager has ExampleSpawnObject assigned
+□ All 25 cubes have ClickableCube component
+□ All cubes have BoxCollider component
+□ ExampleSpawnObject prefab scale = 0.018
+□ Spawn offset = (0, 0.01, 0)
+□ GridRoot is active and visible
+□ No console errors
+
+QUICK FIXES
+-----------
+
+Fix 1: Reset Everything
+   1. Select all cubes (A1-E5)
+   2. Remove ClickableCube component
+   3. Select GridClickManager
+   4. Right-click → "Setup All Cubes"
+
+Fix 2: Test Single Cube
+   1. Select cube A1
+   2. Manually click to test
+   3. Watch Console for errors
+   4. Should spawn sphere
+
+Fix 3: Verify Camera View
+   1. Select Main Camera
+   2. GameObject menu → Align View to Selected
+   3. Check if cubes are visible
+
+DIAGNOSTIC TOOL USAGE
+---------------------
+
+The ClickDiagnostic GameObject provides detailed info:
+
+In Play Mode:
+   - Click anywhere
+   - Console shows full raycast details
+   - Identifies what was hit
+   - Shows if ClickableCube exists
+
+Remove when done:
+   - Delete ClickDiagnostic GameObject
+   - Or disable component
+
+TESTING STEPS
+-------------
+
+Test 1: Editor Click (Mouse)
+   1. Play Mode
+   2. Click cube in Game view
+   3. Should see sphere spawn
+   4. Cube turns green
+
+Test 2: AR Device (Touch)
+   1. Build to device
+   2. Scan QR/image target
+   3. Grid appears in AR
+   4. Tap cube on screen
+   5. Sphere appears
+
+WHAT SHOULD HAPPEN
+-----------------
+
+When you click a cube:
+
+1. ARTouchHandler detects click
+2. Raycasts from camera through click point
+3. Hits cube's BoxCollider
+4. Finds ClickableCube component
+5. Calls OnCubeClicked()
+6. Spawns ExampleSpawnObject
+7. Positions it 0.01 units above cube
+8. Cube material turns green
+9. Console logs success message
+
+CURRENT SETUP STATUS
+-------------------
+
+Your scene has:
+✓ ARTouchHandler (configured)
+✓ GridClickManager (configured)
+✓ 25 cubes with ClickableCube
+✓ BoxColliders on all cubes
+✓ ExampleSpawnObject prefab (scaled to 0.018)
+✓ Spawn offset optimized (0.01)
+
+If it's still not working, please tell me:
+1. What happens when you click?
+2. What error messages appear?
+3. Does diagnostic show anything?
+4. Are you testing in Editor or on device?
+
+========================================
+Need more help? Check the Console!
+========================================

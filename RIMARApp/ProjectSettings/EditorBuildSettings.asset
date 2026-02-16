@@ -32,9 +32,12 @@ EditorBuildSettings:
   - enabled: 0
     path: Assets/Scenes/CC_AR-Interactions.unity
     guid: 6c9a24b9cda0a8f448f94ecd419c991e
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/CC_AR-Interactions1.unity
     guid: 881c062095d313f4797c918175b9d996
+  - enabled: 1
+    path: Assets/Scenes/Grid_AR-Interaction.unity
+    guid: 3edb4244ece19e640b68ed055c70129e
   m_configObjects:
     UnityEditor.XR.ARCore.ARCoreSettings: {fileID: 11400000, guid: 6ee72d15cf39dd748a13eac57397b9af,
       type: 2}

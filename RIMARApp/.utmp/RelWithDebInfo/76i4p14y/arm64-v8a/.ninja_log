@@ -10,3 +10,5 @@
 35	845	7913018847865747	GameActivity/CMakeFiles/game.dir/UGAInput.cpp.o	95d428931fb67a69
 0	923	7913018848623297	GameActivity/CMakeFiles/game.dir/UGAApplication.cpp.o	fc58dda09b192c6a
 923	1009	7913018849503474	C:/Users/ccccupido/Unity/RIM-Jetty1SusanKrugger-AR/RIMARApp/Library/Bee/Android/Prj/IL2CPP/Gradle/unityLibrary/build/intermediates/cxx/RelWithDebInfo/76i4p14y/obj/arm64-v8a/libgame.so	5432d426f087ee9
+5	1216	7929337519169120	FramePacing/CMakeFiles/swappywrapper.dir/UnitySwappyWrapper.cpp.o	e0fbc748746af3e7
+1217	2912	7929337536064247	C:/Users/ccccupido/Unity/RIM-Jetty1SusanKrugger-AR/RIMARApp/Library/Bee/Android/Prj/IL2CPP/Gradle/unityLibrary/build/intermediates/cxx/RelWithDebInfo/76i4p14y/obj/arm64-v8a/libswappywrapper.so	4dbabb0782e89941
