@@ -33,6 +33,8 @@ public class GridSpawner : MonoBehaviour
     {
         foreach (var trackedImage in args.added)
         {
+            Debug.Log($"[GridSpawner] QR Code Detected: {trackedImage.referenceImage.name}");
+            
             if (!gridSpawned)
             {
                 SpawnGridFromCorner(trackedImage);
@@ -46,6 +48,8 @@ public class GridSpawner : MonoBehaviour
     {
         string qrName = trackedImage.referenceImage.name;
 
+        Debug.Log($"[GridSpawner] Starting grid spawn from QR: {qrName}");
+
         int columns = Mathf.RoundToInt(marquetteWidth / cellSize);
         int rows = Mathf.RoundToInt(marquetteHeight /  cellSize);
 
@@ -56,25 +60,33 @@ public class GridSpawner : MonoBehaviour
         Vector3 xDirection = trackedImage.transform.right;
         Vector3 zDirection = trackedImage.transform.forward;
 
-        if (qrName == "QR_TopLeft")
+        if (qrName == "QR_TopLeft" || qrName.Contains("TopLeft") || qrName.Contains("RED"))
         {
             quadrantColor = Color.red;
+            Debug.Log("[GridSpawner] Detected TopLeft (RED) corner");
         }
-        else if (qrName == "QR_TopRight")
+        else if (qrName == "QR_TopRight" || qrName.Contains("TopRight") || qrName.Contains("GREEN"))
         {
             quadrantColor = Color.green;
             xDirection = -xDirection;
+            Debug.Log("[GridSpawner] Detected TopRight (GREEN) corner");
         }
-        else if (qrName == "QR_BottomLeft")
+        else if (qrName == "QR_BottomLeft" || qrName.Contains("BottomLeft") || qrName.Contains("BLUE"))
         {
             quadrantColor = Color.blue;
             zDirection = -zDirection;
+            Debug.Log("[GridSpawner] Detected BottomLeft (BLUE) corner");
         }
-        else if (qrName == "QR_BottomRight")
+        else if (qrName == "QR_BottomRight" || qrName.Contains("BottomRight") || qrName.Contains("YELLOW"))
         {
             quadrantColor = Color.yellow;
             xDirection = -xDirection;
             zDirection = -zDirection;
+            Debug.Log("[GridSpawner] Detected BottomRight (YELLOW) corner");
+        }
+        else
+        {
+            Debug.LogWarning($"[GridSpawner] Unknown QR code name: {qrName}. Using default white color.");
         }
 
         for (int x = 0; x < columns; x++)
@@ -96,5 +108,7 @@ public class GridSpawner : MonoBehaviour
                 }
             }
         }
+        
+        Debug.Log($"[GridSpawner] Grid spawned! {columns}x{rows} = {columns * rows} cubes");
     }
 }
