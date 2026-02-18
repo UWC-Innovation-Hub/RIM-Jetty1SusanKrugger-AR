@@ -587,6 +587,7 @@ MonoBehaviour:
   marquetteHeight: 0.75
   cellSize: 0.025
   cubeHeight: 0.002
+  qrSize: 0.025
 --- !u!1 &1356938700
 GameObject:
   m_ObjectHideFlags: 0
