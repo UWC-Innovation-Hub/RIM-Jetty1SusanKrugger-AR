@@ -583,6 +583,10 @@ MonoBehaviour:
   imageManager: {fileID: 1113721260}
   cubePrefab: {fileID: 87318543940164220, guid: 5db131787ba021146a8fe71664307c09,
     type: 3}
+  marquetteWidth: 1.5
+  marquetteHeight: 0.75
+  cellSize: 0.025
+  cubeHeight: 0.002
 --- !u!1 &1356938700
 GameObject:
   m_ObjectHideFlags: 0

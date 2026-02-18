@@ -6,30 +6,31 @@ using System.Collections.Generic;
 
 public class GridSpawner : MonoBehaviour
 {
-    public ARTrackedImageManager imageManager;
+    [SerializeField] private ARTrackedImageManager imageManager;
 
     public GameObject cubePrefab;
 
-    private float marquetteWidth = 2f; // 2 meters
-    private float marquetteHeight = 1f; // 1 meter
-    private float cellSize = 0.025f; // 2.5cm
+    [SerializeField] private float marquetteWidth; // 2 meters
+    [SerializeField] private float marquetteHeight; // 1 meter
+    [SerializeField] private float cellSize; // 2.5cm
+    [SerializeField] private float cubeHeight; // 0.002f
 
     private bool gridSpawned = false;
 
 
     private void OnEnable()
     {
-        imageManager.trackedImagesChanged += OnTrackedImagesChanged;
+        imageManager.trackablesChanged.AddListener(OnTrackedImagesChanged);
     }
 
 
     private void OnDisable()
     {
-        imageManager.trackedImagesChanged -= OnTrackedImagesChanged;
+        imageManager.trackablesChanged.RemoveListener(OnTrackedImagesChanged);
     }
 
 
-    private void OnTrackedImagesChanged(ARTrackedImagesChangedEventArgs args)
+    private void OnTrackedImagesChanged(ARTrackablesChangedEventArgs<ARTrackedImage> args)
     {
         foreach (var trackedImage in args.added)
         {
@@ -88,7 +89,7 @@ public class GridSpawner : MonoBehaviour
 
                 GameObject cube = Instantiate(cubePrefab, spawnPosition, Quaternion.identity);
 
-                cube.transform.localScale = new Vector3(cellSize, 0.002f, cellSize);
+                cube.transform.localScale = new Vector3(cellSize, cubeHeight, cellSize);
 
                 if (x < columns / 2 && z < rows / 2)
                 {
