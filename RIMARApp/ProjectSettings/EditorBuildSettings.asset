@@ -38,9 +38,15 @@ EditorBuildSettings:
   - enabled: 0
     path: Assets/Scenes/Grid_AR-Interaction.unity
     guid: 3edb4244ece19e640b68ed055c70129e
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/AR_Cell_Interaction.unity
     guid: 4b40493e159be7a40a529e28c3fa061a
+  - enabled: 0
+    path: Assets/Scenes/AR_Cell_InteractionV1.unity
+    guid: c03388ff2bb98b545a15132d1732e86a
+  - enabled: 1
+    path: Assets/Scenes/PlaneDetection.unity
+    guid: f0b833bbc2b6a714d80d051f55b9ea93
   m_configObjects:
     UnityEditor.XR.ARCore.ARCoreSettings: {fileID: 11400000, guid: 6ee72d15cf39dd748a13eac57397b9af,
       type: 2}
