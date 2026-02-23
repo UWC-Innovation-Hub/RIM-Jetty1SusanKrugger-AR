@@ -583,11 +583,103 @@ MonoBehaviour:
   imageManager: {fileID: 1113721260}
   cubePrefab: {fileID: 87318543940164220, guid: 5db131787ba021146a8fe71664307c09,
     type: 3}
+  locationMarkerPrefab: {fileID: 0}
   marquetteWidth: 2.55
   marquetteHeight: 1.62
   cellSize: 0.025
   cubeHeight: 0.002
   qrSize: 0.025
+  locations:
+  - locationNames: 
+    x_cm: 0
+    z_cm: 0
+  - locationNames: 
+    x_cm: 0
+    z_cm: 0
+  - locationNames: 
+    x_cm: 0
+    z_cm: 0
+  - locationNames: 
+    x_cm: 0
+    z_cm: 0
+  - locationNames: 
+    x_cm: 0
+    z_cm: 0
+  - locationNames: 
+    x_cm: 0
+    z_cm: 0
+  - locationNames: 
+    x_cm: 0
+    z_cm: 0
+  - locationNames: 
+    x_cm: 0
+    z_cm: 0
+  - locationNames: 
+    x_cm: 0
+    z_cm: 0
+  - locationNames: 
+    x_cm: 0
+    z_cm: 0
+  - locationNames: 
+    x_cm: 0
+    z_cm: 0
+  - locationNames: 
+    x_cm: 0
+    z_cm: 0
+  - locationNames: 
+    x_cm: 0
+    z_cm: 0
+  - locationNames: 
+    x_cm: 0
+    z_cm: 0
+  - locationNames: 
+    x_cm: 0
+    z_cm: 0
+  - locationNames: 
+    x_cm: 0
+    z_cm: 0
+  - locationNames: 
+    x_cm: 0
+    z_cm: 0
+  - locationNames: 
+    x_cm: 0
+    z_cm: 0
+  - locationNames: 
+    x_cm: 0
+    z_cm: 0
+  - locationNames: 
+    x_cm: 0
+    z_cm: 0
+  - locationNames: 
+    x_cm: 0
+    z_cm: 0
+  - locationNames: 
+    x_cm: 0
+    z_cm: 0
+  - locationNames: 
+    x_cm: 0
+    z_cm: 0
+  - locationNames: 
+    x_cm: 0
+    z_cm: 0
+  - locationNames: 
+    x_cm: 0
+    z_cm: 0
+  - locationNames: 
+    x_cm: 0
+    z_cm: 0
+  - locationNames: 
+    x_cm: 0
+    z_cm: 0
+  - locationNames: 
+    x_cm: 0
+    z_cm: 0
+  - locationNames: 
+    x_cm: 0
+    z_cm: 0
+  - locationNames: 
+    x_cm: 0
+    z_cm: 0
 --- !u!1 &1356938700
 GameObject:
   m_ObjectHideFlags: 0

@@ -1,7 +1,8 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.XR.ARFoundation;
 using UnityEngine.XR.ARSubsystems;
-using System.Collections.Generic;
+using static UnityEditor.FilePathAttribute;
 
 
 public class GridSpawner : MonoBehaviour
@@ -9,6 +10,7 @@ public class GridSpawner : MonoBehaviour
     [SerializeField] private ARTrackedImageManager imageManager;
 
     public GameObject cubePrefab;
+    public GameObject locationMarkerPrefab;
 
     [SerializeField] private float marquetteWidth; // 2 meters
     [SerializeField] private float marquetteHeight; // 1 meter
@@ -18,7 +20,18 @@ public class GridSpawner : MonoBehaviour
 
     private GameObject currentGridParent; // parent all the cubes under one object so can delete them easily.
 
-    //private bool gridSpawned = false;
+    private GameObject[,] gridArray;
+
+
+    [System.Serializable]
+    public class LocationPoint
+    {
+        public string locationNames;
+        public float x_cm;
+        public float z_cm;
+    }
+
+    public List<LocationPoint> locations = new List<LocationPoint>();
 
 
     private void OnEnable()
@@ -37,28 +50,27 @@ public class GridSpawner : MonoBehaviour
     {
         foreach (var trackedImage in args.added)
         {
-            SpawnGridFromCorner(trackedImage);
+            SpawnGrid(trackedImage);
         }
     }
 
 
-    void SpawnGridFromCorner(ARTrackedImage trackedImage)
+    void SpawnGrid(ARTrackedImage trackedImage)
     {
         // Delete old grid if exists
         if (currentGridParent != null)
-        {
             Destroy(currentGridParent);
-        }
 
         currentGridParent = new GameObject("GridParent");
 
         int columns = Mathf.RoundToInt(marquetteWidth / cellSize);
         int rows = Mathf.RoundToInt(marquetteHeight /  cellSize);
 
+        gridArray = new GameObject[columns, rows];
+
         float halfQR = qrSize / 2f;
 
         Vector3 qrCenter = trackedImage.transform.position;
-
         Vector3 xDirection = trackedImage.transform.right;
         Vector3 zDirection = trackedImage.transform.forward;
 
@@ -136,10 +148,67 @@ public class GridSpawner : MonoBehaviour
                     cube.GetComponent<Renderer>().material.color = Color.blue;
                 else
                     cube.GetComponent<Renderer>().material.color = Color.yellow;
+
+                gridArray[x, z] = cube;
             }
         }
 
         // Make grid stable by detaching from tracking updates
         currentGridParent.transform.position = currentGridParent.transform.position;
+
+        MapAllLocations();
+    }
+
+
+    void MapAllLocations()
+    {
+        foreach (LocationPoint location in locations)
+        {
+            int xIndex = Mathf.RoundToInt(location.x_cm / 2.5f);
+            int zIndex = Mathf.RoundToInt(location.z_cm / 2.5f);
+
+            if (xIndex >= 0 && xIndex < gridArray.GetLength(0) &&
+                zIndex >= 0 && zIndex < gridArray.GetLength(1))
+            {
+                GameObject cube = gridArray[xIndex, zIndex];
+
+                if (cube != null)
+                {
+                    cube.GetComponent<Renderer>().material.color = Color.magenta;
+
+                    if (locationMarkerPrefab != null)
+                    {
+                        Instantiate(
+                            locationMarkerPrefab,
+                            cube.transform.position + Vector3.up * 0.01f,
+                            Quaternion.identity,
+                            currentGridParent.transform
+                        );
+                    }
+
+                    Debug.Log("Mapped: " + location.locationNames +
+                        " -> Grid (" + xIndex + ", " + zIndex + ")");
+                }
+            }
+            else
+            {
+                Debug.LogWarning("Location out of bounds: " + location.locationNames);
+            }
+        }
+    }
+
+
+    // Optional: Pull full list of cubes
+    public List<GameObject> GetAllCubes()
+    {
+        List<GameObject> cubeList = new List<GameObject>();
+
+        foreach (GameObject cube in gridArray)
+        {
+            if (cube != null)
+                cubeList.Add(cube);
+        }
+
+        return cubeList;
     }
 }
