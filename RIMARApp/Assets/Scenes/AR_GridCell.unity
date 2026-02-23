@@ -370,7 +370,7 @@ GameObject:
   - component: {fileID: 195107525}
   - component: {fileID: 195107524}
   - component: {fileID: 195107523}
-  - component: {fileID: 195107522}
+  - component: {fileID: 195107529}
   m_Layer: 0
   m_Name: XR Origin (Mobile AR)
   m_TagString: Untagged
@@ -378,25 +378,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &195107522
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 195107521}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 77fb8d09b158d25458c24bcd81d70171, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::CellSpawner
-  imageManager: {fileID: 195107523}
-  prefabQR1: {fileID: 6875392605561852314, guid: b572e27739b262142b92fd59e9260040,
-    type: 3}
-  prefabQR2: {fileID: 2593534018341165260, guid: db61f1f9e807b6940b0ea135b5f12595,
-    type: 3}
-  prefabQR3: {fileID: 678618096360275811, guid: 121c16498774fd842b94b5fc2340c2db,
-    type: 3}
 --- !u!114 &195107523
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -496,6 +477,22 @@ Transform:
   - {fileID: 2061458023}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &195107529
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 195107521}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 77fb8d09b158d25458c24bcd81d70171, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CellSpawner
+  imageManager: {fileID: 195107523}
+  gridWidth: 1
+  gridHeight: 1
+  cellSize: 0.1
 --- !u!1 &495555280
 GameObject:
   m_ObjectHideFlags: 0

@@ -5,99 +5,82 @@ using System.Collections.Generic;
 
 public class CellSpawner : MonoBehaviour
 {
+    [Header("AR Components")]
     public ARTrackedImageManager imageManager;
 
-    // Assign different prefabs for each QR code in the inspector
-    public GameObject prefabQR1;
-    public GameObject prefabQR2;
-    public GameObject prefabQR3;
+    [Header("Grid Settings")]
+    public float gridWidth = 2f;   // Width of grid in meters
+    public float gridHeight = 1f;  // Height of grid in meters
+    public float cellSize = 0.05f; // Size of each cube
 
-    private float gridWidth = 2f;    // Width of the grid in meters
-    private float gridHeight = 1f;   // Height of the grid in meters
-    private float cellSize = 0.025f; // 2.5cm
+    [Header("Grid Appearance")]
+    [Range(0f, 1f)] public float alpha = 0.05f; // cube transparency
 
-    // Track which QR codes have already spawned their grid
-    private HashSet<string> spawnedQRs = new HashSet<string>();
+    private HashSet<string> spawnedImages = new HashSet<string>();
 
     private void OnEnable()
     {
-        imageManager.trackedImagesChanged += OnTrackedImagesChanged;
+        imageManager.trackablesChanged.AddListener(OnTrackedImagesChanged);
     }
 
     private void OnDisable()
     {
-        imageManager.trackedImagesChanged -= OnTrackedImagesChanged;
+        imageManager.trackablesChanged.RemoveListener(OnTrackedImagesChanged);
     }
 
-    private void OnTrackedImagesChanged(ARTrackedImagesChangedEventArgs args)
+    private void OnTrackedImagesChanged(ARTrackablesChangedEventArgs<ARTrackedImage> args)
     {
         foreach (var trackedImage in args.added)
         {
-            string qrName = trackedImage.referenceImage.name;
+            string imageName = trackedImage.referenceImage.name;
 
-            if (!spawnedQRs.Contains(qrName))
+            if (!spawnedImages.Contains(imageName))
             {
-                SpawnGridForQR(trackedImage);
-                spawnedQRs.Add(qrName);
+                SpawnGrid(trackedImage);
+                spawnedImages.Add(imageName);
             }
         }
     }
 
-    void SpawnGridForQR(ARTrackedImage trackedImage)
+    private void SpawnGrid(ARTrackedImage trackedImage)
     {
-        string qrName = trackedImage.referenceImage.name;
-        Debug.Log($"[CellSpawner] Spawning grid for QR: {qrName}");
-
         int columns = Mathf.RoundToInt(gridWidth / cellSize);
         int rows = Mathf.RoundToInt(gridHeight / cellSize);
 
-        Vector3 startPosition = trackedImage.transform.position;
-        Vector3 xDirection = trackedImage.transform.right;
-        Vector3 zDirection = trackedImage.transform.forward;
+        Vector3 startPos = Vector3.zero; // World origin
+        Vector3 xDir = Vector3.right;
+        Vector3 zDir = Vector3.forward;
 
-        GameObject selectedPrefab = null;
-
-        // Select prefab/content based on QR name
-        switch (qrName)
-        {
-            case "QR_One":
-                selectedPrefab = prefabQR1;
-                break;
-
-            case "QR_Two":
-                selectedPrefab = prefabQR2;
-                break;
-
-            case "QR_Three":
-                selectedPrefab = prefabQR3;
-                break;
-
-            default:
-                Debug.LogWarning($"[CellSpawner] Unknown QR code: {qrName}, skipping spawn.");
-                return;
-        }
-
-        if (selectedPrefab == null)
-        {
-            Debug.LogWarning($"[CellSpawner] Prefab for {qrName} is not assigned.");
-            return;
-        }
-
-        // Spawn the grid
         for (int x = 0; x < columns; x++)
         {
             for (int z = 0; z < rows; z++)
             {
-                Vector3 spawnPos = startPosition + (xDirection * x * cellSize) + (zDirection * z * cellSize);
+                Vector3 spawnPos =
+                    startPos +
+                    (xDir * x * cellSize) +
+                    (zDir * z * cellSize);
 
-                // Instantiate the selected prefab
-                GameObject obj = Instantiate(selectedPrefab, spawnPos, Quaternion.identity);
+                // Create a thin cube
+                GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                cube.transform.position = spawnPos;
+                cube.transform.localScale = new Vector3(cellSize, 0.002f, cellSize);
+                cube.transform.rotation = Quaternion.identity;
 
-                // Optional: scale objects to fit the grid
-                obj.transform.localScale = new Vector3(cellSize, cellSize, cellSize);
+                // Transparent material
+                Renderer rend = cube.GetComponent<Renderer>();
+                Material mat = new Material(Shader.Find("Universal Render Pipeline/Lit"));
+                mat.color = new Color(1f, 1f, 1f, alpha); // white with low alpha
+                mat.SetFloat("_SurfaceType", 1); // transparent
+                rend.material = mat;
+
+                // Remove collider for performance
+                Destroy(cube.GetComponent<Collider>());
+
+                // Add a script or tag to identify this cube as an anchor
+                cube.tag = "GridCell";
             }
         }
 
-        Debug.Log($"[CellSpawner] Grid spawned for {qrName}: {columns}x{rows} = {columns * rows} objects");
+        Debug.Log($"Grid spawned at world origin: {columns}x{rows} cubes");
     }
 }
