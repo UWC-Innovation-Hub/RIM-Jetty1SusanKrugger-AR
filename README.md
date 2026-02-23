@@ -18,6 +18,7 @@ Through tablet AR experiences, visitors can discover stories, visuals, and archi
 
 ## Repository Structure
 
+<!-- AUTO-STRUCTURE-START -->
 ```
 ├── .github/
 │   └── ISSUE_TEMPLATE/           # Issue templates for project management
@@ -117,9 +118,11 @@ Through tablet AR experiences, visitors can discover stories, visuals, and archi
 ├── .gitattributes
 └── LICENSE.txt
 ```
+<!-- AUTO-STRUCTURE-END -->
 
 ## Key Scripts
 
+<!-- AUTO-SCRIPTS-START -->
 ### Core (`Assets/Scripts/`)
 | Script | Purpose |
 |---|---|
@@ -152,6 +155,7 @@ Through tablet AR experiences, visitors can discover stories, visuals, and archi
 | `AddVuforiaEnginePackage.cs` | Auto-adds Vuforia package on migration |
 | `SimpleAABFixer.cs` | Fixes Android App Bundle build issues |
 | `UnityGooglePlayAABMaster.cs` | Google Play AAB publishing helper |
+<!-- AUTO-SCRIPTS-END -->
 
 ## Scenes & Chapters
 
