@@ -1,0 +1,206 @@
+name: Update README Sections
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  update-readme:
+    runs-on: ubuntu-latest
+    if: github.actor != 'github-actions[bot]'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+          lfs: false
+
+      - name: Check if only README changed
+        id: check_files
+        run: |
+          CHANGED=$(git diff --name-only HEAD~1 HEAD 2>/dev/null || echo "FIRST_COMMIT")
+          if [ "$CHANGED" = "README.md" ]; then
+            echo "skip=true" >> $GITHUB_OUTPUT
+          else
+            echo "skip=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Detect Unity project root
+        if: steps.check_files.outputs.skip != 'true'
+        id: detect
+        run: |
+          if [ -d "RIMARApp/Assets" ]; then
+            echo "assets_prefix=RIMARApp/" >> $GITHUB_OUTPUT
+            echo "Detected AR repo layout (RIMARApp/)"
+          elif [ -d "Assets" ]; then
+            echo "assets_prefix=" >> $GITHUB_OUTPUT
+            echo "Detected VR repo layout (Assets/ at root)"
+          else
+            echo "::error::Cannot find Unity Assets directory"
+            exit 1
+          fi
+
+      - name: Generate structure and scripts
+        if: steps.check_files.outputs.skip != 'true'
+        env:
+          ASSETS_PREFIX: ${{ steps.detect.outputs.assets_prefix }}
+        run: |
+          # =========================================
+          # GENERATE DIRECTORY TREE
+          # =========================================
+          generate_tree() {
+            git ls-tree -r --name-only HEAD \
+              | sed 's|/[^/]*$||' \
+              | sort -u \
+              | while IFS= read -r dir; do
+                  # Skip noise directories
+                  case "$dir" in
+                    *.utmp*) continue ;;
+                    *.vs/*|*.vs) continue ;;
+                    *.idea/*|*.idea) continue ;;
+                    *.vscode/*|*.vscode) continue ;;
+                    *.gradle/*|*.gradle) continue ;;
+                    *_Recovery*) continue ;;
+                  esac
+
+                  # Count depth (number of path components)
+                  depth=$(echo "$dir" | awk -F'/' '{print NF}')
+                  [ "$depth" -gt 4 ] && continue
+
+                  # Collapse Samples/ to show only top-level SDK names
+                  if echo "$dir" | grep -q "${ASSETS_PREFIX}Assets/Samples/"; then
+                    after="${dir#*Assets/Samples/}"
+                    sd=$(echo "$after" | awk -F'/' '{print NF}')
+                    [ "$sd" -gt 1 ] && continue
+                  fi
+
+                  # Collapse Starter Assets internals
+                  if echo "$dir" | grep -q "${ASSETS_PREFIX}Assets/Starter Assets/"; then
+                    after="${dir#*Assets/Starter Assets/}"
+                    sd=$(echo "$after" | awk -F'/' '{print NF}')
+                    [ "$sd" -gt 1 ] && continue
+                  fi
+
+                  # Collapse VRTemplateAssets internals
+                  if echo "$dir" | grep -q "${ASSETS_PREFIX}Assets/VRTemplateAssets/"; then
+                    after="${dir#*Assets/VRTemplateAssets/}"
+                    sd=$(echo "$after" | awk -F'/' '{print NF}')
+                    [ "$sd" -gt 1 ] && continue
+                  fi
+
+                  # Collapse MobileARTemplateAssets internals
+                  if echo "$dir" | grep -q "${ASSETS_PREFIX}Assets/MobileARTemplateAssets/"; then
+                    after="${dir#*Assets/MobileARTemplateAssets/}"
+                    sd=$(echo "$after" | awk -F'/' '{print NF}')
+                    [ "$sd" -gt 1 ] && continue
+                  fi
+
+                  echo "$dir"
+                done
+          }
+
+          format_tree() {
+            awk -F'/' '{
+              indent = ""
+              for (i = 1; i < NF; i++) indent = indent "    "
+              printf "%s├── %s/\n", indent, $NF
+            }'
+          }
+
+          # Write tree to temp file
+          {
+            echo '```'
+            generate_tree | format_tree
+            echo '```'
+          } > /tmp/tree_content.md
+
+          echo "--- Generated tree ---"
+          cat /tmp/tree_content.md
+          echo "--- End tree ---"
+
+          # =========================================
+          # GENERATE SCRIPTS TABLE
+          # =========================================
+          generate_scripts() {
+            echo "| Script | Path |"
+            echo "|---|---|"
+
+            git ls-tree -r --name-only HEAD \
+              | grep '\.cs$' \
+              | grep -v '/Samples/' \
+              | grep -v '/Packages/' \
+              | grep -v '/Starter Assets/' \
+              | grep -v '/VRTemplateAssets/' \
+              | grep -v '/MobileARTemplateAssets/' \
+              | sort \
+              | while IFS= read -r filepath; do
+                  filename=$(basename "$filepath")
+                  display_path="$filepath"
+                  if [ -n "$ASSETS_PREFIX" ]; then
+                    display_path="${filepath#${ASSETS_PREFIX}}"
+                  fi
+                  echo "| \`${filename}\` | \`${display_path}\` |"
+                done
+          }
+
+          # Write scripts to temp file
+          generate_scripts > /tmp/scripts_content.md
+
+          echo "--- Generated scripts ---"
+          cat /tmp/scripts_content.md
+          echo "--- End scripts ---"
+
+      - name: Splice into README
+        if: steps.check_files.outputs.skip != 'true'
+        run: |
+          # Check markers exist
+          if ! grep -q "AUTO-STRUCTURE-START" README.md; then
+            echo "::warning::No AUTO-STRUCTURE-START marker found in README.md — skipping"
+            exit 0
+          fi
+
+          # AWK-based section replacer using temp files to avoid escaping issues
+          splice() {
+            local FILE="$1" START="$2" END="$3" CONTENT="$4"
+
+            awk -v start="$START" -v end="$END" -v cf="$CONTENT" '
+              BEGIN { skip=0 }
+              index($0, start) {
+                print
+                skip=1
+                while ((getline ln < cf) > 0) print ln
+                close(cf)
+                next
+              }
+              index($0, end) {
+                skip=0
+                print
+                next
+              }
+              !skip { print }
+            ' "$FILE" > "${FILE}.tmp" && mv "${FILE}.tmp" "$FILE"
+          }
+
+          splice README.md "<!-- AUTO-STRUCTURE-START -->" "<!-- AUTO-STRUCTURE-END -->" /tmp/tree_content.md
+          splice README.md "<!-- AUTO-SCRIPTS-START -->" "<!-- AUTO-SCRIPTS-END -->" /tmp/scripts_content.md
+
+          echo "README.md sections updated"
+
+      - name: Commit if changed
+        if: steps.check_files.outputs.skip != 'true'
+        run: |
+          if git diff --quiet README.md; then
+            echo "No changes to README.md — nothing to commit"
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add README.md
+          git commit -m "docs: auto-update README structure and scripts sections"
+          git pull --rebase origin main
+          git push

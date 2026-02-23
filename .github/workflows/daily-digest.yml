@@ -1,0 +1,387 @@
+name: Daily Development Digest
+
+on:
+  # Daily summary at 4:00pm SAST (14:00 UTC)
+  schedule:
+    - cron: '0 14 * * *'
+
+  # Manual trigger for error reports or immediate notifications
+  workflow_dispatch:
+    inputs:
+      notification_type:
+        description: 'Type of notification'
+        required: true
+        default: 'daily_summary'
+        type: choice
+        options:
+          - daily_summary
+          - error_report
+          - immediate_update
+      error_description:
+        description: 'Error description (for error_report type)'
+        required: false
+        type: string
+
+jobs:
+  daily-summary:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && github.event.inputs.notification_type == 'daily_summary')
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 50
+
+      - name: Check for today's changes
+        id: changes
+        run: |
+          # Get commits from last 24 hours
+          YESTERDAY=$(date -d '24 hours ago' --iso-8601=seconds)
+          COMMIT_COUNT=$(git log --since="$YESTERDAY" --oneline | wc -l)
+          echo "commit_count=$COMMIT_COUNT" >> $GITHUB_OUTPUT
+
+          if [ "$COMMIT_COUNT" -eq 0 ]; then
+            echo "has_changes=false" >> $GITHUB_OUTPUT
+          else
+            echo "has_changes=true" >> $GITHUB_OUTPUT
+
+            # Get all commit messages from today
+            COMMITS_HTML=$(git log --since="$YESTERDAY" --pretty=format:'<li style="margin-bottom: 10px;"><strong>%s</strong><br><span style="color: #666; font-size: 12px;">%an - %cd</span></li>' --date=format:'%H:%M')
+            echo "commits_html<<EOF" >> $GITHUB_OUTPUT
+            echo "$COMMITS_HTML" >> $GITHUB_OUTPUT
+            echo "EOF" >> $GITHUB_OUTPUT
+
+            # Get all changed files
+            FILES_CHANGED=$(git log --since="$YESTERDAY" --name-only --pretty=format: | sort -u | grep -v '^$' | wc -l)
+            echo "files_changed=$FILES_CHANGED" >> $GITHUB_OUTPUT
+
+            FILES_LIST=$(git log --since="$YESTERDAY" --name-only --pretty=format: | sort -u | grep -v '^$' | head -20 | tr '\n' '|')
+            echo "files_list=$FILES_LIST" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Send daily summary email
+        if: steps.changes.outputs.has_changes == 'true'
+        env:
+          PHP_API_KEY: ${{ secrets.PHP_API_KEY }}
+          COMMIT_COUNT: ${{ steps.changes.outputs.commit_count }}
+          COMMITS_HTML: ${{ steps.changes.outputs.commits_html }}
+          FILES_CHANGED: ${{ steps.changes.outputs.files_changed }}
+          FILES_LIST: ${{ steps.changes.outputs.files_list }}
+        run: |
+          TODAY=$(date +'%d %B %Y')
+
+          # Convert files list to HTML
+          FILES_HTML=""
+          IFS='|' read -ra FILES <<< "$FILES_LIST"
+          for file in "${FILES[@]}"; do
+            if [ -n "$file" ]; then
+              FILES_HTML="$FILES_HTML<li style=\"color: #333; padding: 4px 0; font-family: monospace; font-size: 13px;\">$file</li>"
+            fi
+          done
+
+          HTML_BODY=$(cat <<EMAILEOF
+          <div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 650px; margin: 0 auto; background-color: #ffffff;">
+            <!-- Header -->
+            <div style="background-color: #0a1a5c; padding: 25px 30px; text-align: center;">
+              <h1 style="color: #ffffff; margin: 0 0 5px 0; font-size: 22px; font-weight: 700; letter-spacing: 0.5px;">UWC Innovation Hub</h1>
+              <p style="color: #bd9a50; margin: 0; font-size: 13px; font-weight: 500; letter-spacing: 1px;">IMMERSIVE ZONE</p>
+            </div>
+
+            <!-- Project Banner -->
+            <div style="background-color: #bd9a50; padding: 12px 30px;">
+              <table style="width: 100%;">
+                <tr>
+                  <td style="color: #ffffff; font-size: 15px; font-weight: 600;">RIM Jetty 1 &amp; Susan Kruger — AR</td>
+                  <td style="text-align: right;">
+                    <span style="background-color: #28a745; color: #ffffff; padding: 5px 12px; border-radius: 20px; font-size: 11px; font-weight: 600;">$COMMIT_COUNT UPDATE(S)</span>
+                  </td>
+                </tr>
+              </table>
+            </div>
+
+            <!-- Content Area -->
+            <div style="padding: 30px; background-color: #f8f9fa;">
+
+              <!-- Summary Stats -->
+              <div style="background-color: #ffffff; border-radius: 8px; padding: 25px; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                <h2 style="color: #0a1a5c; margin: 0 0 20px 0; font-size: 18px; font-weight: 600; border-bottom: 2px solid #bd9a50; padding-bottom: 10px;">Daily Summary — $TODAY</h2>
+                <table style="width: 100%; font-size: 14px;">
+                  <tr>
+                    <td style="padding: 10px 0; color: #666; width: 150px;">Total Commits:</td>
+                    <td style="padding: 10px 0; color: #333; font-weight: 600;">$COMMIT_COUNT commit(s)</td>
+                  </tr>
+                  <tr style="background-color: #f8f9fa;">
+                    <td style="padding: 10px 0; color: #666;">Files Modified:</td>
+                    <td style="padding: 10px 0; color: #333; font-weight: 500;">$FILES_CHANGED file(s)</td>
+                  </tr>
+                </table>
+              </div>
+
+              <!-- Changes List -->
+              <div style="background-color: #ffffff; border-radius: 8px; padding: 25px; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                <h2 style="color: #0a1a5c; margin: 0 0 15px 0; font-size: 18px; font-weight: 600; border-bottom: 2px solid #bd9a50; padding-bottom: 10px;">Changes Made Today</h2>
+                <ul style="margin: 0; padding-left: 20px; font-size: 14px; line-height: 1.6;">
+                  $COMMITS_HTML
+                </ul>
+              </div>
+
+              <!-- Files Modified -->
+              <div style="background-color: #ffffff; border-radius: 8px; padding: 25px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                <h2 style="color: #0a1a5c; margin: 0 0 15px 0; font-size: 18px; font-weight: 600; border-bottom: 2px solid #bd9a50; padding-bottom: 10px;">Files Modified</h2>
+                <ul style="margin: 0; padding-left: 20px;">
+                  $FILES_HTML
+                </ul>
+              </div>
+
+              <!-- View on GitHub -->
+              <div style="text-align: center; margin-top: 25px;">
+                <a href="https://github.com/UWC-Innovation-Hub/RIM-Jetty1SusanKrugger-AR/commits/main" style="display: inline-block; background-color: #0a1a5c; color: #ffffff; padding: 12px 30px; text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 14px;">View All Changes on GitHub</a>
+              </div>
+
+            </div>
+
+            <!-- Footer -->
+            <div style="background-color: #0a1a5c; padding: 20px 30px; text-align: center;">
+              <p style="color: #bd9a50; margin: 0 0 10px 0; font-size: 12px; font-weight: 500;">
+                Daily development notifications are sent at 4:00 PM (SAST) when there are changes.
+              </p>
+              <p style="color: #8899aa; margin: 0 0 10px 0; font-size: 11px;">
+                Automated notification from the RIM Jetty 1 &amp; Susan Kruger AR project.
+              </p>
+              <p style="color: #8899aa; margin: 0; font-size: 11px;">
+                UWC Immersive Zone — University of the Western Cape
+              </p>
+            </div>
+          </div>
+          EMAILEOF
+          )
+
+          # Send the email
+          curl -X POST "https://innovationhub.uwc.ac.za/sendmail-api.php" \
+            -H "Content-Type: application/json" \
+            -H "X-API-Key: ${PHP_API_KEY}" \
+            -d @- <<PAYLOAD
+          {
+            "to": "infouih@uwc.ac.za",
+            "bcc": ["ldelaroche-souvestre@uwc.ac.za", "rloubser@uwc.ac.za", "kfritz@uwc.ac.za", "zmbali@uwc.ac.za", "aboomgaard@uwc.ac.za", "kmarais@uwc.ac.za"],
+            "subject": "RIM AR Project — Daily Development Summary ($TODAY)",
+            "html": $(echo "$HTML_BODY" | jq -Rs .),
+            "fromName": "UWC Immersive Zone"
+          }
+          PAYLOAD
+
+          echo "Daily summary sent to team"
+
+      - name: No changes today
+        if: steps.changes.outputs.has_changes == 'false'
+        run: echo "No changes in the last 24 hours - no email sent"
+
+  error-report:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch' && github.event.inputs.notification_type == 'error_report'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Send error report email
+        env:
+          PHP_API_KEY: ${{ secrets.PHP_API_KEY }}
+          ERROR_DESC: ${{ github.event.inputs.error_description }}
+        run: |
+          TODAY=$(date +'%d %B %Y at %H:%M')
+
+          HTML_BODY=$(cat <<EMAILEOF
+          <div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 650px; margin: 0 auto; background-color: #ffffff;">
+            <!-- Header -->
+            <div style="background-color: #0a1a5c; padding: 25px 30px; text-align: center;">
+              <h1 style="color: #ffffff; margin: 0 0 5px 0; font-size: 22px; font-weight: 700; letter-spacing: 0.5px;">UWC Innovation Hub</h1>
+              <p style="color: #bd9a50; margin: 0; font-size: 13px; font-weight: 500; letter-spacing: 1px;">IMMERSIVE ZONE</p>
+            </div>
+
+            <!-- Error Banner -->
+            <div style="background-color: #dc3545; padding: 12px 30px;">
+              <table style="width: 100%;">
+                <tr>
+                  <td style="color: #ffffff; font-size: 15px; font-weight: 600;">RIM AR — Error Report</td>
+                  <td style="text-align: right;">
+                    <span style="background-color: #ffffff; color: #dc3545; padding: 5px 12px; border-radius: 20px; font-size: 11px; font-weight: 600;">ACTION REQUIRED</span>
+                  </td>
+                </tr>
+              </table>
+            </div>
+
+            <!-- Content Area -->
+            <div style="padding: 30px; background-color: #fff5f5;">
+
+              <!-- Error Details -->
+              <div style="background-color: #ffffff; border-radius: 8px; padding: 25px; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); border-left: 4px solid #dc3545;">
+                <h2 style="color: #dc3545; margin: 0 0 20px 0; font-size: 18px; font-weight: 600;">Error Details</h2>
+                <table style="width: 100%; font-size: 14px;">
+                  <tr>
+                    <td style="padding: 10px 0; color: #666; width: 130px;">Reported:</td>
+                    <td style="padding: 10px 0; color: #333; font-weight: 500;">$TODAY</td>
+                  </tr>
+                  <tr style="background-color: #f8f9fa;">
+                    <td style="padding: 10px 0; color: #666;">Project:</td>
+                    <td style="padding: 10px 0; color: #333; font-weight: 600;">RIM Jetty 1 &amp; Susan Kruger AR</td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 10px 0; color: #666;">Status:</td>
+                    <td style="padding: 10px 0; color: #dc3545; font-weight: 600;">Requires Attention</td>
+                  </tr>
+                </table>
+              </div>
+
+              <!-- Error Description -->
+              <div style="background-color: #ffffff; border-radius: 8px; padding: 25px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                <h2 style="color: #0a1a5c; margin: 0 0 15px 0; font-size: 18px; font-weight: 600; border-bottom: 2px solid #dc3545; padding-bottom: 10px;">Description</h2>
+                <div style="color: #333; font-size: 14px; line-height: 1.7; background: #f8f9fa; padding: 15px; border-radius: 4px;">
+                  ${ERROR_DESC:-No description provided}
+                </div>
+              </div>
+
+              <!-- Action Button -->
+              <div style="text-align: center; margin-top: 25px;">
+                <a href="https://github.com/UWC-Innovation-Hub/RIM-Jetty1SusanKrugger-AR/issues" style="display: inline-block; background-color: #dc3545; color: #ffffff; padding: 12px 30px; text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 14px;">View GitHub Issues</a>
+              </div>
+
+            </div>
+
+            <!-- Footer -->
+            <div style="background-color: #0a1a5c; padding: 20px 30px; text-align: center;">
+              <p style="color: #8899aa; margin: 0 0 10px 0; font-size: 12px;">
+                Automated error notification from the RIM Jetty 1 &amp; Susan Kruger AR project.
+              </p>
+              <p style="color: #8899aa; margin: 0; font-size: 11px;">
+                UWC Immersive Zone — University of the Western Cape
+              </p>
+            </div>
+          </div>
+          EMAILEOF
+          )
+
+          # Send the email
+          curl -X POST "https://innovationhub.uwc.ac.za/sendmail-api.php" \
+            -H "Content-Type: application/json" \
+            -H "X-API-Key: ${PHP_API_KEY}" \
+            -d @- <<PAYLOAD
+          {
+            "to": "infouih@uwc.ac.za",
+            "bcc": ["ldelaroche-souvestre@uwc.ac.za", "rloubser@uwc.ac.za", "kfritz@uwc.ac.za", "zmbali@uwc.ac.za", "aboomgaard@uwc.ac.za", "kmarais@uwc.ac.za"],
+            "subject": "RIM AR Project — Error Report",
+            "html": $(echo "$HTML_BODY" | jq -Rs .),
+            "fromName": "UWC Immersive Zone"
+          }
+          PAYLOAD
+
+          echo "Error report sent to team"
+
+  immediate-update:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch' && github.event.inputs.notification_type == 'immediate_update'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 10
+
+      - name: Get latest commit details
+        id: commit_info
+        run: |
+          COMMIT_MSG=$(git log -1 --pretty=%B | head -20)
+          echo "message<<EOF" >> $GITHUB_OUTPUT
+          echo "$COMMIT_MSG" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+          echo "author=$(git log -1 --pretty=%an)" >> $GITHUB_OUTPUT
+          echo "date=$(git log -1 --pretty=%cd --date=format:'%d %B %Y at %H:%M')" >> $GITHUB_OUTPUT
+          echo "sha=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+
+      - name: Send immediate notification
+        env:
+          PHP_API_KEY: ${{ secrets.PHP_API_KEY }}
+          COMMIT_MESSAGE: ${{ steps.commit_info.outputs.message }}
+          COMMIT_AUTHOR: ${{ steps.commit_info.outputs.author }}
+          COMMIT_DATE: ${{ steps.commit_info.outputs.date }}
+          COMMIT_SHA: ${{ steps.commit_info.outputs.sha }}
+        run: |
+          COMMIT_MSG_HTML=$(echo "$COMMIT_MESSAGE" | sed 's/$/\\n/' | tr -d '\n' | sed 's/\\n/<br>/g')
+
+          HTML_BODY=$(cat <<EMAILEOF
+          <div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 650px; margin: 0 auto; background-color: #ffffff;">
+            <!-- Header -->
+            <div style="background-color: #0a1a5c; padding: 25px 30px; text-align: center;">
+              <h1 style="color: #ffffff; margin: 0 0 5px 0; font-size: 22px; font-weight: 700; letter-spacing: 0.5px;">UWC Innovation Hub</h1>
+              <p style="color: #bd9a50; margin: 0; font-size: 13px; font-weight: 500; letter-spacing: 1px;">IMMERSIVE ZONE</p>
+            </div>
+
+            <!-- Priority Banner -->
+            <div style="background-color: #bd9a50; padding: 12px 30px;">
+              <table style="width: 100%;">
+                <tr>
+                  <td style="color: #ffffff; font-size: 15px; font-weight: 600;">RIM AR — Immediate Update</td>
+                  <td style="text-align: right;">
+                    <span style="background-color: #0a1a5c; color: #ffffff; padding: 5px 12px; border-radius: 20px; font-size: 11px; font-weight: 600;">PRIORITY</span>
+                  </td>
+                </tr>
+              </table>
+            </div>
+
+            <!-- Content Area -->
+            <div style="padding: 30px; background-color: #f8f9fa;">
+              <div style="background-color: #ffffff; border-radius: 8px; padding: 25px; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                <h2 style="color: #0a1a5c; margin: 0 0 20px 0; font-size: 18px; font-weight: 600; border-bottom: 2px solid #bd9a50; padding-bottom: 10px;">Update Details</h2>
+                <table style="width: 100%; font-size: 14px;">
+                  <tr>
+                    <td style="padding: 10px 0; color: #666; width: 130px;">Author:</td>
+                    <td style="padding: 10px 0; color: #333; font-weight: 500;">$COMMIT_AUTHOR</td>
+                  </tr>
+                  <tr style="background-color: #f8f9fa;">
+                    <td style="padding: 10px 0; color: #666;">Date:</td>
+                    <td style="padding: 10px 0; color: #333; font-weight: 500;">$COMMIT_DATE</td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 10px 0; color: #666;">Commit ID:</td>
+                    <td style="padding: 10px 0;"><code style="background: #e9ecef; padding: 3px 8px; border-radius: 4px; font-family: monospace; color: #0a1a5c;">$COMMIT_SHA</code></td>
+                  </tr>
+                </table>
+              </div>
+
+              <div style="background-color: #ffffff; border-radius: 8px; padding: 25px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                <h2 style="color: #0a1a5c; margin: 0 0 15px 0; font-size: 18px; font-weight: 600; border-bottom: 2px solid #bd9a50; padding-bottom: 10px;">What Changed</h2>
+                <div style="color: #333; font-size: 14px; line-height: 1.7; background: #f8f9fa; padding: 15px; border-left: 4px solid #bd9a50; border-radius: 0 4px 4px 0;">
+                  $COMMIT_MSG_HTML
+                </div>
+              </div>
+            </div>
+
+            <!-- Footer -->
+            <div style="background-color: #0a1a5c; padding: 20px 30px; text-align: center;">
+              <p style="color: #bd9a50; margin: 0 0 10px 0; font-size: 12px; font-weight: 500;">
+                Regular daily notifications are sent at 4:00 PM (SAST) when there are changes.
+              </p>
+              <p style="color: #8899aa; margin: 0 0 10px 0; font-size: 11px;">
+                This is an immediate notification triggered manually.
+              </p>
+              <p style="color: #8899aa; margin: 0; font-size: 11px;">
+                UWC Immersive Zone — University of the Western Cape
+              </p>
+            </div>
+          </div>
+          EMAILEOF
+          )
+
+          curl -X POST "https://innovationhub.uwc.ac.za/sendmail-api.php" \
+            -H "Content-Type: application/json" \
+            -H "X-API-Key: ${PHP_API_KEY}" \
+            -d @- <<PAYLOAD
+          {
+            "to": "infouih@uwc.ac.za",
+            "bcc": ["ldelaroche-souvestre@uwc.ac.za", "rloubser@uwc.ac.za", "kfritz@uwc.ac.za", "zmbali@uwc.ac.za", "aboomgaard@uwc.ac.za", "kmarais@uwc.ac.za"],
+            "subject": "RIM AR Project — Immediate Update Notification",
+            "html": $(echo "$HTML_BODY" | jq -Rs .),
+            "fromName": "UWC Immersive Zone"
+          }
+          PAYLOAD
+
+          echo "Immediate notification sent"

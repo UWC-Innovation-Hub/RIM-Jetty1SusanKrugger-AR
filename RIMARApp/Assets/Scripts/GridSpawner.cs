@@ -1,92 +1,119 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.XR.ARFoundation;
 using UnityEngine.XR.ARSubsystems;
-using System.Collections.Generic;
+//using static UnityEditor.FilePathAttribute;
 
 
 public class GridSpawner : MonoBehaviour
 {
-    public ARTrackedImageManager imageManager;
+    [SerializeField] private ARTrackedImageManager imageManager;
 
     public GameObject cubePrefab;
+    public GameObject locationMarkerPrefab;
 
-    private float marquetteWidth = 2f; // 2 meters
-    private float marquetteHeight = 1f; // 1 meter
-    private float cellSize = 0.025f; // 2.5cm
+    [SerializeField] private float marquetteWidth; // 2 meters
+    [SerializeField] private float marquetteHeight; // 1 meter
+    [SerializeField] private float cellSize; // 2.5cm
+    [SerializeField] private float cubeHeight; // 0.002f
+    [SerializeField] private float qrSize; // 0.025f | 0.0125f for spawning at the corner of the qr code
 
-    private bool gridSpawned = false;
+    private GameObject currentGridParent; // parent all the cubes under one object so can delete them easily.
+
+    private GameObject[,] gridArray;
+
+
+    [System.Serializable]
+    public class LocationPoint
+    {
+        public string locationNames;
+        public float x_cm;
+        public float z_cm;
+    }
+
+    public List<LocationPoint> locations = new List<LocationPoint>();
 
 
     private void OnEnable()
     {
-        imageManager.trackedImagesChanged += OnTrackedImagesChanged;
+        imageManager.trackablesChanged.AddListener(OnTrackedImagesChanged);
     }
 
 
     private void OnDisable()
     {
-        imageManager.trackedImagesChanged -= OnTrackedImagesChanged;
+        imageManager.trackablesChanged.RemoveListener(OnTrackedImagesChanged);
     }
 
 
-    private void OnTrackedImagesChanged(ARTrackedImagesChangedEventArgs args)
+    private void OnTrackedImagesChanged(ARTrackablesChangedEventArgs<ARTrackedImage> args)
     {
         foreach (var trackedImage in args.added)
         {
-            Debug.Log($"[GridSpawner] QR Code Detected: {trackedImage.referenceImage.name}");
-            
-            if (!gridSpawned)
-            {
-                SpawnGridFromCorner(trackedImage);
-                gridSpawned = true;
-            }
+            SpawnGrid(trackedImage);
         }
     }
 
 
-    void SpawnGridFromCorner(ARTrackedImage trackedImage)
+    void SpawnGrid(ARTrackedImage trackedImage)
     {
-        string qrName = trackedImage.referenceImage.name;
+        // Delete old grid if exists
+        if (currentGridParent != null)
+            Destroy(currentGridParent);
 
-        Debug.Log($"[GridSpawner] Starting grid spawn from QR: {qrName}");
+        currentGridParent = new GameObject("GridParent");
 
         int columns = Mathf.RoundToInt(marquetteWidth / cellSize);
         int rows = Mathf.RoundToInt(marquetteHeight /  cellSize);
 
-        Vector3 startPosition = trackedImage.transform.position;
+        gridArray = new GameObject[columns, rows];
 
-        Color quadrantColor = Color.white;
+        float halfQR = qrSize / 2f;
 
+        Vector3 qrCenter = trackedImage.transform.position;
         Vector3 xDirection = trackedImage.transform.right;
         Vector3 zDirection = trackedImage.transform.forward;
 
-        if (qrName == "QR_TopLeft" || qrName.Contains("TopLeft") || qrName.Contains("RED"))
+        string qrName = trackedImage.referenceImage.name;
+
+        // Determine correct directions and corner offset
+        Vector3 startCorner = qrCenter;
+
+        if (qrName == "QR_TopLeft")
         {
-            quadrantColor = Color.red;
-            Debug.Log("[GridSpawner] Detected TopLeft (RED) corner");
-        }
-        else if (qrName == "QR_TopRight" || qrName.Contains("TopRight") || qrName.Contains("GREEN"))
-        {
-            quadrantColor = Color.green;
-            xDirection = -xDirection;
-            Debug.Log("[GridSpawner] Detected TopRight (GREEN) corner");
-        }
-        else if (qrName == "QR_BottomLeft" || qrName.Contains("BottomLeft") || qrName.Contains("BLUE"))
-        {
-            quadrantColor = Color.blue;
+            startCorner = qrCenter
+                - (xDirection * halfQR)
+                + (zDirection * halfQR);
+
+            //xDirection = xDirection;
             zDirection = -zDirection;
-            Debug.Log("[GridSpawner] Detected BottomLeft (BLUE) corner");
         }
-        else if (qrName == "QR_BottomRight" || qrName.Contains("BottomRight") || qrName.Contains("YELLOW"))
+        else if (qrName == "QR_TopRight")
         {
-            quadrantColor = Color.yellow;
+            startCorner = qrCenter
+                + (xDirection * halfQR)
+                + (zDirection * halfQR);
+
             xDirection = -xDirection;
             zDirection = -zDirection;
-            Debug.Log("[GridSpawner] Detected BottomRight (YELLOW) corner");
         }
-        else
+        else if (qrName == "QR_BottomLeft")
         {
-            Debug.LogWarning($"[GridSpawner] Unknown QR code name: {qrName}. Using default white color.");
+            startCorner = qrCenter
+                - (xDirection * halfQR)
+                - (zDirection * halfQR);
+
+            //xDirection = xDirection;
+            //zDirection = zDirection;
+        }
+        else if (qrName == "QR_BottomRight")
+        {
+            startCorner = qrCenter
+                + (xDirection * halfQR)
+                - (zDirection * halfQR);
+
+            xDirection = -xDirection;
+            //zDirection = zDirection;
         }
 
         for (int x = 0; x < columns; x++)
@@ -94,21 +121,94 @@ public class GridSpawner : MonoBehaviour
             for (int z =0; z < rows; z++)
             {
                 Vector3 spawnPosition =
-                    startPosition +
+                    startCorner +
                     (xDirection * x * cellSize) +
                     (zDirection * z * cellSize);
 
-                GameObject cube = Instantiate(cubePrefab, spawnPosition, Quaternion.identity);
+                GameObject cube = Instantiate(
+                    cubePrefab,
+                    spawnPosition,
+                    trackedImage.transform.rotation
+                );
 
-                cube.transform.localScale = new Vector3(cellSize, 0.002f, cellSize);
+                cube.transform.localScale =
+                    new Vector3(cellSize, cubeHeight, cellSize);
 
-                if (x < columns / 2 && z < rows / 2)
-                {
-                    cube.GetComponent<Renderer>().material.color = quadrantColor;
-                }
+                cube.transform.parent = currentGridParent.transform;
+
+                // Colour all quadrants
+                bool leftSide = x < columns / 2;
+                bool bottomSide = z < rows / 2;
+
+                if (leftSide && !bottomSide)
+                    cube.GetComponent<Renderer>().material.color = Color.red;
+                else if (!leftSide && !bottomSide)
+                    cube.GetComponent<Renderer>().material.color = Color.green;
+                else if (leftSide && bottomSide)
+                    cube.GetComponent<Renderer>().material.color = Color.blue;
+                else
+                    cube.GetComponent<Renderer>().material.color = Color.yellow;
+
+                gridArray[x, z] = cube;
             }
         }
-        
-        Debug.Log($"[GridSpawner] Grid spawned! {columns}x{rows} = {columns * rows} cubes");
+
+        // Make grid stable by detaching from tracking updates
+        currentGridParent.transform.position = currentGridParent.transform.position;
+
+        MapAllLocations();
+    }
+
+
+    void MapAllLocations()
+    {
+        foreach (LocationPoint location in locations)
+        {
+            int xIndex = Mathf.RoundToInt(location.x_cm / 2.5f);
+            int zIndex = Mathf.RoundToInt(location.z_cm / 2.5f);
+
+            if (xIndex >= 0 && xIndex < gridArray.GetLength(0) &&
+                zIndex >= 0 && zIndex < gridArray.GetLength(1))
+            {
+                GameObject cube = gridArray[xIndex, zIndex];
+
+                if (cube != null)
+                {
+                    cube.GetComponent<Renderer>().material.color = Color.magenta;
+
+                    if (locationMarkerPrefab != null)
+                    {
+                        Instantiate(
+                            locationMarkerPrefab,
+                            cube.transform.position + Vector3.up * 0.01f,
+                            Quaternion.identity,
+                            currentGridParent.transform
+                        );
+                    }
+
+                    Debug.Log("Mapped: " + location.locationNames +
+                        " -> Grid (" + xIndex + ", " + zIndex + ")");
+                }
+            }
+            else
+            {
+                Debug.LogWarning("Location out of bounds: " + location.locationNames);
+            }
+        }
+    }
+
+
+    // Optional: Pull full list of cubes
+    public List<GameObject> GetAllCubes()
+    {
+        List<GameObject> cubeList = new List<GameObject>();
+
+        foreach (GameObject cube in gridArray)
+        {
+            if (cube != null)
+                cubeList.Add(cube);
+        }
+
+        return cubeList;
     }
 }
