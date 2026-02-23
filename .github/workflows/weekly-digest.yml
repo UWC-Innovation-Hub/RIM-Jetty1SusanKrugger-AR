@@ -1,0 +1,348 @@
+name: Weekly Development Digest
+
+on:
+  # Every Friday at 4:00pm SAST (14:00 UTC)
+  schedule:
+    - cron: '0 14 * * 5'
+
+  # Manual trigger
+  workflow_dispatch:
+
+jobs:
+  weekly-summary:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          lfs: false
+
+      - name: Fetch all branches
+        run: |
+          git fetch --all --quiet
+
+      - name: Detect project type
+        id: detect
+        run: |
+          if [ -d "RIMARApp/Assets" ]; then
+            echo "project_type=AR" >> $GITHUB_OUTPUT
+            echo "project_label=AR (Tablet)" >> $GITHUB_OUTPUT
+          else
+            echo "project_type=VR" >> $GITHUB_OUTPUT
+            echo "project_label=VR (Meta Quest 3)" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Generate weekly report
+        id: report
+        env:
+          PROJECT_TYPE: ${{ steps.detect.outputs.project_type }}
+          PROJECT_LABEL: ${{ steps.detect.outputs.project_label }}
+        run: |
+          WEEK_AGO=$(date -d '7 days ago' --iso-8601=seconds)
+          TODAY=$(date +'%d %B %Y')
+          WEEK_START=$(date -d '7 days ago' +'%d %B')
+
+          # =============================================
+          # TOTAL COMMITS ACROSS ALL BRANCHES
+          # =============================================
+          TOTAL_COMMITS=$(git log --all --since="$WEEK_AGO" --oneline | wc -l)
+          echo "total_commits=$TOTAL_COMMITS" >> $GITHUB_OUTPUT
+
+          if [ "$TOTAL_COMMITS" -eq 0 ]; then
+            echo "has_changes=false" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+          echo "has_changes=true" >> $GITHUB_OUTPUT
+
+          # =============================================
+          # UNIQUE AUTHORS
+          # =============================================
+          AUTHORS=$(git log --all --since="$WEEK_AGO" --pretty=format:'%an' | sort -u)
+          AUTHOR_COUNT=$(echo "$AUTHORS" | wc -l)
+          echo "author_count=$AUTHOR_COUNT" >> $GITHUB_OUTPUT
+
+          # Build author commit counts HTML
+          AUTHOR_ROWS=""
+          while IFS= read -r author; do
+            if [ -n "$author" ]; then
+              count=$(git log --all --since="$WEEK_AGO" --author="$author" --oneline | wc -l)
+              AUTHOR_ROWS="$AUTHOR_ROWS<tr><td style=\"padding: 8px 12px; color: #333; border-bottom: 1px solid #eee;\">$author</td><td style=\"padding: 8px 12px; color: #0a1a5c; font-weight: 600; text-align: center; border-bottom: 1px solid #eee;\">$count</td></tr>"
+            fi
+          done <<< "$AUTHORS"
+          echo "author_rows<<AUTHEOF" >> $GITHUB_OUTPUT
+          echo "$AUTHOR_ROWS" >> $GITHUB_OUTPUT
+          echo "AUTHEOF" >> $GITHUB_OUTPUT
+
+          # =============================================
+          # BRANCH ACTIVITY
+          # =============================================
+          BRANCH_ROWS=""
+          ACTIVE_BRANCHES=0
+          for branch in $(git branch -r --format='%(refname:short)' | grep -v HEAD); do
+            branch_commits=$(git log "$branch" --since="$WEEK_AGO" --oneline 2>/dev/null | wc -l)
+            if [ "$branch_commits" -gt 0 ]; then
+              ACTIVE_BRANCHES=$((ACTIVE_BRANCHES + 1))
+              branch_name="${branch#origin/}"
+              last_author=$(git log "$branch" -1 --since="$WEEK_AGO" --pretty=format:'%an' 2>/dev/null)
+              last_msg=$(git log "$branch" -1 --since="$WEEK_AGO" --pretty=format:'%s' 2>/dev/null | head -c 80)
+              BRANCH_ROWS="$BRANCH_ROWS<tr><td style=\"padding: 8px 12px; font-family: monospace; font-size: 13px; color: #0a1a5c; font-weight: 600; border-bottom: 1px solid #eee;\">$branch_name</td><td style=\"padding: 8px 12px; text-align: center; color: #333; border-bottom: 1px solid #eee;\">$branch_commits</td><td style=\"padding: 8px 12px; color: #666; font-size: 13px; border-bottom: 1px solid #eee;\">$last_msg</td></tr>"
+            fi
+          done
+          echo "active_branches=$ACTIVE_BRANCHES" >> $GITHUB_OUTPUT
+          echo "branch_rows<<BREOF" >> $GITHUB_OUTPUT
+          echo "$BRANCH_ROWS" >> $GITHUB_OUTPUT
+          echo "BREOF" >> $GITHUB_OUTPUT
+
+          # =============================================
+          # COMMIT FREQUENCY BY DAY
+          # =============================================
+          FREQ_ROWS=""
+          for i in 6 5 4 3 2 1 0; do
+            day_date=$(date -d "$i days ago" +'%Y-%m-%d')
+            day_label=$(date -d "$i days ago" +'%a %d %b')
+            day_count=$(git log --all --since="${day_date}T00:00:00" --until="${day_date}T23:59:59" --oneline | wc -l)
+
+            # Build a simple bar using block characters
+            bar=""
+            for ((b=0; b<day_count && b<20; b++)); do
+              bar="${bar}█"
+            done
+            if [ "$day_count" -eq 0 ]; then
+              bar="—"
+              bar_color="#ccc"
+            else
+              bar_color="#28a745"
+            fi
+
+            FREQ_ROWS="$FREQ_ROWS<tr><td style=\"padding: 6px 12px; color: #666; font-size: 13px; white-space: nowrap; border-bottom: 1px solid #eee;\">$day_label</td><td style=\"padding: 6px 12px; font-family: monospace; color: $bar_color; font-size: 12px; border-bottom: 1px solid #eee;\">$bar</td><td style=\"padding: 6px 12px; text-align: center; font-weight: 600; color: #333; border-bottom: 1px solid #eee;\">$day_count</td></tr>"
+          done
+          echo "freq_rows<<FREQEOF" >> $GITHUB_OUTPUT
+          echo "$FREQ_ROWS" >> $GITHUB_OUTPUT
+          echo "FREQEOF" >> $GITHUB_OUTPUT
+
+          # =============================================
+          # FILES CHANGED (across all branches)
+          # =============================================
+          FILES_CHANGED=$(git log --all --since="$WEEK_AGO" --name-only --pretty=format: | sort -u | grep -v '^$' | wc -l)
+          echo "files_changed=$FILES_CHANGED" >> $GITHUB_OUTPUT
+
+          # Top 25 most-modified files
+          TOP_FILES_HTML=""
+          git log --all --since="$WEEK_AGO" --name-only --pretty=format: \
+            | grep -v '^$' \
+            | sort \
+            | uniq -c \
+            | sort -rn \
+            | head -25 \
+            | while read count filepath; do
+                TOP_FILES_HTML="<tr><td style=\"padding: 6px 12px; font-family: monospace; font-size: 12px; color: #333; border-bottom: 1px solid #eee;\">$filepath</td><td style=\"padding: 6px 12px; text-align: center; font-weight: 600; color: #0a1a5c; border-bottom: 1px solid #eee;\">$count</td></tr>"
+                echo "$TOP_FILES_HTML"
+              done > /tmp/top_files.html
+          TOP_FILES=$(cat /tmp/top_files.html)
+          echo "top_files<<TFEOF" >> $GITHUB_OUTPUT
+          echo "$TOP_FILES" >> $GITHUB_OUTPUT
+          echo "TFEOF" >> $GITHUB_OUTPUT
+
+          # =============================================
+          # RECENT COMMITS LIST (last 20 across all branches)
+          # =============================================
+          COMMITS_HTML=$(git log --all --since="$WEEK_AGO" --pretty=format:'<tr><td style="padding: 8px 12px; font-family: monospace; font-size: 11px; color: #666; border-bottom: 1px solid #eee;">%h</td><td style="padding: 8px 12px; color: #333; border-bottom: 1px solid #eee;"><strong>%s</strong></td><td style="padding: 8px 12px; color: #666; font-size: 13px; white-space: nowrap; border-bottom: 1px solid #eee;">%an</td><td style="padding: 8px 12px; color: #999; font-size: 12px; white-space: nowrap; border-bottom: 1px solid #eee;">%cd</td></tr>' --date=format:'%a %d %b %H:%M' | head -40)
+          echo "commits_html<<CEOF" >> $GITHUB_OUTPUT
+          echo "$COMMITS_HTML" >> $GITHUB_OUTPUT
+          echo "CEOF" >> $GITHUB_OUTPUT
+
+          echo "week_start=$WEEK_START" >> $GITHUB_OUTPUT
+          echo "today=$TODAY" >> $GITHUB_OUTPUT
+
+      - name: Send weekly digest email
+        if: steps.report.outputs.has_changes == 'true'
+        env:
+          PHP_API_KEY: ${{ secrets.PHP_API_KEY }}
+          PROJECT_TYPE: ${{ steps.detect.outputs.project_type }}
+          PROJECT_LABEL: ${{ steps.detect.outputs.project_label }}
+          TOTAL_COMMITS: ${{ steps.report.outputs.total_commits }}
+          AUTHOR_COUNT: ${{ steps.report.outputs.author_count }}
+          ACTIVE_BRANCHES: ${{ steps.report.outputs.active_branches }}
+          FILES_CHANGED: ${{ steps.report.outputs.files_changed }}
+          AUTHOR_ROWS: ${{ steps.report.outputs.author_rows }}
+          BRANCH_ROWS: ${{ steps.report.outputs.branch_rows }}
+          FREQ_ROWS: ${{ steps.report.outputs.freq_rows }}
+          TOP_FILES: ${{ steps.report.outputs.top_files }}
+          COMMITS_HTML: ${{ steps.report.outputs.commits_html }}
+          WEEK_START: ${{ steps.report.outputs.week_start }}
+          TODAY: ${{ steps.report.outputs.today }}
+        run: |
+          HTML_BODY=$(cat <<EMAILEOF
+          <div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 700px; margin: 0 auto; background-color: #ffffff;">
+            <!-- Header -->
+            <div style="background-color: #0a1a5c; padding: 25px 30px; text-align: center;">
+              <h1 style="color: #ffffff; margin: 0 0 5px 0; font-size: 22px; font-weight: 700; letter-spacing: 0.5px;">UWC Innovation Hub</h1>
+              <p style="color: #bd9a50; margin: 0; font-size: 13px; font-weight: 500; letter-spacing: 1px;">IMMERSIVE ZONE</p>
+            </div>
+
+            <!-- Project Banner -->
+            <div style="background-color: #bd9a50; padding: 12px 30px;">
+              <table style="width: 100%;">
+                <tr>
+                  <td style="color: #ffffff; font-size: 15px; font-weight: 600;">RIM Jetty 1 &amp; Susan Kruger — $PROJECT_TYPE</td>
+                  <td style="text-align: right;">
+                    <span style="background-color: #0a1a5c; color: #ffffff; padding: 5px 12px; border-radius: 20px; font-size: 11px; font-weight: 600;">WEEKLY REPORT</span>
+                  </td>
+                </tr>
+              </table>
+            </div>
+
+            <!-- Content Area -->
+            <div style="padding: 30px; background-color: #f8f9fa;">
+
+              <!-- Overview Stats -->
+              <div style="background-color: #ffffff; border-radius: 8px; padding: 25px; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                <h2 style="color: #0a1a5c; margin: 0 0 20px 0; font-size: 18px; font-weight: 600; border-bottom: 2px solid #bd9a50; padding-bottom: 10px;">Weekly Overview — $WEEK_START to $TODAY</h2>
+                <table style="width: 100%; font-size: 14px; border-collapse: collapse;">
+                  <tr>
+                    <td style="padding: 12px 15px; text-align: center; background: #f0f4ff; border-radius: 8px 0 0 8px;">
+                      <div style="font-size: 28px; font-weight: 700; color: #0a1a5c;">$TOTAL_COMMITS</div>
+                      <div style="font-size: 11px; color: #666; text-transform: uppercase; letter-spacing: 1px;">Commits</div>
+                    </td>
+                    <td style="padding: 12px 15px; text-align: center; background: #f0f4ff;">
+                      <div style="font-size: 28px; font-weight: 700; color: #0a1a5c;">$AUTHOR_COUNT</div>
+                      <div style="font-size: 11px; color: #666; text-transform: uppercase; letter-spacing: 1px;">Contributors</div>
+                    </td>
+                    <td style="padding: 12px 15px; text-align: center; background: #f0f4ff;">
+                      <div style="font-size: 28px; font-weight: 700; color: #0a1a5c;">$ACTIVE_BRANCHES</div>
+                      <div style="font-size: 11px; color: #666; text-transform: uppercase; letter-spacing: 1px;">Active Branches</div>
+                    </td>
+                    <td style="padding: 12px 15px; text-align: center; background: #f0f4ff; border-radius: 0 8px 8px 0;">
+                      <div style="font-size: 28px; font-weight: 700; color: #0a1a5c;">$FILES_CHANGED</div>
+                      <div style="font-size: 11px; color: #666; text-transform: uppercase; letter-spacing: 1px;">Files Changed</div>
+                    </td>
+                  </tr>
+                </table>
+              </div>
+
+              <!-- Commit Frequency -->
+              <div style="background-color: #ffffff; border-radius: 8px; padding: 25px; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                <h2 style="color: #0a1a5c; margin: 0 0 15px 0; font-size: 18px; font-weight: 600; border-bottom: 2px solid #bd9a50; padding-bottom: 10px;">Commit Frequency</h2>
+                <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
+                  <thead>
+                    <tr style="background: #f8f9fa;">
+                      <th style="padding: 8px 12px; text-align: left; color: #666; font-weight: 500;">Day</th>
+                      <th style="padding: 8px 12px; text-align: left; color: #666; font-weight: 500;">Activity</th>
+                      <th style="padding: 8px 12px; text-align: center; color: #666; font-weight: 500;">Count</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    $FREQ_ROWS
+                  </tbody>
+                </table>
+              </div>
+
+              <!-- Contributors -->
+              <div style="background-color: #ffffff; border-radius: 8px; padding: 25px; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                <h2 style="color: #0a1a5c; margin: 0 0 15px 0; font-size: 18px; font-weight: 600; border-bottom: 2px solid #bd9a50; padding-bottom: 10px;">Contributors</h2>
+                <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
+                  <thead>
+                    <tr style="background: #f8f9fa;">
+                      <th style="padding: 8px 12px; text-align: left; color: #666; font-weight: 500;">Author</th>
+                      <th style="padding: 8px 12px; text-align: center; color: #666; font-weight: 500;">Commits</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    $AUTHOR_ROWS
+                  </tbody>
+                </table>
+              </div>
+
+              <!-- Branch Activity -->
+              <div style="background-color: #ffffff; border-radius: 8px; padding: 25px; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                <h2 style="color: #0a1a5c; margin: 0 0 15px 0; font-size: 18px; font-weight: 600; border-bottom: 2px solid #bd9a50; padding-bottom: 10px;">Branch Activity</h2>
+                <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
+                  <thead>
+                    <tr style="background: #f8f9fa;">
+                      <th style="padding: 8px 12px; text-align: left; color: #666; font-weight: 500;">Branch</th>
+                      <th style="padding: 8px 12px; text-align: center; color: #666; font-weight: 500;">Commits</th>
+                      <th style="padding: 8px 12px; text-align: left; color: #666; font-weight: 500;">Latest Change</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    $BRANCH_ROWS
+                  </tbody>
+                </table>
+              </div>
+
+              <!-- Most Modified Files -->
+              <div style="background-color: #ffffff; border-radius: 8px; padding: 25px; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                <h2 style="color: #0a1a5c; margin: 0 0 15px 0; font-size: 18px; font-weight: 600; border-bottom: 2px solid #bd9a50; padding-bottom: 10px;">Most Modified Files (Top 25)</h2>
+                <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
+                  <thead>
+                    <tr style="background: #f8f9fa;">
+                      <th style="padding: 8px 12px; text-align: left; color: #666; font-weight: 500;">File</th>
+                      <th style="padding: 8px 12px; text-align: center; color: #666; font-weight: 500;">Times Changed</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    $TOP_FILES
+                  </tbody>
+                </table>
+              </div>
+
+              <!-- Recent Commits -->
+              <div style="background-color: #ffffff; border-radius: 8px; padding: 25px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                <h2 style="color: #0a1a5c; margin: 0 0 15px 0; font-size: 18px; font-weight: 600; border-bottom: 2px solid #bd9a50; padding-bottom: 10px;">All Commits This Week</h2>
+                <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
+                  <thead>
+                    <tr style="background: #f8f9fa;">
+                      <th style="padding: 8px 12px; text-align: left; color: #666; font-weight: 500;">SHA</th>
+                      <th style="padding: 8px 12px; text-align: left; color: #666; font-weight: 500;">Message</th>
+                      <th style="padding: 8px 12px; text-align: left; color: #666; font-weight: 500;">Author</th>
+                      <th style="padding: 8px 12px; text-align: left; color: #666; font-weight: 500;">Date</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    $COMMITS_HTML
+                  </tbody>
+                </table>
+              </div>
+
+              <!-- View on GitHub -->
+              <div style="text-align: center; margin-top: 25px;">
+                <a href="https://github.com/${{ github.repository }}/commits" style="display: inline-block; background-color: #0a1a5c; color: #ffffff; padding: 12px 30px; text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 14px;">View on GitHub</a>
+              </div>
+
+            </div>
+
+            <!-- Footer -->
+            <div style="background-color: #0a1a5c; padding: 20px 30px; text-align: center;">
+              <p style="color: #bd9a50; margin: 0 0 10px 0; font-size: 12px; font-weight: 500;">
+                Weekly development reports are sent every Friday at 4:00 PM (SAST).
+              </p>
+              <p style="color: #8899aa; margin: 0 0 10px 0; font-size: 11px;">
+                Automated report from the RIM Jetty 1 &amp; Susan Kruger $PROJECT_TYPE project.
+              </p>
+              <p style="color: #8899aa; margin: 0; font-size: 11px;">
+                UWC Immersive Zone — University of the Western Cape
+              </p>
+            </div>
+          </div>
+          EMAILEOF
+          )
+
+          curl -X POST "https://innovationhub.uwc.ac.za/sendmail-api.php" \
+            -H "Content-Type: application/json" \
+            -H "X-API-Key: ${PHP_API_KEY}" \
+            -d @- <<PAYLOAD
+          {
+            "to": "infouih@uwc.ac.za",
+            "cc": ["ldelaroche-souvestre@uwc.ac.za", "rloubser@uwc.ac.za", "kfritz@uwc.ac.za", "zmbali@uwc.ac.za", "aboomgaard@uwc.ac.za", "kmarais@uwc.ac.za"],
+            "subject": "RIM $PROJECT_TYPE Project — Weekly Development Report ($TODAY)",
+            "html": $(echo "$HTML_BODY" | jq -Rs .),
+            "fromName": "UWC Immersive Zone"
+          }
+          PAYLOAD
+
+          echo "Weekly digest sent to team"
+
+      - name: No activity this week
+        if: steps.report.outputs.has_changes == 'false'
+        run: echo "No commits in the last 7 days - no email sent"
