@@ -583,103 +583,104 @@ MonoBehaviour:
   imageManager: {fileID: 1113721260}
   cubePrefab: {fileID: 87318543940164220, guid: 5db131787ba021146a8fe71664307c09,
     type: 3}
-  locationMarkerPrefab: {fileID: 0}
+  locationMarkerPrefab: {fileID: 3329810984712084569, guid: 48be74c1c8bd80d419dcc20d698b6944,
+    type: 3}
   marquetteWidth: 2.55
   marquetteHeight: 1.62
   cellSize: 0.025
   cubeHeight: 0.002
   qrSize: 0.025
   locations:
-  - locationNames: 
-    x_cm: 0
-    z_cm: 0
-  - locationNames: 
-    x_cm: 0
-    z_cm: 0
-  - locationNames: 
-    x_cm: 0
-    z_cm: 0
-  - locationNames: 
-    x_cm: 0
-    z_cm: 0
-  - locationNames: 
-    x_cm: 0
-    z_cm: 0
-  - locationNames: 
-    x_cm: 0
-    z_cm: 0
-  - locationNames: 
-    x_cm: 0
-    z_cm: 0
-  - locationNames: 
-    x_cm: 0
-    z_cm: 0
-  - locationNames: 
-    x_cm: 0
-    z_cm: 0
-  - locationNames: 
-    x_cm: 0
-    z_cm: 0
-  - locationNames: 
-    x_cm: 0
-    z_cm: 0
-  - locationNames: 
-    x_cm: 0
-    z_cm: 0
-  - locationNames: 
-    x_cm: 0
-    z_cm: 0
-  - locationNames: 
-    x_cm: 0
-    z_cm: 0
-  - locationNames: 
-    x_cm: 0
-    z_cm: 0
-  - locationNames: 
-    x_cm: 0
-    z_cm: 0
-  - locationNames: 
-    x_cm: 0
-    z_cm: 0
-  - locationNames: 
-    x_cm: 0
-    z_cm: 0
-  - locationNames: 
-    x_cm: 0
-    z_cm: 0
-  - locationNames: 
-    x_cm: 0
-    z_cm: 0
-  - locationNames: 
-    x_cm: 0
-    z_cm: 0
-  - locationNames: 
-    x_cm: 0
-    z_cm: 0
-  - locationNames: 
-    x_cm: 0
-    z_cm: 0
-  - locationNames: 
-    x_cm: 0
-    z_cm: 0
-  - locationNames: 
-    x_cm: 0
-    z_cm: 0
-  - locationNames: 
-    x_cm: 0
-    z_cm: 0
-  - locationNames: 
-    x_cm: 0
-    z_cm: 0
-  - locationNames: 
-    x_cm: 0
-    z_cm: 0
-  - locationNames: 
-    x_cm: 0
-    z_cm: 0
-  - locationNames: 
-    x_cm: 0
-    z_cm: 0
+  - locationNames: 01. Murrays Bay Harbour
+    x_cm: 158
+    z_cm: 25
+  - locationNames: 02. Visitors Centre
+    x_cm: 160
+    z_cm: 39
+  - locationNames: 03. Maximum Security Prison
+    x_cm: 155
+    z_cm: 58
+  - locationNames: 04. Kramat
+    x_cm: 168
+    z_cm: 55
+  - locationNames: 05. Field of Banishment
+    x_cm: 173
+    z_cm: 45
+  - locationNames: 06. Penguin Protected Colony
+    x_cm: 172
+    z_cm: 40
+  - locationNames: 07. Die Ou Tronk
+    x_cm: 194
+    z_cm: 52
+  - locationNames: 08. Cornelia Battery
+    x_cm: 213
+    z_cm: 55
+  - locationNames: 09. Bluestone Quarry
+    x_cm: 224
+    z_cm: 95
+  - locationNames: 10. Old Rifle Range
+    x_cm: 197
+    z_cm: 122
+  - locationNames: 11. Bath of Bethesda
+    x_cm: 164
+    z_cm: 145
+  - locationNames: 12. Landing Strip
+    x_cm: 166
+    z_cm: 104
+  - locationNames: 13. Agricultural Precinct
+    x_cm: 127
+    z_cm: 76
+  - locationNames: 14. Limestone Quarry
+    x_cm: 114
+    z_cm: 57
+  - locationNames: 15. De Waal Battery
+    x_cm: 91
+    z_cm: 92
+  - locationNames: 16. Lighthouse
+    x_cm: 47
+    z_cm: 73
+  - locationNames: 17. Van Riebeeck's Quarry
+    x_cm: 29
+    z_cm: 63
+  - locationNames: 18. Alpha One
+    x_cm: 8
+    z_cm: 49
+  - locationNames: 19. Guest House
+    x_cm: 45
+    z_cm: 32
+  - locationNames: 20. Faure Jetty
+    x_cm: 51
+    z_cm: 24
+  - locationNames: 21. School
+    x_cm: 53
+    z_cm: 35
+  - locationNames: 22. Garrison Church
+    x_cm: 67
+    z_cm: 37
+  - locationNames: 23. General Infirmary
+    x_cm: 66
+    z_cm: 25
+  - locationNames: 24. Warden Houses
+    x_cm: 69
+    z_cm: 42
+  - locationNames: 25. Medium B Security Prison
+    x_cm: 99
+    z_cm: 34
+  - locationNames: 26. Church of the Good Shepherd
+    x_cm: 108
+    z_cm: 38
+  - locationNames: 27. Sobukwe House Complex
+    x_cm: 123
+    z_cm: 38
+  - locationNames: 28. Leper Graveyard
+    x_cm: 139
+    z_cm: 52
+  - locationNames: 29. Leper Pond
+    x_cm: 146
+    z_cm: 69
+  - locationNames: 30. Krotoa's Garden
+    x_cm: 145
+    z_cm: 43
 --- !u!1 &1356938700
 GameObject:
   m_ObjectHideFlags: 0
