@@ -9,12 +9,12 @@ public class CellSpawner : MonoBehaviour
     public ARTrackedImageManager imageManager;
 
     [Header("Grid Settings")]
-    public float gridWidth = 2f;   // Width of grid in meters
-    public float gridHeight = 1f;  // Height of grid in meters
-    public float cellSize = 0.05f; // Size of each cube
+    public float gridWidth = 2f;
+    public float gridHeight = 1f;
+    public float cellSize = 0.05f;
 
     [Header("Grid Appearance")]
-    [Range(0f, 1f)] public float alpha = 0.05f; // cube transparency
+    [Range(0f, 1f)] public float alpha = 0.05f;
 
     private HashSet<string> spawnedImages = new HashSet<string>();
 
@@ -47,40 +47,48 @@ public class CellSpawner : MonoBehaviour
         int columns = Mathf.RoundToInt(gridWidth / cellSize);
         int rows = Mathf.RoundToInt(gridHeight / cellSize);
 
-        Vector3 startPos = Vector3.zero; // World origin
-        Vector3 xDir = Vector3.right;
-        Vector3 zDir = Vector3.forward;
+        // Create parent so everything moves with QR
+        GameObject gridParent = new GameObject("GridParent");
+        gridParent.transform.SetParent(trackedImage.transform);
+        gridParent.transform.localPosition = new Vector3(0, 0, 0.6f);
+        gridParent.transform.localRotation = Quaternion.identity;
+
+        // Center grid on QR
+        float totalWidth = columns * cellSize;
+        float totalHeight = rows * cellSize;
+
+        Vector3 startOffset = new Vector3(
+            -totalWidth / 2f + cellSize / 2f,
+            0.01f, // slightly above QR so it doesn't clip
+            -totalHeight / 2f + cellSize / 2f
+        );
 
         for (int x = 0; x < columns; x++)
         {
             for (int z = 0; z < rows; z++)
             {
-                Vector3 spawnPos =
-                    startPos +
-                    (xDir * x * cellSize) +
-                    (zDir * z * cellSize);
+                Vector3 localPos = startOffset + new Vector3(x * cellSize, 0, z * cellSize);
 
-                // Create a thin cube
                 GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
-                cube.transform.position = spawnPos;
+
+                // Parent to grid
+                cube.transform.SetParent(gridParent.transform);
+                cube.transform.localPosition = localPos;
+                cube.transform.localRotation = Quaternion.identity;
                 cube.transform.localScale = new Vector3(cellSize, 0.002f, cellSize);
-                cube.transform.rotation = Quaternion.identity;
 
                 // Transparent material
                 Renderer rend = cube.GetComponent<Renderer>();
                 Material mat = new Material(Shader.Find("Universal Render Pipeline/Lit"));
-                mat.color = new Color(1f, 1f, 1f, alpha); // white with low alpha
-                mat.SetFloat("_SurfaceType", 1); // transparent
+                mat.color = new Color(1f, 1f, 1f, alpha);
+                mat.SetFloat("_SurfaceType", 1);
                 rend.material = mat;
 
-                // Remove collider for performance
                 Destroy(cube.GetComponent<Collider>());
-
-                // Add a script or tag to identify this cube as an anchor
                 cube.tag = "GridCell";
             }
         }
 
-        Debug.Log($"Grid spawned at world origin: {columns}x{rows} cubes");
+        Debug.Log($"Grid spawned relative to QR: {columns} x {rows}");
     }
 }
