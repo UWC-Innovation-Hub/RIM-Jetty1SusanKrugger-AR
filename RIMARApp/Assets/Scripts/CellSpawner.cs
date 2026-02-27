@@ -50,7 +50,7 @@ public class CellSpawner : MonoBehaviour
         // Create parent so everything moves with QR
         GameObject gridParent = new GameObject("GridParent");
         gridParent.transform.SetParent(trackedImage.transform);
-        gridParent.transform.localPosition = new Vector3(0, 0, 0.6f);
+        gridParent.transform.localPosition = new Vector3(0, 0, 0.75f);
         gridParent.transform.localRotation = Quaternion.identity;
 
         // Center grid on QR
@@ -59,7 +59,7 @@ public class CellSpawner : MonoBehaviour
 
         Vector3 startOffset = new Vector3(
             -totalWidth / 2f + cellSize / 2f,
-            0.01f, // slightly above QR so it doesn't clip
+            0f, // slightly above QR so it doesn't clip
             -totalHeight / 2f + cellSize / 2f
         );
 
@@ -80,7 +80,7 @@ public class CellSpawner : MonoBehaviour
                 // Transparent material
                 Renderer rend = cube.GetComponent<Renderer>();
                 Material mat = new Material(Shader.Find("Universal Render Pipeline/Lit"));
-                mat.color = new Color(1f, 1f, 1f, alpha);
+                mat.color = new Color(0.5f, 1f, 1f, alpha);
                 mat.SetFloat("_SurfaceType", 1);
                 rend.material = mat;
 
