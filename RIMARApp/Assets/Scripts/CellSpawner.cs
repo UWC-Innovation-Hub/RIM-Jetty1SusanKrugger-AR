@@ -1,7 +1,6 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.XR.ARFoundation;
 using UnityEngine.XR.ARSubsystems;
-using System.Collections.Generic;
 
 public class CellSpawner : MonoBehaviour
 {
@@ -16,7 +15,8 @@ public class CellSpawner : MonoBehaviour
     [Header("Grid Appearance")]
     [Range(0f, 1f)] public float alpha = 0.05f;
 
-    private HashSet<string> spawnedImages = new HashSet<string>();
+    private string currentImageName = null;
+    private GameObject currentGridParent = null;
 
     private void OnEnable()
     {
@@ -32,18 +32,41 @@ public class CellSpawner : MonoBehaviour
     {
         foreach (var trackedImage in args.added)
         {
-            string imageName = trackedImage.referenceImage.name;
+            HandleImageDetected(trackedImage);
+        }
 
-            if (!spawnedImages.Contains(imageName))
+        foreach (var trackedImage in args.updated)
+        {
+            if (trackedImage.trackingState == TrackingState.Tracking)
             {
-                Color gridColor = GetColorForImage(imageName);
-                SpawnGrid(trackedImage, gridColor);
-                spawnedImages.Add(imageName);
+                HandleImageDetected(trackedImage);
             }
         }
     }
 
-    // Determines grid color based on QR code name
+    private void HandleImageDetected(ARTrackedImage trackedImage)
+    {
+        string imageName = trackedImage.referenceImage.name;
+
+        // If same QR is scanned again → do nothing
+        if (imageName == currentImageName)
+            return;
+
+        Debug.Log("Switching to QR: " + imageName);
+
+        // Destroy existing grid
+        if (currentGridParent != null)
+        {
+            Destroy(currentGridParent);
+        }
+
+        // Spawn new grid
+        Color gridColor = GetColorForImage(imageName);
+        currentGridParent = SpawnGrid(trackedImage, gridColor);
+
+        currentImageName = imageName;
+    }
+
     private Color GetColorForImage(string imageName)
     {
         switch (imageName)
@@ -59,18 +82,16 @@ public class CellSpawner : MonoBehaviour
         }
     }
 
-    private void SpawnGrid(ARTrackedImage trackedImage, Color gridColor)
+    private GameObject SpawnGrid(ARTrackedImage trackedImage, Color gridColor)
     {
         int columns = Mathf.RoundToInt(gridWidth / cellSize);
         int rows = Mathf.RoundToInt(gridHeight / cellSize);
 
-        // Create parent so everything moves with QR
         GameObject gridParent = new GameObject("GridParent_" + trackedImage.referenceImage.name);
         gridParent.transform.SetParent(trackedImage.transform);
-        gridParent.transform.localPosition = new Vector3(0, 0, 0.75f);
+        gridParent.transform.localPosition = new Vector3(0, 0, 1.3f);
         gridParent.transform.localRotation = Quaternion.identity;
 
-        // Center grid on QR
         float totalWidth = columns * cellSize;
         float totalHeight = rows * cellSize;
 
@@ -88,13 +109,11 @@ public class CellSpawner : MonoBehaviour
 
                 GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
 
-                // Parent to grid
                 cube.transform.SetParent(gridParent.transform);
                 cube.transform.localPosition = localPos;
                 cube.transform.localRotation = Quaternion.identity;
                 cube.transform.localScale = new Vector3(cellSize, 0.002f, cellSize);
 
-                // Transparent material
                 Renderer rend = cube.GetComponent<Renderer>();
                 Material mat = new Material(Shader.Find("Universal Render Pipeline/Lit"));
                 mat.color = gridColor;
@@ -107,5 +126,6 @@ public class CellSpawner : MonoBehaviour
         }
 
         Debug.Log($"Grid spawned for {trackedImage.referenceImage.name}: {columns} x {rows}");
+        return gridParent;
     }
 }

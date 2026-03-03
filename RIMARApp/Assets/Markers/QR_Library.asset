@@ -25,7 +25,7 @@ MonoBehaviour:
       m_GuidHigh: 12174858627332426378
     m_Size: {x: 0.025, y: 0.025}
     m_SpecifySize: 1
-    m_Name: QR_One
+    m_Name: QRCode1
     m_Texture: {fileID: 0}
   - m_SerializedGuid:
       m_GuidLow: 5534825250999596615
@@ -35,7 +35,7 @@ MonoBehaviour:
       m_GuidHigh: 468422040460356042
     m_Size: {x: 0.025, y: 0.025}
     m_SpecifySize: 1
-    m_Name: QR_Two
+    m_Name: QRCode2
     m_Texture: {fileID: 0}
   - m_SerializedGuid:
       m_GuidLow: 5495901836074076627
@@ -45,5 +45,5 @@ MonoBehaviour:
       m_GuidHigh: 150419724990357720
     m_Size: {x: 0.025, y: 0.025}
     m_SpecifySize: 1
-    m_Name: QR_Three
+    m_Name: QRCode3
     m_Texture: {fileID: 0}

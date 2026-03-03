@@ -27,8 +27,8 @@ MonoBehaviour:
     probeSamplingDebugTexture: {fileID: 0}
     probeVolumeBlendStatesCS: {fileID: 0}
   m_RendererFeatures:
-  - {fileID: 3239328064754543239}
-  m_RendererFeatureMap: 87eaa552b667f42c
+  - {fileID: 4877633506271236146}
+  m_RendererFeatureMap: 3210d7c5d4d5b043
   m_UseNativeRenderPass: 0
   xrSystemData: {fileID: 11400000, guid: 60e1133243b97e347b653163a8c01b64, type: 2}
   postProcessData: {fileID: 11400000, guid: 41439944d30ece34e96484bdb6645b55, type: 2}
@@ -57,7 +57,7 @@ MonoBehaviour:
   m_DepthTextureFormat: 0
   m_AccurateGbufferNormals: 0
   m_IntermediateTextureMode: 1
---- !u!114 &3239328064754543239
+--- !u!114 &4877633506271236146
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -68,5 +68,5 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0ae4d376c05df421b98c5b39b25b0d29, type: 3}
   m_Name: ARBackgroundRendererFeature
-  m_EditorClassIdentifier: 
+  m_EditorClassIdentifier: Unity.XR.ARFoundation::UnityEngine.XR.ARFoundation.ARBackgroundRendererFeature
   m_Active: 1
