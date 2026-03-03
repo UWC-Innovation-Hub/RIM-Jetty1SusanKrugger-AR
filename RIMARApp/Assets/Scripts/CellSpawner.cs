@@ -36,19 +36,36 @@ public class CellSpawner : MonoBehaviour
 
             if (!spawnedImages.Contains(imageName))
             {
-                SpawnGrid(trackedImage);
+                Color gridColor = GetColorForImage(imageName);
+                SpawnGrid(trackedImage, gridColor);
                 spawnedImages.Add(imageName);
             }
         }
     }
 
-    private void SpawnGrid(ARTrackedImage trackedImage)
+    // Determines grid color based on QR code name
+    private Color GetColorForImage(string imageName)
+    {
+        switch (imageName)
+        {
+            case "QRCode1":
+                return new Color(0f, 1f, 1f, alpha); // Cyan
+            case "QRCode2":
+                return new Color(1f, 0f, 0f, alpha); // Red
+            case "QRCode3":
+                return new Color(0f, 1f, 0f, alpha); // Green
+            default:
+                return new Color(1f, 1f, 1f, alpha); // White fallback
+        }
+    }
+
+    private void SpawnGrid(ARTrackedImage trackedImage, Color gridColor)
     {
         int columns = Mathf.RoundToInt(gridWidth / cellSize);
         int rows = Mathf.RoundToInt(gridHeight / cellSize);
 
         // Create parent so everything moves with QR
-        GameObject gridParent = new GameObject("GridParent");
+        GameObject gridParent = new GameObject("GridParent_" + trackedImage.referenceImage.name);
         gridParent.transform.SetParent(trackedImage.transform);
         gridParent.transform.localPosition = new Vector3(0, 0, 0.75f);
         gridParent.transform.localRotation = Quaternion.identity;
@@ -59,7 +76,7 @@ public class CellSpawner : MonoBehaviour
 
         Vector3 startOffset = new Vector3(
             -totalWidth / 2f + cellSize / 2f,
-            0f, // slightly above QR so it doesn't clip
+            0f,
             -totalHeight / 2f + cellSize / 2f
         );
 
@@ -80,7 +97,7 @@ public class CellSpawner : MonoBehaviour
                 // Transparent material
                 Renderer rend = cube.GetComponent<Renderer>();
                 Material mat = new Material(Shader.Find("Universal Render Pipeline/Lit"));
-                mat.color = new Color(0.5f, 1f, 1f, alpha);
+                mat.color = gridColor;
                 mat.SetFloat("_SurfaceType", 1);
                 rend.material = mat;
 
@@ -89,6 +106,6 @@ public class CellSpawner : MonoBehaviour
             }
         }
 
-        Debug.Log($"Grid spawned relative to QR: {columns} x {rows}");
+        Debug.Log($"Grid spawned for {trackedImage.referenceImage.name}: {columns} x {rows}");
     }
 }
