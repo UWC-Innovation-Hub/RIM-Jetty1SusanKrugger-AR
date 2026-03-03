@@ -13,7 +13,8 @@ public class BillboardCamera : MonoBehaviour
     {
         if (mainCamera != null)
         {
-            transform.forward = mainCamera.transform.forward;
+            transform.LookAt(mainCamera.transform);
+            transform.Rotate(0, 180f, 0);
         }
     }
 }

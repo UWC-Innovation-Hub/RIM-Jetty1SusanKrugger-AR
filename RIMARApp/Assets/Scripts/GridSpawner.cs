@@ -192,7 +192,7 @@ public class GridSpawner : MonoBehaviour
                     // Spawn Text
                     if (locationTextPrefab != null)
                     {
-                        GameObject textObj = Instantiate(
+                        /*GameObject textObj = Instantiate(
                             locationTextPrefab,
                             marker.transform.position + Vector3.up * 0.05f,
                             Quaternion.identity,
@@ -203,7 +203,28 @@ public class GridSpawner : MonoBehaviour
                         if (tmp != null)
                         {
                             tmp.text = location.locationName;
+                        }*/
+
+                        Vector3 textPosition = marker.transform.position + Vector3.up * 0.01f;
+
+                        GameObject textObj = Instantiate(
+                            locationTextPrefab,
+                            textPosition,
+                            Quaternion.identity,
+                            currentGridParent.transform
+                        );
+
+                        textObj.transform.localScale = Vector3.one * 0.01f; // Force large scale
+
+                        TextMeshPro tmp = textObj.GetComponent<TextMeshPro>();
+                        if (tmp != null)
+                        {
+                            tmp.text = location.locationName;
+                            tmp.fontSize = 10;
+                            tmp.color = Color.white;
                         }
+
+                        Debug.Log("Text created for: " + location.locationName);
                     }
 
                     Debug.Log("Mapped: " + location.locationName +
