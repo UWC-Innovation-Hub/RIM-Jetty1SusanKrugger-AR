@@ -194,3 +194,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c031ab73faa4d2942b87b06138af5679, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BillboardCamera
+  scaleMultiplier: 0.01
+  minScale: 0.01
+  maxScale: 0.05
