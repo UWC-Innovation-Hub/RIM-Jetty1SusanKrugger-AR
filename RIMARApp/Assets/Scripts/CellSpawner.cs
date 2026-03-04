@@ -1,8 +1,6 @@
 ﻿using UnityEngine;
 using UnityEngine.XR.ARFoundation;
 using UnityEngine.XR.ARSubsystems;
-using System.Collections;
-using System.Collections.Generic;
 
 public class CellSpawner : MonoBehaviour
 {
@@ -14,14 +12,11 @@ public class CellSpawner : MonoBehaviour
     public float gridHeight = 1f;
     public float cellSize = 0.05f;
 
-    [Header("Animation")]
-    [Range(0f, 1f)] public float targetAlpha = 0.15f;
-    public float fadeDuration = 0.4f;
-    public float spawnScaleDuration = 0.25f;
+    [Header("Grid Appearance")]
+    [Range(0f, 1f)] public float alpha = 0.05f;
 
     private string currentImageName = null;
     private GameObject currentGridParent = null;
-    private ARAnchor currentAnchor = null;
 
     private void OnEnable()
     {
@@ -37,8 +32,15 @@ public class CellSpawner : MonoBehaviour
     {
         foreach (var trackedImage in args.added)
         {
+            HandleImageDetected(trackedImage);
+        }
+
+        foreach (var trackedImage in args.updated)
+        {
             if (trackedImage.trackingState == TrackingState.Tracking)
+            {
                 HandleImageDetected(trackedImage);
+            }
         }
     }
 
@@ -46,63 +48,48 @@ public class CellSpawner : MonoBehaviour
     {
         string imageName = trackedImage.referenceImage.name;
 
+        // If same QR is scanned again → do nothing
         if (imageName == currentImageName)
             return;
 
-        StartCoroutine(SwitchGrid(trackedImage));
-    }
+        Debug.Log("Switching to QR: " + imageName);
 
-    private IEnumerator SwitchGrid(ARTrackedImage trackedImage)
-    {
-        currentImageName = trackedImage.referenceImage.name;
-
-        // Fade out old grid
+        // Destroy existing grid
         if (currentGridParent != null)
         {
-            yield return StartCoroutine(FadeGrid(currentGridParent, 0f));
             Destroy(currentGridParent);
         }
 
-        // Remove old anchor
-        if (currentAnchor != null)
-        {
-            Destroy(currentAnchor.gameObject);
-        }
+        // Spawn new grid
+        Color gridColor = GetColorForImage(imageName);
+        currentGridParent = SpawnGrid(trackedImage, gridColor);
 
-        // CREATE ANCHOR (AR Foundation 6 method)
-        GameObject anchorObject = new GameObject("ImageAnchor_" + currentImageName);
-
-        anchorObject.transform.position = trackedImage.transform.position;
-        anchorObject.transform.rotation = trackedImage.transform.rotation;
-
-        currentAnchor = anchorObject.AddComponent<ARAnchor>();
-
-        // Spawn grid under anchor
-        Color baseColor = GetColorForImage(currentImageName);
-        currentGridParent = SpawnGrid(currentAnchor.transform, baseColor);
-
-        yield return StartCoroutine(FadeGrid(currentGridParent, targetAlpha));
+        currentImageName = imageName;
     }
 
     private Color GetColorForImage(string imageName)
     {
         switch (imageName)
         {
-            case "QRCode1": return Color.cyan;
-            case "QRCode2": return Color.red;
-            case "QRCode3": return Color.green;
-            default: return Color.white;
+            case "QRCode1":
+                return new Color(0f, 1f, 1f, alpha); // Cyan
+            case "QRCode2":
+                return new Color(1f, 0f, 0f, alpha); // Red
+            case "QRCode3":
+                return new Color(0f, 1f, 0f, alpha); // Green
+            default:
+                return new Color(1f, 1f, 1f, alpha); // White fallback
         }
     }
 
-    private GameObject SpawnGrid(Transform parent, Color baseColor)
+    private GameObject SpawnGrid(ARTrackedImage trackedImage, Color gridColor)
     {
         int columns = Mathf.RoundToInt(gridWidth / cellSize);
         int rows = Mathf.RoundToInt(gridHeight / cellSize);
 
-        GameObject gridParent = new GameObject("GridParent_" + currentImageName);
-        gridParent.transform.SetParent(parent);
-        gridParent.transform.localPosition = Vector3.zero;
+        GameObject gridParent = new GameObject("GridParent_" + trackedImage.referenceImage.name);
+        gridParent.transform.SetParent(trackedImage.transform);
+        gridParent.transform.localPosition = new Vector3(0, 0, 1.3f);
         gridParent.transform.localRotation = Quaternion.identity;
 
         float totalWidth = columns * cellSize;
@@ -125,78 +112,20 @@ public class CellSpawner : MonoBehaviour
                 cube.transform.SetParent(gridParent.transform);
                 cube.transform.localPosition = localPos;
                 cube.transform.localRotation = Quaternion.identity;
-                cube.transform.localScale = Vector3.zero;
-
-                StartCoroutine(AnimateScale(
-                    cube.transform,
-                    new Vector3(cellSize, 0.002f, cellSize),
-                    spawnScaleDuration));
+                cube.transform.localScale = new Vector3(cellSize, 0.002f, cellSize);
 
                 Renderer rend = cube.GetComponent<Renderer>();
                 Material mat = new Material(Shader.Find("Universal Render Pipeline/Lit"));
-
-                mat.SetFloat("_Surface", 1);
-                mat.EnableKeyword("_SURFACE_TYPE_TRANSPARENT");
-
-                Color c = baseColor;
-                c.a = 0f;
-                mat.color = c;
-
+                mat.color = gridColor;
+                mat.SetFloat("_SurfaceType", 1);
                 rend.material = mat;
 
                 Destroy(cube.GetComponent<Collider>());
+                cube.tag = "GridCell";
             }
         }
 
+        Debug.Log($"Grid spawned for {trackedImage.referenceImage.name}: {columns} x {rows}");
         return gridParent;
-    }
-
-    private IEnumerator AnimateScale(Transform target, Vector3 targetScale, float duration)
-    {
-        float time = 0f;
-
-        while (time < duration)
-        {
-            float t = time / duration;
-            target.localScale = Vector3.Lerp(Vector3.zero, targetScale, t);
-            time += Time.deltaTime;
-            yield return null;
-        }
-
-        target.localScale = targetScale;
-    }
-
-    private IEnumerator FadeGrid(GameObject gridParent, float targetAlpha)
-    {
-        float time = 0f;
-
-        List<Material> materials = new List<Material>();
-        foreach (Renderer r in gridParent.GetComponentsInChildren<Renderer>())
-            materials.Add(r.material);
-
-        float startAlpha = materials[0].color.a;
-
-        while (time < fadeDuration)
-        {
-            float t = time / fadeDuration;
-            float alpha = Mathf.Lerp(startAlpha, targetAlpha, t);
-
-            foreach (Material m in materials)
-            {
-                Color c = m.color;
-                c.a = alpha;
-                m.color = c;
-            }
-
-            time += Time.deltaTime;
-            yield return null;
-        }
-
-        foreach (Material m in materials)
-        {
-            Color c = m.color;
-            c.a = targetAlpha;
-            m.color = c;
-        }
     }
 }
