@@ -440,7 +440,7 @@ MonoBehaviour:
       m_Calls: []
   m_SerializedLibrary: {fileID: 11400000, guid: aaab17bb463f62c49b140a844036f79f,
     type: 2}
-  m_MaxNumberOfMovingImages: 3
+  m_MaxNumberOfMovingImages: 1
   m_TrackedImagePrefab: {fileID: 0}
 --- !u!114 &195107524
 MonoBehaviour:
@@ -538,7 +538,9 @@ MonoBehaviour:
   gridWidth: 1
   gridHeight: 2
   cellSize: 1
-  alpha: 0.036
+  targetAlpha: 0.15
+  fadeDuration: 0.4
+  spawnScaleDuration: 0.25
 --- !u!1 &394869570
 GameObject:
   m_ObjectHideFlags: 0
