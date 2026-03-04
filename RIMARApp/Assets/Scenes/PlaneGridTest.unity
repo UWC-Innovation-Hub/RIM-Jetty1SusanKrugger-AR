@@ -401,6 +401,96 @@ Camera:
   m_OcclusionCulling: 1
   m_StereoConvergence: 10
   m_StereoSeparation: 0.022
+--- !u!1 &423734973
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 423734976}
+  - component: {fileID: 423734975}
+  - component: {fileID: 423734974}
+  m_Layer: 0
+  m_Name: EventSystem
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &423734974
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 423734973}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 01614664b831546d2ae94a42149d80ac, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.InputSystem::UnityEngine.InputSystem.UI.InputSystemUIInputModule
+  m_SendPointerHoverToParent: 1
+  m_MoveRepeatDelay: 0.5
+  m_MoveRepeatRate: 0.1
+  m_XRTrackingOrigin: {fileID: 0}
+  m_ActionsAsset: {fileID: -944628639613478452, guid: ca9f5fa95ffab41fb9a615ab714db018,
+    type: 3}
+  m_PointAction: {fileID: -1654692200621890270, guid: ca9f5fa95ffab41fb9a615ab714db018,
+    type: 3}
+  m_MoveAction: {fileID: -8784545083839296357, guid: ca9f5fa95ffab41fb9a615ab714db018,
+    type: 3}
+  m_SubmitAction: {fileID: 392368643174621059, guid: ca9f5fa95ffab41fb9a615ab714db018,
+    type: 3}
+  m_CancelAction: {fileID: 7727032971491509709, guid: ca9f5fa95ffab41fb9a615ab714db018,
+    type: 3}
+  m_LeftClickAction: {fileID: 3001919216989983466, guid: ca9f5fa95ffab41fb9a615ab714db018,
+    type: 3}
+  m_MiddleClickAction: {fileID: -2185481485913320682, guid: ca9f5fa95ffab41fb9a615ab714db018,
+    type: 3}
+  m_RightClickAction: {fileID: -4090225696740746782, guid: ca9f5fa95ffab41fb9a615ab714db018,
+    type: 3}
+  m_ScrollWheelAction: {fileID: 6240969308177333660, guid: ca9f5fa95ffab41fb9a615ab714db018,
+    type: 3}
+  m_TrackedDevicePositionAction: {fileID: 6564999863303420839, guid: ca9f5fa95ffab41fb9a615ab714db018,
+    type: 3}
+  m_TrackedDeviceOrientationAction: {fileID: 7970375526676320489, guid: ca9f5fa95ffab41fb9a615ab714db018,
+    type: 3}
+  m_DeselectOnBackgroundClick: 1
+  m_PointerBehavior: 0
+  m_CursorLockBehavior: 0
+  m_ScrollDeltaPerTick: 6
+--- !u!114 &423734975
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 423734973}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 76c392e42b5098c458856cdf6ecaaaa1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.EventSystems.EventSystem
+  m_FirstSelected: {fileID: 0}
+  m_sendNavigationEvents: 1
+  m_DragThreshold: 10
+--- !u!4 &423734976
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 423734973}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &554356762
 GameObject:
   m_ObjectHideFlags: 0
@@ -441,7 +531,7 @@ Transform:
   m_GameObject: {fileID: 554356762}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.00315311, y: 0.016110651, z: 0.009912373}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -561,7 +651,7 @@ Transform:
   m_GameObject: {fileID: 1113721259}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.00315311, y: 0.016110651, z: 0.009912373}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -585,100 +675,102 @@ MonoBehaviour:
     type: 3}
   locationMarkerPrefab: {fileID: 3329810984712084569, guid: 48be74c1c8bd80d419dcc20d698b6944,
     type: 3}
+  locationTextPrefab: {fileID: 3206313751542449425, guid: 5c284614ae66740468b57d46ca17e608,
+    type: 3}
   marquetteWidth: 2.55
   marquetteHeight: 1.62
   cellSize: 0.025
   cubeHeight: 0.002
   qrSize: 0.025
   locations:
-  - locationNames: 01. Murrays Bay Harbour
+  - locationName: 01. Murrays Bay Harbour
     x_cm: 158
     z_cm: 25
-  - locationNames: 02. Visitors Centre
+  - locationName: 02. Visitors Centre
     x_cm: 160
     z_cm: 39
-  - locationNames: 03. Maximum Security Prison
+  - locationName: 03. Maximum Security Prison
     x_cm: 155
     z_cm: 58
-  - locationNames: 04. Kramat
+  - locationName: 04. Kramat
     x_cm: 168
     z_cm: 55
-  - locationNames: 05. Field of Banishment
+  - locationName: 05. Field of Banishment
     x_cm: 173
     z_cm: 45
-  - locationNames: 06. Penguin Protected Colony
+  - locationName: 06. Penguin Protected Colony
     x_cm: 172
     z_cm: 40
-  - locationNames: 07. Die Ou Tronk
+  - locationName: 07. Die Ou Tronk
     x_cm: 194
     z_cm: 52
-  - locationNames: 08. Cornelia Battery
+  - locationName: 08. Cornelia Battery
     x_cm: 213
     z_cm: 55
-  - locationNames: 09. Bluestone Quarry
+  - locationName: 09. Bluestone Quarry
     x_cm: 224
     z_cm: 95
-  - locationNames: 10. Old Rifle Range
+  - locationName: 10. Old Rifle Range
     x_cm: 197
     z_cm: 122
-  - locationNames: 11. Bath of Bethesda
+  - locationName: 11. Bath of Bethesda
     x_cm: 164
     z_cm: 145
-  - locationNames: 12. Landing Strip
+  - locationName: 12. Landing Strip
     x_cm: 166
     z_cm: 104
-  - locationNames: 13. Agricultural Precinct
+  - locationName: 13. Agricultural Precinct
     x_cm: 127
     z_cm: 76
-  - locationNames: 14. Limestone Quarry
+  - locationName: 14. Limestone Quarry
     x_cm: 114
     z_cm: 57
-  - locationNames: 15. De Waal Battery
+  - locationName: 15. De Waal Battery
     x_cm: 91
     z_cm: 92
-  - locationNames: 16. Lighthouse
+  - locationName: 16. Lighthouse
     x_cm: 47
     z_cm: 73
-  - locationNames: 17. Van Riebeeck's Quarry
+  - locationName: 17. Van Riebeeck's Quarry
     x_cm: 29
     z_cm: 63
-  - locationNames: 18. Alpha One
+  - locationName: 18. Alpha One
     x_cm: 8
     z_cm: 49
-  - locationNames: 19. Guest House
+  - locationName: 19. Guest House
     x_cm: 45
     z_cm: 32
-  - locationNames: 20. Faure Jetty
+  - locationName: 20. Faure Jetty
     x_cm: 51
     z_cm: 24
-  - locationNames: 21. School
+  - locationName: 21. School
     x_cm: 53
     z_cm: 35
-  - locationNames: 22. Garrison Church
+  - locationName: 22. Garrison Church
     x_cm: 67
     z_cm: 37
-  - locationNames: 23. General Infirmary
+  - locationName: 23. General Infirmary
     x_cm: 66
     z_cm: 25
-  - locationNames: 24. Warden Houses
+  - locationName: 24. Warden Houses
     x_cm: 69
     z_cm: 42
-  - locationNames: 25. Medium B Security Prison
+  - locationName: 25. Medium B Security Prison
     x_cm: 99
     z_cm: 34
-  - locationNames: 26. Church of the Good Shepherd
+  - locationName: 26. Church of the Good Shepherd
     x_cm: 108
     z_cm: 38
-  - locationNames: 27. Sobukwe House Complex
+  - locationName: 27. Sobukwe House Complex
     x_cm: 123
     z_cm: 38
-  - locationNames: 28. Leper Graveyard
+  - locationName: 28. Leper Graveyard
     x_cm: 139
     z_cm: 52
-  - locationNames: 29. Leper Pond
+  - locationName: 29. Leper Pond
     x_cm: 146
     z_cm: 69
-  - locationNames: 30. Krotoa's Garden
+  - locationName: 30. Krotoa's Garden
     x_cm: 145
     z_cm: 43
 --- !u!1 &1356938700
@@ -894,7 +986,7 @@ Transform:
   m_GameObject: {fileID: 1937226433}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.00315311, y: 0.016110651, z: 0.009912373}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -908,3 +1000,4 @@ SceneRoots:
   - {fileID: 554356764}
   - {fileID: 1113721265}
   - {fileID: 1356938702}
+  - {fileID: 423734976}

@@ -129,6 +129,7 @@ Through tablet AR experiences, visitors can discover stories, visuals, and archi
 | `SimpleObjectRecognition.cs` | `Assets/RIMJetty1Ex/Scripts/SimpleObjectRecognition.cs` |
 | `ARPlacementManager.cs` | `Assets/Scripts/ARPlacementManager.cs` |
 | `ARPopupHandler.cs` | `Assets/Scripts/ARPopupHandler.cs` |
+| `BillboardCamera.cs` | `Assets/Scripts/BillboardCamera.cs` |
 | `CountdownTimer.cs` | `Assets/Scripts/CountdownTimer.cs` |
 | `GestureManager.cs` | `Assets/Scripts/GestureManager.cs` |
 | `GridSpawner.cs` | `Assets/Scripts/GridSpawner.cs` |

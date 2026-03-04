@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.XR.ARFoundation;
 using UnityEngine.XR.ARSubsystems;
-//using static UnityEditor.FilePathAttribute;
+using TMPro;
 
 
 public class GridSpawner : MonoBehaviour
@@ -11,6 +11,7 @@ public class GridSpawner : MonoBehaviour
 
     public GameObject cubePrefab;
     public GameObject locationMarkerPrefab;
+    public GameObject locationTextPrefab;
 
     [SerializeField] private float marquetteWidth; // 2 meters
     [SerializeField] private float marquetteHeight; // 1 meter
@@ -26,7 +27,7 @@ public class GridSpawner : MonoBehaviour
     [System.Serializable]
     public class LocationPoint
     {
-        public string locationNames;
+        public string locationName;
         public float x_cm;
         public float z_cm;
     }
@@ -74,12 +75,16 @@ public class GridSpawner : MonoBehaviour
         Vector3 xDirection = trackedImage.transform.right;
         Vector3 zDirection = trackedImage.transform.forward;
 
+        Vector3 startCorner = qrCenter
+            - (xDirection * halfQR)
+            - (zDirection * halfQR);
+
         string qrName = trackedImage.referenceImage.name;
 
         // Determine correct directions and corner offset
-        Vector3 startCorner = qrCenter;
+        //Vector3 startCorner = qrCenter;
 
-        if (qrName == "QR_TopLeft")
+        /*if (qrName == "QR_TopLeft")
         {
             startCorner = qrCenter
                 - (xDirection * halfQR)
@@ -114,7 +119,7 @@ public class GridSpawner : MonoBehaviour
 
             xDirection = -xDirection;
             //zDirection = zDirection;
-        }
+        }*/
 
         for (int x = 0; x < columns; x++)
         {
@@ -175,24 +180,60 @@ public class GridSpawner : MonoBehaviour
                 if (cube != null)
                 {
                     cube.GetComponent<Renderer>().material.color = Color.magenta;
+                    Vector3 markerPosition = cube.transform.position + Vector3.up * 0.02f;
 
-                    if (locationMarkerPrefab != null)
-                    {
-                        Instantiate(
+                    GameObject marker = Instantiate(
                             locationMarkerPrefab,
-                            cube.transform.position + Vector3.up * 0.01f,
+                            markerPosition,
+                            Quaternion.identity,
+                            currentGridParent.transform
+                    );
+
+                    // Spawn Text
+                    if (locationTextPrefab != null)
+                    {
+                        /*GameObject textObj = Instantiate(
+                            locationTextPrefab,
+                            marker.transform.position + Vector3.up * 0.05f,
+                            Quaternion.identity,
+                            marker.transform
+                        );
+
+                        TextMeshPro tmp = textObj.GetComponent<TextMeshPro>();
+                        if (tmp != null)
+                        {
+                            tmp.text = location.locationName;
+                        }*/
+
+                        Vector3 textPosition = marker.transform.position + Vector3.up * 0.01f;
+
+                        GameObject textObj = Instantiate(
+                            locationTextPrefab,
+                            textPosition,
                             Quaternion.identity,
                             currentGridParent.transform
                         );
+
+                        textObj.transform.localScale = Vector3.one * 0.01f; // Force large scale
+
+                        TextMeshPro tmp = textObj.GetComponent<TextMeshPro>();
+                        if (tmp != null)
+                        {
+                            tmp.text = location.locationName;
+                            tmp.fontSize = 10;
+                            tmp.color = Color.white;
+                        }
+
+                        Debug.Log("Text created for: " + location.locationName);
                     }
 
-                    Debug.Log("Mapped: " + location.locationNames +
+                    Debug.Log("Mapped: " + location.locationName +
                         " -> Grid (" + xIndex + ", " + zIndex + ")");
                 }
             }
             else
             {
-                Debug.LogWarning("Location out of bounds: " + location.locationNames);
+                Debug.LogWarning("Location out of bounds: " + location.locationName);
             }
         }
     }
@@ -212,3 +253,4 @@ public class GridSpawner : MonoBehaviour
         return cubeList;
     }
 }
+
