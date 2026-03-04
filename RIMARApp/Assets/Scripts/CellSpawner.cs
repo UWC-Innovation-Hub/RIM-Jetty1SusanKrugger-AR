@@ -107,21 +107,31 @@ public class CellSpawner : MonoBehaviour
             {
                 Vector3 localPos = startOffset + new Vector3(x * cellSize, 0, z * cellSize);
 
+                // --- Create visual cube ---
                 GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
-
                 cube.transform.SetParent(gridParent.transform);
                 cube.transform.localPosition = localPos;
                 cube.transform.localRotation = Quaternion.identity;
                 cube.transform.localScale = new Vector3(cellSize, 0.002f, cellSize);
 
-                Renderer rend = cube.GetComponent<Renderer>();
+                Renderer cubeRend = cube.GetComponent<Renderer>();
                 Material mat = new Material(Shader.Find("Universal Render Pipeline/Lit"));
                 mat.color = gridColor;
                 mat.SetFloat("_SurfaceType", 1);
-                rend.material = mat;
+                cubeRend.material = mat;
 
-                Destroy(cube.GetComponent<Collider>());
+                Destroy(cube.GetComponent<Collider>()); // Non-interactable
                 cube.tag = "GridCell";
+
+                // --- Spawn interactable object on top ---
+                GameObject sphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+                sphere.transform.SetParent(gridParent.transform);
+                sphere.transform.localPosition = localPos + new Vector3(0, 0.02f, 0); // Slightly above cube
+                sphere.transform.localRotation = Quaternion.identity;
+                sphere.transform.localScale = Vector3.one * (cellSize * 0.5f);
+
+                sphere.AddComponent<InteractableObject>(); // Add interactivity
+                sphere.tag = "Interactable";
             }
         }
 
