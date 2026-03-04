@@ -13,6 +13,9 @@ public class BillboardCamera : MonoBehaviour
     void Start()
     {
         mainCamera = Camera.main;
+
+        if (LabelManager.Instance != null)
+            LabelManager.Instance.RegisterLabel(transform);
     }
 
 
@@ -36,9 +39,21 @@ public class BillboardCamera : MonoBehaviour
             transform.position
         );
 
-        float scale = distance * scaleMultiplier;
-        scale = Mathf.Clamp(scale, minScale, maxScale);
+        /*float scale = distance * scaleMultiplier;
+        scale = Mathf.Clamp(scale, minScale, maxScale);*/
 
-        transform.localScale = Vector3.one * scale;
+        float scale = Mathf.Clamp(
+            distance * scaleMultiplier,
+            minScale,
+            maxScale
+        );
+
+        //transform.localScale = Vector3.one * scale;
+
+        transform.localScale = Vector3.Lerp(
+            transform.localScale,
+            Vector3.one * scale,
+            Time.deltaTime * 8f
+        );
     }
 }
