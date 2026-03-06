@@ -23,6 +23,74 @@ public class GridSpawner : MonoBehaviour
 
     private GameObject[,] gridArray;
 
+    string[] locationNames =
+                    {
+                        "Murrays Bay Harbour",
+                        "Visitors Centre",
+                        "Maximum Security Prison",
+                        "Kramat",
+                        "Field of Banishment",
+                        "Penguin Protected Colony",
+                        "Die Ou Tronk",
+                        "Cornelia Battery",
+                        "Bluestone Quarry",
+                        "Old Rifle Range",
+                        "Bath of Bethesda",
+                        "Landing Strip",
+                        "Agricultural Precinct",
+                        "Limestone Quarry",
+                        "De Waal Battery",
+                        "Lighthouse",
+                        "Van Riebeeck's Quarry",
+                        "Alpha One",
+                        "Guest House",
+                        "Faure Jetty",
+                        "School",
+                        "Garrison Church",
+                        "General Infirmary",
+                        "Warden Houses",
+                        "Medium B Security Prison",
+                        "Church of the Good Sherpherd",
+                        "Sobukwe House Complex",
+                        "Leper Graveyard",
+                        "Leper Pond",
+                        "Krotoa's Garden"
+                    };
+
+    string[] locationDescriptions =
+    {
+                        "This is the description for this location point.",
+                        "This is the description for this location point.",
+                        "This is the description for this location point.",
+                        "This is the description for this location point.",
+                        "This is the description for this location point.",
+                        "This is the description for this location point.",
+                        "This is the description for this location point.",
+                        "This is the description for this location point.",
+                        "This is the description for this location point.",
+                        "This is the description for this location point.",
+                        "This is the description for this location point.",
+                        "This is the description for this location point.",
+                        "This is the description for this location point.",
+                        "This is the description for this location point.",
+                        "This is the description for this location point.",
+                        "This is the description for this location point.",
+                        "This is the description for this location point.",
+                        "This is the description for this location point.",
+                        "This is the description for this location point.",
+                        "This is the description for this location point.",
+                        "This is the description for this location point.",
+                        "This is the description for this location point.",
+                        "This is the description for this location point.",
+                        "This is the description for this location point.",
+                        "This is the description for this location point.",
+                        "This is the description for this location point.",
+                        "This is the description for this location point.",
+                        "This is the description for this location point.",
+                        "This is the description for this location point.",
+                        "This is the description for this location point."
+                    };
+
 
     [System.Serializable]
     public class LocationPoint
@@ -188,6 +256,12 @@ public class GridSpawner : MonoBehaviour
                             Quaternion.identity,
                             currentGridParent.transform
                     );
+
+                    ARLocationMarker markerScript = marker.GetComponent<ARLocationMarker>();
+
+                    int i = 0;
+                    markerScript.locationTitle = locationNames[i];
+                    markerScript.locationDescription = locationDescriptions[i];
 
                     // Spawn Text
                     if (locationTextPrefab != null)
