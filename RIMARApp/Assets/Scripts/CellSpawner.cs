@@ -20,12 +20,14 @@ public class CellSpawner : MonoBehaviour
 
     private void OnEnable()
     {
-        imageManager.trackablesChanged.AddListener(OnTrackedImagesChanged);
+        if (imageManager != null)
+            imageManager.trackablesChanged.AddListener(OnTrackedImagesChanged);
     }
 
     private void OnDisable()
     {
-        imageManager.trackablesChanged.RemoveListener(OnTrackedImagesChanged);
+        if (imageManager != null)
+            imageManager.trackablesChanged.RemoveListener(OnTrackedImagesChanged);
     }
 
     private void OnTrackedImagesChanged(ARTrackablesChangedEventArgs<ARTrackedImage> args)
@@ -46,6 +48,9 @@ public class CellSpawner : MonoBehaviour
 
     private void HandleImageDetected(ARTrackedImage trackedImage)
     {
+        if (trackedImage.trackingState != TrackingState.Tracking)
+            return;
+
         string imageName = trackedImage.referenceImage.name;
 
         // If same QR is scanned again → do nothing
@@ -88,9 +93,12 @@ public class CellSpawner : MonoBehaviour
         int rows = Mathf.RoundToInt(gridHeight / cellSize);
 
         GameObject gridParent = new GameObject("GridParent_" + trackedImage.referenceImage.name);
-        gridParent.transform.SetParent(trackedImage.transform);
-        gridParent.transform.localPosition = new Vector3(0, 0, 1.3f);
-        gridParent.transform.localRotation = Quaternion.identity;
+
+        // Place grid at QR position but keep it in world space
+        gridParent.transform.position =
+            trackedImage.transform.position + trackedImage.transform.up * 0.01f;
+
+        gridParent.transform.rotation = trackedImage.transform.rotation;
 
         float totalWidth = columns * cellSize;
         float totalHeight = rows * cellSize;
@@ -107,7 +115,7 @@ public class CellSpawner : MonoBehaviour
             {
                 Vector3 localPos = startOffset + new Vector3(x * cellSize, 0, z * cellSize);
 
-                // --- Create visual cube ---
+                // Create visual cube
                 GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
                 cube.transform.SetParent(gridParent.transform);
                 cube.transform.localPosition = localPos;
@@ -120,22 +128,24 @@ public class CellSpawner : MonoBehaviour
                 mat.SetFloat("_SurfaceType", 1);
                 cubeRend.material = mat;
 
-                Destroy(cube.GetComponent<Collider>()); // Non-interactable
+                Destroy(cube.GetComponent<Collider>());
                 cube.tag = "GridCell";
 
-                // --- Spawn interactable object on top ---
+                // Spawn interactable sphere
                 GameObject sphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);
                 sphere.transform.SetParent(gridParent.transform);
-                sphere.transform.localPosition = localPos + new Vector3(0, 0.1f, 0.02f); // Slightly above cube
+                sphere.transform.localPosition = localPos + new Vector3(0, 0.1f, 0.02f);
                 sphere.transform.localRotation = Quaternion.identity;
                 sphere.transform.localScale = Vector3.one * (cellSize * 0.2f);
 
-                sphere.AddComponent<InteractableObject>(); // Add interactivity
+                sphere.AddComponent<InteractableObject>();
                 sphere.tag = "Interactable";
             }
         }
 
         Debug.Log($"Grid spawned for {trackedImage.referenceImage.name}: {columns} x {rows}");
+        Debug.Log("Grid world position: " + gridParent.transform.position);
+
         return gridParent;
     }
 }

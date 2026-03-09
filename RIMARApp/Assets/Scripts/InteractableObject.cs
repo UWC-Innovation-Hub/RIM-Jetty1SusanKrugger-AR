@@ -2,22 +2,26 @@ using UnityEngine;
 
 public class InteractableObject : MonoBehaviour
 {
-    private Renderer rend;
+    private Renderer objectRenderer;
+    private Color originalColor;
 
-    private void Awake()
+    void Start()
     {
-        rend = GetComponent<Renderer>();
+        objectRenderer = GetComponent<Renderer>();
+
+        if (objectRenderer != null)
+        {
+            originalColor = objectRenderer.material.color;
+        }
     }
 
-    // Called when the object is tapped
     public void OnTapped()
     {
-        // Example interaction: toggle color between yellow and original
-        if (rend.material.color != Color.yellow)
-            rend.material.color = Color.yellow;
-        else
-            rend.material.color = Color.white;
+        Debug.Log("Cell tapped: " + gameObject.name);
 
-        Debug.Log($"{name} was tapped!");
+        if (objectRenderer != null)
+        {
+            objectRenderer.material.color = Color.yellow;
+        }
     }
 }
