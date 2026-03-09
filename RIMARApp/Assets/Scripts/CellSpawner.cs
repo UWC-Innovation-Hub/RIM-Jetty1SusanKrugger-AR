@@ -126,9 +126,9 @@ public class CellSpawner : MonoBehaviour
                 // --- Spawn interactable object on top ---
                 GameObject sphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);
                 sphere.transform.SetParent(gridParent.transform);
-                sphere.transform.localPosition = localPos + new Vector3(0, 0.02f, 0); // Slightly above cube
+                sphere.transform.localPosition = localPos + new Vector3(0, 0.1f, 0.02f); // Slightly above cube
                 sphere.transform.localRotation = Quaternion.identity;
-                sphere.transform.localScale = Vector3.one * (cellSize * 0.5f);
+                sphere.transform.localScale = Vector3.one * (cellSize * 0.2f);
 
                 sphere.AddComponent<InteractableObject>(); // Add interactivity
                 sphere.tag = "Interactable";
