@@ -416,6 +416,7 @@ GameObject:
   - component: {fileID: 195107524}
   - component: {fileID: 195107523}
   - component: {fileID: 195107529}
+  - component: {fileID: 195107530}
   m_Layer: 0
   m_Name: XR Origin (Mobile AR)
   m_TagString: Untagged
@@ -538,9 +539,21 @@ MonoBehaviour:
   gridWidth: 1
   gridHeight: 2
   cellSize: 1
-  targetAlpha: 0.15
-  fadeDuration: 0.4
-  spawnScaleDuration: 0.25
+  alpha: 0.05
+  interactablePrefab: {fileID: 8368562530453146001, guid: 0712ceb6e9800d04bba11834666c1ea3,
+    type: 3}
+--- !u!114 &195107530
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 195107521}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 91052ee618791a54eb961fcb59183e61, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ARTapManager
 --- !u!1 &394869570
 GameObject:
   m_ObjectHideFlags: 0

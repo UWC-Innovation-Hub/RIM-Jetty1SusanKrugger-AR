@@ -15,6 +15,9 @@ public class CellSpawner : MonoBehaviour
     [Header("Grid Appearance")]
     [Range(0f, 1f)] public float alpha = 0.05f;
 
+    [Header("Interactable Prefab")]
+    public GameObject interactablePrefab;
+
     private string currentImageName = null;
     private GameObject currentGridParent = null;
 
@@ -53,19 +56,16 @@ public class CellSpawner : MonoBehaviour
 
         string imageName = trackedImage.referenceImage.name;
 
-        // If same QR is scanned again → do nothing
         if (imageName == currentImageName)
             return;
 
         Debug.Log("Switching to QR: " + imageName);
 
-        // Destroy existing grid
         if (currentGridParent != null)
         {
             Destroy(currentGridParent);
         }
 
-        // Spawn new grid
         Color gridColor = GetColorForImage(imageName);
         currentGridParent = SpawnGrid(trackedImage, gridColor);
 
@@ -77,13 +77,13 @@ public class CellSpawner : MonoBehaviour
         switch (imageName)
         {
             case "QRCode1":
-                return new Color(0f, 1f, 1f, alpha); // Cyan
+                return new Color(0f, 1f, 1f, alpha);
             case "QRCode2":
-                return new Color(1f, 0f, 0f, alpha); // Red
+                return new Color(1f, 0f, 0f, alpha);
             case "QRCode3":
-                return new Color(0f, 1f, 0f, alpha); // Green
+                return new Color(0f, 1f, 0f, alpha);
             default:
-                return new Color(1f, 1f, 1f, alpha); // White fallback
+                return new Color(1f, 1f, 1f, alpha);
         }
     }
 
@@ -94,7 +94,6 @@ public class CellSpawner : MonoBehaviour
 
         GameObject gridParent = new GameObject("GridParent_" + trackedImage.referenceImage.name);
 
-        // Place grid at QR position but keep it in world space
         gridParent.transform.position =
             trackedImage.transform.position + trackedImage.transform.up * 0.01f;
 
@@ -115,7 +114,7 @@ public class CellSpawner : MonoBehaviour
             {
                 Vector3 localPos = startOffset + new Vector3(x * cellSize, 0, z * cellSize);
 
-                // Create visual cube
+                // Create grid cube
                 GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
                 cube.transform.SetParent(gridParent.transform);
                 cube.transform.localPosition = localPos;
@@ -131,15 +130,22 @@ public class CellSpawner : MonoBehaviour
                 Destroy(cube.GetComponent<Collider>());
                 cube.tag = "GridCell";
 
-                // Spawn interactable sphere
-                GameObject sphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-                sphere.transform.SetParent(gridParent.transform);
-                sphere.transform.localPosition = localPos + new Vector3(0, 0.1f, 0.02f);
-                sphere.transform.localRotation = Quaternion.identity;
-                sphere.transform.localScale = Vector3.one * (cellSize * 0.2f);
+                // Spawn interactable prefab
+                if (interactablePrefab != null)
+                {
+                    GameObject obj = Instantiate(interactablePrefab);
+                    obj.transform.SetParent(gridParent.transform);
+                    obj.transform.localPosition = localPos + new Vector3(0, 0.03f, 0f);
+                    obj.transform.localRotation = Quaternion.Euler(90,0,9);
+                    obj.transform.localScale = Vector3.one * (cellSize * 0.02f);
+                    obj.tag = "Interactable";
 
-                sphere.AddComponent<InteractableObject>();
-                sphere.tag = "Interactable";
+                    //Add collider if it doesn't exist
+                    if (obj.GetComponent<Collider>() == null)
+                    {
+                        obj.AddComponent<BoxCollider>();
+                    }
+                }
             }
         }
 
