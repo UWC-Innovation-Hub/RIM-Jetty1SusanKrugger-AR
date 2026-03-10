@@ -12,11 +12,17 @@ public class CellSpawner : MonoBehaviour
     public float gridHeight = 1f;
     public float cellSize = 0.05f;
 
+    [Header("Grid Offset From QR")]
+    public Vector3 gridOffset = new Vector3(0f, 0.01f, 0f);
+    public Vector3 gridRotation = Vector3.zero;
+
     [Header("Grid Appearance")]
-    [Range(0f, 1f)] public float alpha = 0.05f;
+    [Range(0f, 1f)]
+    public float alpha = 0.05f;
 
     [Header("Interactable Prefab")]
     public GameObject interactablePrefab;
+    public int prefabsPerCell = 3;
 
     private string currentImageName = null;
     private GameObject currentGridParent = null;
@@ -56,7 +62,8 @@ public class CellSpawner : MonoBehaviour
 
         string imageName = trackedImage.referenceImage.name;
 
-        if (imageName == currentImageName)
+        // Prevent duplicate grids
+        if (currentGridParent != null && imageName == currentImageName)
             return;
 
         Debug.Log("Switching to QR: " + imageName);
@@ -67,6 +74,7 @@ public class CellSpawner : MonoBehaviour
         }
 
         Color gridColor = GetColorForImage(imageName);
+
         currentGridParent = SpawnGrid(trackedImage, gridColor);
 
         currentImageName = imageName;
@@ -94,10 +102,16 @@ public class CellSpawner : MonoBehaviour
 
         GameObject gridParent = new GameObject("GridParent_" + trackedImage.referenceImage.name);
 
-        gridParent.transform.position =
-            trackedImage.transform.position + trackedImage.transform.up * 0.01f;
+        // Anchor for stability
+        ARAnchor anchor = trackedImage.gameObject.GetComponent<ARAnchor>();
 
-        gridParent.transform.rotation = trackedImage.transform.rotation;
+        if (anchor == null)
+            anchor = trackedImage.gameObject.AddComponent<ARAnchor>();
+
+        gridParent.transform.SetParent(anchor.transform);
+
+        gridParent.transform.localPosition = gridOffset;
+        gridParent.transform.localRotation = Quaternion.Euler(gridRotation);
 
         float totalWidth = columns * cellSize;
         float totalHeight = rows * cellSize;
@@ -114,44 +128,48 @@ public class CellSpawner : MonoBehaviour
             {
                 Vector3 localPos = startOffset + new Vector3(x * cellSize, 0, z * cellSize);
 
-                // Create grid cube
                 GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
                 cube.transform.SetParent(gridParent.transform);
                 cube.transform.localPosition = localPos;
                 cube.transform.localRotation = Quaternion.identity;
                 cube.transform.localScale = new Vector3(cellSize, 0.002f, cellSize);
 
-                Renderer cubeRend = cube.GetComponent<Renderer>();
+                Renderer rend = cube.GetComponent<Renderer>();
+
                 Material mat = new Material(Shader.Find("Universal Render Pipeline/Lit"));
                 mat.color = gridColor;
                 mat.SetFloat("_SurfaceType", 1);
-                cubeRend.material = mat;
+
+                rend.material = mat;
 
                 Destroy(cube.GetComponent<Collider>());
                 cube.tag = "GridCell";
 
-                // Spawn interactable prefab
                 if (interactablePrefab != null)
                 {
-                    GameObject obj = Instantiate(interactablePrefab);
-                    obj.transform.SetParent(gridParent.transform);
-                    obj.transform.localPosition = localPos + new Vector3(0, 0.03f, 0f);
-                    obj.transform.localRotation = Quaternion.Euler(90,0,9);
-                    obj.transform.localScale = Vector3.one * (cellSize * 0.02f);
-                    obj.tag = "Interactable";
-
-                    //Add collider if it doesn't exist
-                    if (obj.GetComponent<Collider>() == null)
+                    for (int i = 0; i < prefabsPerCell; i++)
                     {
-                        obj.AddComponent<BoxCollider>();
+                        GameObject obj = Instantiate(interactablePrefab);
+
+                        obj.transform.SetParent(gridParent.transform);
+
+                        Vector3 randomOffset = new Vector3(
+                            Random.Range(-cellSize / 4f, cellSize / 4f),
+                            0.03f + i * 0.01f,
+                            Random.Range(-cellSize / 4f, cellSize / 4f)
+                        );
+
+                        obj.transform.localPosition = localPos + randomOffset;
+                        obj.transform.localRotation = Quaternion.Euler(90, 0, 9);
+                        obj.transform.localScale = Vector3.one * (cellSize * 0.02f);
+
+                        obj.tag = "Interactable";
                     }
                 }
             }
         }
 
         Debug.Log($"Grid spawned for {trackedImage.referenceImage.name}: {columns} x {rows}");
-        Debug.Log("Grid world position: " + gridParent.transform.position);
-
         return gridParent;
     }
 }
