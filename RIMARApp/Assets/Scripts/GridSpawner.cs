@@ -23,73 +23,7 @@ public class GridSpawner : MonoBehaviour
 
     private GameObject[,] gridArray;
 
-    string[] locationNames =
-                    {
-                        "Murrays Bay Harbour",
-                        "Visitors Centre",
-                        "Maximum Security Prison",
-                        "Kramat",
-                        "Field of Banishment",
-                        "Penguin Protected Colony",
-                        "Die Ou Tronk",
-                        "Cornelia Battery",
-                        "Bluestone Quarry",
-                        "Old Rifle Range",
-                        "Bath of Bethesda",
-                        "Landing Strip",
-                        "Agricultural Precinct",
-                        "Limestone Quarry",
-                        "De Waal Battery",
-                        "Lighthouse",
-                        "Van Riebeeck's Quarry",
-                        "Alpha One",
-                        "Guest House",
-                        "Faure Jetty",
-                        "School",
-                        "Garrison Church",
-                        "General Infirmary",
-                        "Warden Houses",
-                        "Medium B Security Prison",
-                        "Church of the Good Sherpherd",
-                        "Sobukwe House Complex",
-                        "Leper Graveyard",
-                        "Leper Pond",
-                        "Krotoa's Garden"
-                    };
-
-    string[] locationDescriptions =
-    {
-                        "This is the description for this location point.",
-                        "This is the description for this location point.",
-                        "This is the description for this location point.",
-                        "This is the description for this location point.",
-                        "This is the description for this location point.",
-                        "This is the description for this location point.",
-                        "This is the description for this location point.",
-                        "This is the description for this location point.",
-                        "This is the description for this location point.",
-                        "This is the description for this location point.",
-                        "This is the description for this location point.",
-                        "This is the description for this location point.",
-                        "This is the description for this location point.",
-                        "This is the description for this location point.",
-                        "This is the description for this location point.",
-                        "This is the description for this location point.",
-                        "This is the description for this location point.",
-                        "This is the description for this location point.",
-                        "This is the description for this location point.",
-                        "This is the description for this location point.",
-                        "This is the description for this location point.",
-                        "This is the description for this location point.",
-                        "This is the description for this location point.",
-                        "This is the description for this location point.",
-                        "This is the description for this location point.",
-                        "This is the description for this location point.",
-                        "This is the description for this location point.",
-                        "This is the description for this location point.",
-                        "This is the description for this location point.",
-                        "This is the description for this location point."
-                    };
+    public LocationDatabase locationDatabase;
 
 
     [System.Serializable]
@@ -235,7 +169,7 @@ public class GridSpawner : MonoBehaviour
 
     void MapAllLocations()
     {
-        foreach (LocationPoint location in locations)
+        foreach (LocationData location in locationDatabase.locations)
         {
             int xIndex = Mathf.RoundToInt(location.x_cm / 2.5f);
             int zIndex = Mathf.RoundToInt(location.z_cm / 2.5f);
@@ -245,69 +179,34 @@ public class GridSpawner : MonoBehaviour
             {
                 GameObject cube = gridArray[xIndex, zIndex];
 
-                if (cube != null)
-                {
-                    cube.GetComponent<Renderer>().material.color = Color.magenta;
-                    Vector3 markerPosition = cube.transform.position + Vector3.up * 0.02f;
+                Vector3 markerPosition = cube.transform.position + Vector3.up * 0.02f;
 
-                    GameObject marker = Instantiate(
-                            locationMarkerPrefab,
-                            markerPosition,
-                            Quaternion.identity,
-                            currentGridParent.transform
+                GameObject marker = Instantiate(
+                    locationMarkerPrefab,
+                    markerPosition,
+                    Quaternion.identity,
+                    currentGridParent.transform
+                );
+
+                ARLocationMarker markerScript = marker.GetComponent<ARLocationMarker>();
+                markerScript.Initialize(location);
+
+                if (locationTextPrefab != null)
+                {
+                    Vector3 textPosition = marker.transform.position + Vector3.up * 0.05f;
+
+                    GameObject textObj = Instantiate(
+                        locationTextPrefab,
+                        textPosition,
+                        Quaternion.identity,
+                        currentGridParent.transform
                     );
 
-                    ARLocationMarker markerScript = marker.GetComponent<ARLocationMarker>();
+                    textObj.transform.localScale = Vector3.one * 0.01f;
 
-                    int i = 0;
-                    markerScript.locationTitle = locationNames[i];
-                    markerScript.locationDescription = locationDescriptions[i];
-
-                    // Spawn Text
-                    if (locationTextPrefab != null)
-                    {
-                        /*GameObject textObj = Instantiate(
-                            locationTextPrefab,
-                            marker.transform.position + Vector3.up * 0.05f,
-                            Quaternion.identity,
-                            marker.transform
-                        );
-
-                        TextMeshPro tmp = textObj.GetComponent<TextMeshPro>();
-                        if (tmp != null)
-                        {
-                            tmp.text = location.locationName;
-                        }*/
-
-                        Vector3 textPosition = marker.transform.position + Vector3.up * 0.01f;
-
-                        GameObject textObj = Instantiate(
-                            locationTextPrefab,
-                            textPosition,
-                            Quaternion.identity,
-                            currentGridParent.transform
-                        );
-
-                        textObj.transform.localScale = Vector3.one * 0.01f; // Force large scale
-
-                        TextMeshPro tmp = textObj.GetComponent<TextMeshPro>();
-                        if (tmp != null)
-                        {
-                            tmp.text = location.locationName;
-                            tmp.fontSize = 10;
-                            tmp.color = Color.white;
-                        }
-
-                        Debug.Log("Text created for: " + location.locationName);
-                    }
-
-                    Debug.Log("Mapped: " + location.locationName +
-                        " -> Grid (" + xIndex + ", " + zIndex + ")");
+                    TextMeshPro tmp = textObj.GetComponent<TextMeshPro>();
+                    tmp.text = location.locationName;
                 }
-            }
-            else
-            {
-                Debug.LogWarning("Location out of bounds: " + location.locationName);
             }
         }
     }

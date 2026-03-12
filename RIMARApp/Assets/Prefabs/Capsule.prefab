@@ -12,7 +12,6 @@ GameObject:
   - component: {fileID: 3693808000514707243}
   - component: {fileID: 8962635503608224768}
   - component: {fileID: 639853984891925615}
-  - component: {fileID: -5910073750940756233}
   - component: {fileID: 7150179848297253344}
   m_Layer: 0
   m_Name: Capsule
@@ -116,21 +115,6 @@ CapsuleCollider:
   m_Height: 5
   m_Direction: 1
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &-5910073750940756233
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3329810984712084569}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e3567cba6b50438419580128b323a9c6, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::MarkerInteraction
-  infoPanel: {fileID: 0}
-  titleText: {fileID: 0}
-  descriptionText: {fileID: 0}
 --- !u!114 &7150179848297253344
 MonoBehaviour:
   m_ObjectHideFlags: 0
