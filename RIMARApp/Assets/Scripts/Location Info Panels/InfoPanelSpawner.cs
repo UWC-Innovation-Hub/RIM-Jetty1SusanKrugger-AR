@@ -45,7 +45,7 @@ public class InfoPanelSpawner : MonoBehaviour
                 break;
         }
 
-        Vector3 spawnPos = markerPos + Vector3.up * 0.15f;
+        Vector3 spawnPos = markerPos + Vector3.up * 0.2f;
 
         GameObject panel = Instantiate(prefab, spawnPos, Quaternion.identity);
 
