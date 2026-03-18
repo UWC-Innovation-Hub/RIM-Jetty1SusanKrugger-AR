@@ -642,6 +642,7 @@ GameObject:
   - component: {fileID: 2849279646868686133}
   - component: {fileID: 956483841781029}
   - component: {fileID: 2002037709643513952}
+  - component: {fileID: 6454718026743309657}
   m_Layer: 5
   m_Name: InfoPanel_Text
   m_TagString: Untagged
@@ -762,6 +763,22 @@ MonoBehaviour:
   audioSource: {fileID: 0}
   videoPlayer: {fileID: 0}
   modelAnchor: {fileID: 0}
+--- !u!114 &6454718026743309657
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8522536366044656652}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d9fb592e40452ca4abc6b9f4edfa02d1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DistanceScaler
+  minScale: 0.0002
+  maxScale: 0.0015
+  minDistance: 0.0002
+  maxDistance: 0.5
 --- !u!1 &9114790453527682009
 GameObject:
   m_ObjectHideFlags: 0
