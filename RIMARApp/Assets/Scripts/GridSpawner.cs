@@ -83,46 +83,6 @@ public class GridSpawner : MonoBehaviour
 
         string qrName = trackedImage.referenceImage.name;
 
-        // Determine correct directions and corner offset
-        //Vector3 startCorner = qrCenter;
-
-        /*if (qrName == "QR_TopLeft")
-        {
-            startCorner = qrCenter
-                - (xDirection * halfQR)
-                + (zDirection * halfQR);
-
-            //xDirection = xDirection;
-            zDirection = -zDirection;
-        }
-        else if (qrName == "QR_TopRight")
-        {
-            startCorner = qrCenter
-                + (xDirection * halfQR)
-                + (zDirection * halfQR);
-
-            xDirection = -xDirection;
-            zDirection = -zDirection;
-        }
-        else if (qrName == "QR_BottomLeft")
-        {
-            startCorner = qrCenter
-                - (xDirection * halfQR)
-                - (zDirection * halfQR);
-
-            //xDirection = xDirection;
-            //zDirection = zDirection;
-        }
-        else if (qrName == "QR_BottomRight")
-        {
-            startCorner = qrCenter
-                + (xDirection * halfQR)
-                - (zDirection * halfQR);
-
-            xDirection = -xDirection;
-            //zDirection = zDirection;
-        }*/
-
         for (int x = 0; x < columns; x++)
         {
             for (int z =0; z < rows; z++)
@@ -179,33 +139,44 @@ public class GridSpawner : MonoBehaviour
             {
                 GameObject cube = gridArray[xIndex, zIndex];
 
-                Vector3 markerPosition = cube.transform.position + Vector3.up * 0.02f;
+                if (cube != null)
+                {
+                    // Restore the magenta colour
+                    cube.GetComponent<Renderer>().material.color = Color.magenta;
 
-                GameObject marker = Instantiate(
+                    Vector3 markerPosition = cube.transform.position + Vector3.up * 0.02f;
+
+                    GameObject marker = Instantiate(
                     locationMarkerPrefab,
                     markerPosition,
                     Quaternion.identity,
                     currentGridParent.transform
-                );
-
-                ARLocationMarker markerScript = marker.GetComponent<ARLocationMarker>();
-                markerScript.Initialize(location);
-
-                if (locationTextPrefab != null)
-                {
-                    Vector3 textPosition = marker.transform.position + Vector3.up * 0.05f;
-
-                    GameObject textObj = Instantiate(
-                        locationTextPrefab,
-                        textPosition,
-                        Quaternion.identity,
-                        currentGridParent.transform
                     );
 
-                    textObj.transform.localScale = Vector3.one * 0.01f;
+                    ARLocationMarker markerScript = marker.GetComponent<ARLocationMarker>();
+                    markerScript.Initialize(location);
 
-                    TextMeshPro tmp = textObj.GetComponent<TextMeshPro>();
-                    tmp.text = location.locationName;
+                    if (locationTextPrefab != null)
+                    {
+                        Vector3 textPosition = marker.transform.position + Vector3.up * 0.05f;
+
+                        GameObject textObj = Instantiate(
+                            locationTextPrefab,
+                            textPosition,
+                            Quaternion.identity,
+                            currentGridParent.transform
+                        );
+
+                        textObj.transform.localScale = Vector3.one * 0.01f;
+
+                        TextMeshPro tmp = textObj.GetComponent<TextMeshPro>();
+                        if (tmp != null)
+                        {
+                            tmp.text = location.locationName;
+                            tmp.fontSize = 10;
+                            tmp.color = Color.white;
+                        }
+                    }
                 }
             }
         }
