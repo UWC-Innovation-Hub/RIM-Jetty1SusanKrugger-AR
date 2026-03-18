@@ -15,6 +15,8 @@ public class InfoPanelSpawner : MonoBehaviour
     public GameObject videoPanelPrefab;
     public GameObject modelPanelPrefab;
 
+    private GameObject currentPanel;
+
 
     private void Awake()
     {
@@ -24,31 +26,41 @@ public class InfoPanelSpawner : MonoBehaviour
 
     public void SpawnPanel(LocationData data, Vector3 markerPos)
     {
-        GameObject prefab = null;
-
-        switch (data.contentType)
+        // Destroy existing panel ONLY when tapping another marker
+        if (currentPanel != null)
         {
-            case ContentType.TextOnly:
-                prefab = textPanelPrefab;
-                break;
-            case ContentType.Image:
-                prefab = imagePanelPrefab;
-                break;
-            case ContentType.Audio:
-                prefab = audioPanelPrefab;
-                break;
-            case ContentType.Video:
-                prefab = videoPanelPrefab;
-                break;
-            case ContentType.Model3D:
-                prefab = modelPanelPrefab;
-                break;
+            Destroy(currentPanel);
         }
+
+        GameObject prefab = GetPrefab(data.contentType);
 
         Vector3 spawnPos = markerPos + Vector3.up * 0.2f;
 
-        GameObject panel = Instantiate(prefab, spawnPos, Quaternion.identity);
+        currentPanel = Instantiate(prefab, spawnPos, Quaternion.identity);
 
-        panel.GetComponent<InfoPanelUI>().Setup(data);
+        currentPanel.GetComponent<InfoPanelUI>().Setup(data);
+    }
+
+
+    GameObject GetPrefab(ContentType type)
+    {
+        switch (type)
+        {
+            case ContentType.Image: return imagePanelPrefab;
+            case ContentType.Audio: return audioPanelPrefab;
+            case ContentType.Video: return videoPanelPrefab;
+            case ContentType.Model3D: return modelPanelPrefab;
+            default: return textPanelPrefab;
+        }
+    }
+
+
+    public void CloseCurrentPanel()
+    {
+        if (currentPanel != null)
+        {
+            Destroy(currentPanel);
+            currentPanel = null;
+        }
     }
 }

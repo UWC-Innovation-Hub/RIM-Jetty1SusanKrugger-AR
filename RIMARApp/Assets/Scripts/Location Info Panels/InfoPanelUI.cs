@@ -48,6 +48,6 @@ public class InfoPanelUI : MonoBehaviour
 
     public void ClosePanel()
     {
-        Destroy(gameObject);
+        InfoPanelSpawner.Instance.CloseCurrentPanel();
     }
 }
