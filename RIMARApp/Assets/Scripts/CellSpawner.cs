@@ -1,59 +1,45 @@
 ﻿using UnityEngine;
 using UnityEngine.XR.ARFoundation;
 using UnityEngine.XR.ARSubsystems;
+using UnityEngine.Video;
 using System.Collections.Generic;
 
-// This script spawns a grid of cubes on top of a detected QR code
-// and places fingerprint prefabs on the grid that move smoothly.
 public class CellSpawner : MonoBehaviour
 {
-    // ================================
-    // AR COMPONENTS
-    // ================================
     [Header("AR Components")]
-    public ARTrackedImageManager imageManager; // Reference to ARTrackedImageManager for QR code tracking
+    public ARTrackedImageManager imageManager;
 
-    // ================================
-    // GRID SETTINGS
-    // ================================
     [Header("Grid Settings")]
-    public float gridWidth = 2f;       // Total width of the grid
-    public float gridHeight = 1f;      // Total height of the grid
-    public float cellSize = 0.025f;    // Size of each cube in the grid
-    public float gridYOffset = 0.02f;  // Offset above the QR code to place the grid
+    public float gridWidth = 2f;
+    public float gridHeight = 1f;
+    public float cellSize = 0.025f;
+    public float gridYOffset = 0.02f;
 
-    // ================================
-    // GRID APPEARANCE
-    // ================================
     [Header("Grid Appearance")]
     [Range(0f, 1f)]
-    public float alpha = 0.05f;        // Transparency of grid cubes
+    public float alpha = 0.05f;
 
-    // ================================
-    // FINGERPRINT PREFAB SETTINGS
-    // ================================
     [Header("Fingerprint Prefab")]
-    public GameObject fingerprintPrefab;      // Assign your fingerprint prefab in the Inspector
-    public int fingerprintsCount = 4;         // Number of fingerprints to spawn
-    public float minDistanceBetweenPrefabs = 0.05f; // Minimum distance between fingerprints
-    public float prefabSmoothTime = 0.1f;     // SmoothDamp time for fingerprint movement
+    public GameObject fingerprintPrefab;
+    public int fingerprintsCount = 4;
+    public float minDistanceBetweenPrefabs = 0.05f;
+    public float prefabSmoothTime = 0.1f;
 
-    // ================================
-    // PRIVATE VARIABLES
-    // ================================
-    private GameObject currentGrid = null; // Holds the currently spawned grid
-    private string currentQRCode = null;   // Holds the currently detected QR code name
-    private Dictionary<GameObject, Vector3> prefabTargets = new Dictionary<GameObject, Vector3>(); // Target positions for fingerprints
-    private Dictionary<GameObject, Vector3> prefabVelocities = new Dictionary<GameObject, Vector3>(); // Velocities for SmoothDamp
+    [Header("Video Settings")]
+    public VideoClip[] videoClips; // Assign in Inspector
 
-    // Subscribe to tracked image events
+    private GameObject currentGrid = null;
+    private string currentQRCode = null;
+
+    private Dictionary<GameObject, Vector3> prefabTargets = new Dictionary<GameObject, Vector3>();
+    private Dictionary<GameObject, Vector3> prefabVelocities = new Dictionary<GameObject, Vector3>();
+
     private void OnEnable()
     {
         if (imageManager != null)
             imageManager.trackablesChanged.AddListener(OnTrackedImagesChanged);
     }
 
-    // Unsubscribe when disabled
     private void OnDisable()
     {
         if (imageManager != null)
@@ -62,7 +48,6 @@ public class CellSpawner : MonoBehaviour
 
     private void Update()
     {
-        // Smoothly move each fingerprint towards its target position
         foreach (var kvp in prefabTargets)
         {
             GameObject prefab = kvp.Key;
@@ -79,7 +64,6 @@ public class CellSpawner : MonoBehaviour
         }
     }
 
-    // Called when tracked images (QR codes) are added or updated
     private void OnTrackedImagesChanged(ARTrackablesChangedEventArgs<ARTrackedImage> args)
     {
         foreach (var trackedImage in args.added)
@@ -92,43 +76,36 @@ public class CellSpawner : MonoBehaviour
         }
     }
 
-    // Main handler for QR code detection
     private void HandleImageDetected(ARTrackedImage trackedImage)
     {
         if (trackedImage.trackingState != TrackingState.Tracking) return;
 
         string imageName = trackedImage.referenceImage.name;
 
-        // If same QR code is already active, do nothing
         if (imageName == currentQRCode) return;
 
-        // Remove previous grid if any
         if (currentGrid != null)
             Destroy(currentGrid);
 
-        // Get color based on QR code
         Color gridColor = GetColorForImage(imageName);
 
-        // Spawn new grid anchored to QR code and fingerprints
         currentGrid = SpawnGrid(trackedImage, gridColor);
         SpawnFingerprints(currentGrid);
 
         currentQRCode = imageName;
     }
 
-    // Returns a color for each QR code
     private Color GetColorForImage(string imageName)
     {
         switch (imageName)
         {
-            case "QRCode1": return new Color(0f, 1f, 1f, alpha); // Cyan
-            case "QRCode2": return new Color(1f, 0f, 0f, alpha); // Red
-            case "QRCode3": return new Color(0f, 1f, 0f, alpha); // Green
-            default: return new Color(1f, 1f, 1f, alpha);        // White
+            case "QRCode1": return new Color(0f, 1f, 1f, alpha);
+            case "QRCode2": return new Color(1f, 0f, 0f, alpha);
+            case "QRCode3": return new Color(0f, 1f, 0f, alpha);
+            default: return new Color(1f, 1f, 1f, alpha);
         }
     }
 
-    // Spawns a grid of cubes anchored to the QR code
     private GameObject SpawnGrid(ARTrackedImage trackedImage, Color gridColor)
     {
         int columns = Mathf.RoundToInt(gridWidth / cellSize);
@@ -136,31 +113,35 @@ public class CellSpawner : MonoBehaviour
 
         GameObject gridParent = new GameObject("Grid_" + trackedImage.referenceImage.name);
 
-        // Attach an ARAnchor to the QR code for stability
         ARAnchor anchor = trackedImage.gameObject.GetComponent<ARAnchor>();
         if (anchor == null)
             anchor = trackedImage.gameObject.AddComponent<ARAnchor>();
 
         gridParent.transform.SetParent(anchor.transform);
 
-        float cubeHeight = 0.001f; // very thin cube for visual grid
-        float buffer = gridYOffset; // Y offset above QR code
+        float cubeHeight = 0.001f;
+        float buffer = gridYOffset;
+
         gridParent.transform.localPosition = new Vector3(0f, buffer, 0f);
         gridParent.transform.localRotation = Quaternion.identity;
 
-        // Calculate start offset so grid is centered
         float totalWidth = columns * cellSize;
         float totalHeight = rows * cellSize;
-        Vector3 startOffset = new Vector3(-totalWidth / 2f + cellSize / 2f, 0f, -totalHeight / 2f + cellSize / 2f);
+
+        Vector3 startOffset = new Vector3(
+            -totalWidth / 2f + cellSize / 2f,
+            0f,
+            -totalHeight / 2f + cellSize / 2f
+        );
 
         float extraScale = 0.02f;
 
-        // Spawn cubes in a grid
         for (int x = 0; x < columns; x++)
         {
             for (int z = 0; z < rows; z++)
             {
                 Vector3 localPos = startOffset + new Vector3(x * cellSize, 0, z * cellSize);
+
                 GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
                 cube.transform.SetParent(gridParent.transform);
                 cube.transform.localPosition = localPos;
@@ -181,7 +162,6 @@ public class CellSpawner : MonoBehaviour
         return gridParent;
     }
 
-    // Spawns fingerprint prefabs flat on the grid at random positions
     private void SpawnFingerprints(GameObject gridParent)
     {
         prefabTargets.Clear();
@@ -197,27 +177,47 @@ public class CellSpawner : MonoBehaviour
             {
                 float randomX = Random.Range(-gridWidth / 2f, gridWidth / 2f);
                 float randomZ = Random.Range(-gridHeight / 2f, gridHeight / 2f);
-                randomPos = new Vector3(randomX, 0.001f, randomZ); // slight height to sit on grid
+                randomPos = new Vector3(randomX, 0.001f, randomZ);
                 attempts++;
-            } while (!IsPositionValid(randomPos, placedPositions) && attempts < 50);
+            }
+            while (!IsPositionValid(randomPos, placedPositions) && attempts < 50);
 
             placedPositions.Add(randomPos);
 
             GameObject fingerprint = Instantiate(fingerprintPrefab, gridParent.transform);
+
             fingerprint.transform.localPosition = randomPos;
-            fingerprint.transform.localRotation = Quaternion.Euler(0, Random.Range(0, 360), 0); // flat on grid
-            fingerprint.transform.localScale = Vector3.one * (cellSize * 0.01f); // scale appropriately
+            fingerprint.transform.localRotation = Quaternion.Euler(0, Random.Range(0, 360), 0);
+            fingerprint.transform.localScale = Vector3.one * (cellSize * 0.01f);
             fingerprint.tag = "Interactable";
 
-            if (fingerprint.GetComponent<Collider>() != null)
-                Destroy(fingerprint.GetComponent<Collider>());
+            // Ensure collider exists
+            Collider col = fingerprint.GetComponent<Collider>();
+            if (col == null)
+                col = fingerprint.AddComponent<BoxCollider>();
+
+            // Make collider easier to tap
+            if (col is BoxCollider box)
+                box.size = new Vector3(0.1f, 0.02f, 0.1f);
+
+            // 🎥 Assign random video
+            VideoPlayer vp = fingerprint.GetComponent<VideoPlayer>();
+
+            if (vp != null && videoClips != null && videoClips.Length > 0)
+            {
+                int index = Random.Range(0, videoClips.Length);
+                vp.clip = videoClips[index];
+            }
+            else
+            {
+                Debug.LogWarning("Missing VideoPlayer or video clips!");
+            }
 
             prefabTargets.Add(fingerprint, randomPos);
             prefabVelocities.Add(fingerprint, Vector3.zero);
         }
     }
 
-    // Checks if the position is far enough from already placed fingerprints
     private bool IsPositionValid(Vector3 pos, List<Vector3> placedPositions)
     {
         foreach (var p in placedPositions)

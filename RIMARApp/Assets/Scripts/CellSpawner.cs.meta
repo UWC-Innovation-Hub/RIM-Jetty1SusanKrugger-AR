@@ -5,7 +5,8 @@ MonoImporter:
   serializedVersion: 2
   defaultReferences:
   - imageManager: {instanceID: 0}
-  - interactablePrefab: {instanceID: 0}
+  - fingerprintPrefab: {fileID: 2442418537269128615, guid: 0c76d5e1f84801845ac6d55e8a681fae,
+      type: 3}
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 
