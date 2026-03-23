@@ -14,7 +14,6 @@ public class VideoManager : MonoBehaviour
 
     public void PlayVideo(VideoPlayer newPlayer)
     {
-        // Stop previous video
         if (currentPlayer != null && currentPlayer != newPlayer)
         {
             currentPlayer.Stop();

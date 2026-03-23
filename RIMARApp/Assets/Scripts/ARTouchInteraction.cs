@@ -3,10 +3,9 @@ using UnityEngine;
 public class ARTouchInteraction : MonoBehaviour
 {
     private Camera arCamera;
-    private FingerprintInteraction currentTarget;
 
-    private float holdTime = 0f;
-    private float requiredHoldTime = 1f;
+    private float lastTapTime = 0f;
+    private float doubleTapThreshold = 0.3f;
 
     void Start()
     {
@@ -15,51 +14,31 @@ public class ARTouchInteraction : MonoBehaviour
 
     void Update()
     {
-        if (Input.touchCount == 0)
-        {
-            ResetTouch();
-            return;
-        }
+        if (Input.touchCount == 0) return;
 
         Touch touch = Input.GetTouch(0);
 
-        Ray ray = arCamera.ScreenPointToRay(touch.position);
-        RaycastHit hit;
-
-        if (Physics.Raycast(ray, out hit))
+        if (touch.phase == TouchPhase.Ended)
         {
-            FingerprintInteraction target = hit.collider.GetComponent<FingerprintInteraction>();
+            Ray ray = arCamera.ScreenPointToRay(touch.position);
 
-            if (target != null)
+            if (Physics.Raycast(ray, out RaycastHit hit))
             {
-                if (touch.phase == TouchPhase.Began)
-                {
-                    currentTarget = target;
-                    holdTime = 0f;
-                }
+                FingerprintInteraction target = hit.collider.GetComponent<FingerprintInteraction>();
 
-                if (touch.phase == TouchPhase.Stationary && currentTarget == target)
+                if (target != null)
                 {
-                    holdTime += Time.deltaTime;
+                    float currentTime = Time.time;
 
-                    if (holdTime >= requiredHoldTime)
+                    if (currentTime - lastTapTime <= doubleTapThreshold)
                     {
-                        currentTarget.SendMessage("PlayVideo");
-                        ResetTouch();
+                        // ✅ Double tap detected
+                        target.PlayVideo();
                     }
-                }
 
-                if (touch.phase == TouchPhase.Ended)
-                {
-                    ResetTouch();
+                    lastTapTime = currentTime;
                 }
             }
         }
-    }
-
-    void ResetTouch()
-    {
-        holdTime = 0f;
-        currentTarget = null;
     }
 }
