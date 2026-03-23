@@ -3,18 +3,14 @@ using UnityEngine.Video;
 
 public class FingerprintInteraction : MonoBehaviour
 {
-    private Vector3 originalScale;
     private VideoPlayer videoPlayer;
-
-    private float holdTime = 0f;
-    private float requiredHoldTime = 1.0f;
-    private bool isHolding = false;
-
     private GameObject videoScreen;
+
+    private float lastTapTime = 0f;
+    private float doubleTapThreshold = 0.3f; // Max time between taps for double tap
 
     void Start()
     {
-        originalScale = transform.localScale;
         videoPlayer = GetComponent<VideoPlayer>();
 
         if (videoPlayer != null)
@@ -26,19 +22,29 @@ public class FingerprintInteraction : MonoBehaviour
 
     void Update()
     {
-        if (isHolding)
+        if (Input.touchCount > 0)
         {
-            holdTime += Time.deltaTime;
+            Touch touch = Input.GetTouch(0);
 
-            float progress = holdTime / requiredHoldTime;
-
-            // ✨ Scale effect (visual feedback)
-            transform.localScale = originalScale * (1f + progress * 0.3f);
-
-            if (holdTime >= requiredHoldTime)
+            if (touch.phase == TouchPhase.Ended)
             {
-                ShowVideoScreen();
-                ResetHold();
+                // Check if this touch hit this object
+                Ray ray = Camera.main.ScreenPointToRay(touch.position);
+                if (Physics.Raycast(ray, out RaycastHit hit))
+                {
+                    if (hit.transform == transform)
+                    {
+                        float currentTime = Time.time;
+
+                        if (currentTime - lastTapTime <= doubleTapThreshold)
+                        {
+                            // Double tap detected
+                            ShowVideoScreen();
+                        }
+
+                        lastTapTime = currentTime;
+                    }
+                }
             }
         }
     }
@@ -47,17 +53,13 @@ public class FingerprintInteraction : MonoBehaviour
     {
         if (videoPlayer == null) return;
 
-        // Create floating screen if not exists
         if (videoScreen == null)
         {
             videoScreen = GameObject.CreatePrimitive(PrimitiveType.Quad);
             videoScreen.transform.position = transform.position + Vector3.up * 0.1f;
             videoScreen.transform.localScale = new Vector3(0.2f, 0.2f, 0.2f);
-
-            // Face camera
             videoScreen.transform.LookAt(Camera.main.transform);
 
-            // Assign material
             Material mat = new Material(Shader.Find("Universal Render Pipeline/Unlit"));
             videoScreen.GetComponent<Renderer>().material = mat;
 
@@ -66,22 +68,5 @@ public class FingerprintInteraction : MonoBehaviour
         }
 
         VideoManager.Instance.PlayVideo(videoPlayer);
-    }
-
-    void ResetHold()
-    {
-        holdTime = 0f;
-        isHolding = false;
-        transform.localScale = originalScale;
-    }
-
-    void OnMouseDown()
-    {
-        isHolding = true;
-    }
-
-    void OnMouseUp()
-    {
-        ResetHold();
     }
 }
