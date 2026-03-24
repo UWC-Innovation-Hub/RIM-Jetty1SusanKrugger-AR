@@ -63,4 +63,11 @@ public class InfoPanelSpawner : MonoBehaviour
             currentPanel = null;
         }
     }
+
+
+    // Checks if there is an info panel open for screenshot to take place
+    public bool HasActivePanel()
+    {
+        return currentPanel != null;
+    }
 }
