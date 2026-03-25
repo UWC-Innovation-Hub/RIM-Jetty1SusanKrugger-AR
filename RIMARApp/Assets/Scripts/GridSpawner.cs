@@ -23,6 +23,8 @@ public class GridSpawner : MonoBehaviour
 
     private GameObject[,] gridArray;
 
+    public LocationDatabase locationDatabase;
+
 
     [System.Serializable]
     public class LocationPoint
@@ -81,46 +83,6 @@ public class GridSpawner : MonoBehaviour
 
         string qrName = trackedImage.referenceImage.name;
 
-        // Determine correct directions and corner offset
-        //Vector3 startCorner = qrCenter;
-
-        /*if (qrName == "QR_TopLeft")
-        {
-            startCorner = qrCenter
-                - (xDirection * halfQR)
-                + (zDirection * halfQR);
-
-            //xDirection = xDirection;
-            zDirection = -zDirection;
-        }
-        else if (qrName == "QR_TopRight")
-        {
-            startCorner = qrCenter
-                + (xDirection * halfQR)
-                + (zDirection * halfQR);
-
-            xDirection = -xDirection;
-            zDirection = -zDirection;
-        }
-        else if (qrName == "QR_BottomLeft")
-        {
-            startCorner = qrCenter
-                - (xDirection * halfQR)
-                - (zDirection * halfQR);
-
-            //xDirection = xDirection;
-            //zDirection = zDirection;
-        }
-        else if (qrName == "QR_BottomRight")
-        {
-            startCorner = qrCenter
-                + (xDirection * halfQR)
-                - (zDirection * halfQR);
-
-            xDirection = -xDirection;
-            //zDirection = zDirection;
-        }*/
-
         for (int x = 0; x < columns; x++)
         {
             for (int z =0; z < rows; z++)
@@ -167,7 +129,7 @@ public class GridSpawner : MonoBehaviour
 
     void MapAllLocations()
     {
-        foreach (LocationPoint location in locations)
+        foreach (LocationData location in locationDatabase.locations)
         {
             int xIndex = Mathf.RoundToInt(location.x_cm / 2.5f);
             int zIndex = Mathf.RoundToInt(location.z_cm / 2.5f);
@@ -179,33 +141,24 @@ public class GridSpawner : MonoBehaviour
 
                 if (cube != null)
                 {
+                    // Restore the magenta colour
                     cube.GetComponent<Renderer>().material.color = Color.magenta;
+
                     Vector3 markerPosition = cube.transform.position + Vector3.up * 0.02f;
 
                     GameObject marker = Instantiate(
-                            locationMarkerPrefab,
-                            markerPosition,
-                            Quaternion.identity,
-                            currentGridParent.transform
+                    locationMarkerPrefab,
+                    markerPosition,
+                    Quaternion.identity,
+                    currentGridParent.transform
                     );
 
-                    // Spawn Text
+                    ARLocationMarker markerScript = marker.GetComponent<ARLocationMarker>();
+                    markerScript.Initialize(location);
+
                     if (locationTextPrefab != null)
                     {
-                        /*GameObject textObj = Instantiate(
-                            locationTextPrefab,
-                            marker.transform.position + Vector3.up * 0.05f,
-                            Quaternion.identity,
-                            marker.transform
-                        );
-
-                        TextMeshPro tmp = textObj.GetComponent<TextMeshPro>();
-                        if (tmp != null)
-                        {
-                            tmp.text = location.locationName;
-                        }*/
-
-                        Vector3 textPosition = marker.transform.position + Vector3.up * 0.01f;
+                        Vector3 textPosition = marker.transform.position + Vector3.up * 0.05f;
 
                         GameObject textObj = Instantiate(
                             locationTextPrefab,
@@ -214,7 +167,7 @@ public class GridSpawner : MonoBehaviour
                             currentGridParent.transform
                         );
 
-                        textObj.transform.localScale = Vector3.one * 0.01f; // Force large scale
+                        textObj.transform.localScale = Vector3.one * 0.01f;
 
                         TextMeshPro tmp = textObj.GetComponent<TextMeshPro>();
                         if (tmp != null)
@@ -223,17 +176,8 @@ public class GridSpawner : MonoBehaviour
                             tmp.fontSize = 10;
                             tmp.color = Color.white;
                         }
-
-                        Debug.Log("Text created for: " + location.locationName);
                     }
-
-                    Debug.Log("Mapped: " + location.locationName +
-                        " -> Grid (" + xIndex + ", " + zIndex + ")");
                 }
-            }
-            else
-            {
-                Debug.LogWarning("Location out of bounds: " + location.locationName);
             }
         }
     }
