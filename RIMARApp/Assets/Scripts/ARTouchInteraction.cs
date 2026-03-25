@@ -4,9 +4,6 @@ public class ARTouchInteraction : MonoBehaviour
 {
     private Camera arCamera;
 
-    private float lastTapTime = 0f;
-    private float doubleTapThreshold = 0.3f;
-
     void Start()
     {
         arCamera = Camera.main;
@@ -28,15 +25,8 @@ public class ARTouchInteraction : MonoBehaviour
 
                 if (target != null)
                 {
-                    float currentTime = Time.time;
-
-                    if (currentTime - lastTapTime <= doubleTapThreshold)
-                    {
-                        // ✅ Double tap detected
-                        target.PlayVideo();
-                    }
-
-                    lastTapTime = currentTime;
+                    // ✅ Single tap detected
+                    target.PlayVideo();
                 }
             }
         }
