@@ -69,6 +69,9 @@ public class GameManager : MonoBehaviour
         // Update progress bar
         ProgressTracker.Instance.AddProgress();
 
+        // Reduce timer
+        CountdownTimer.Instance.ReduceTime(10f);
+
         // Move to next clue
         currentClueIndex++;
 
