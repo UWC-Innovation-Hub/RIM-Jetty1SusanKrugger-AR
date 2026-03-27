@@ -11,7 +11,7 @@ EditorBuildSettings:
   - enabled: 0
     path: Assets/Scenes/Jetty1Zones/Ch02_J4-Cell.unity
     guid: 47817b1b07608c742ad8bfc4ca418a76
-  - enabled: 0
+  - enabled: 1
     path: Assets/Scenes/Jetty1Zones/Ch03_J1-Marquette.unity
     guid: 48abb8d4ef7004948913d96043fec76a
   - enabled: 0
@@ -35,7 +35,7 @@ EditorBuildSettings:
   - enabled: 0
     path: Assets/Samples/Immersal SDK/2.2.1/Core Samples/Scenes/SimpleSample.unity
     guid: dc3a71fba008f4f2899362a3d0c1a3f8
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/PlaneGridTest.unity
     guid: 418284b2915defe4f8ac64b34461f2ad
   m_configObjects:
