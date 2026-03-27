@@ -57,7 +57,7 @@ public class ScreenshotManager : MonoBehaviour
             {
                 // Check if tap is on empty space
                 if (IsTouchOnUI(touch.position)) return;
-                if (IsTouchOnMarker(touch.position)) return;
+                if (!IsCorrectScreenshot()) return;
 
                 float timeSinceLastTap = Time.time - lastTimeTap;
 
@@ -126,6 +126,9 @@ public class ScreenshotManager : MonoBehaviour
         yield return new WaitForSeconds(flashDuration * 0.5f);
 
         ShowPreview(screen);
+
+        // Notify game system that a screenshot has been successfully taken
+        GameManager.Instance.OnSuccessfulScreenshot();
     }
 
 
@@ -177,4 +180,40 @@ public class ScreenshotManager : MonoBehaviour
     {
         return screenshots;
     }
+
+
+    bool IsCorrectScreenshot()
+    {
+        // Must have a panel open
+        if (!InfoPanelSpawner.Instance.HasActivePanel())
+            return false;
+
+        LocationData activeLocation = InfoPanelSpawner.Instance.GetCurrentLocation();
+        LocationData targetLocation = GameManager.Instance.GetCurrentTargetLocation();
+
+        return activeLocation == targetLocation;
+    }
+
+
+    /*
+    bool IsCorrectLocation(Vector2 screenPos)
+    {
+        Ray ray = Camera.main.ScreenPointToRay(screenPos);
+        RaycastHit hit;
+
+        if (Physics.Raycast(ray, out hit))
+        {
+            ARLocationMarker marker = hit.collider.GetComponent<ARLocationMarker>();
+
+            if (marker != null)
+            {
+                int correctID = GameManager.Instance.GetCurrentLocationID();
+
+                return marker.locationID == correctID;
+            }
+        }
+
+        return false;
+    }
+    */
 }
