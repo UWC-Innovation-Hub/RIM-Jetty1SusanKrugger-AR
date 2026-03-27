@@ -3268,7 +3268,7 @@ MonoBehaviour:
   imageManager: {fileID: 2512387470422636671}
   cubePrefab: {fileID: 87318543940164220, guid: 5db131787ba021146a8fe71664307c09,
     type: 3}
-  locationMarkerPrefab: {fileID: 3329810984712084569, guid: 48be74c1c8bd80d419dcc20d698b6944,
+  locationMarkerPrefab: {fileID: 8569939986355884676, guid: 3d998e01722eb0449b21d3e5d70116d2,
     type: 3}
   locationTextPrefab: {fileID: 3206313751542449425, guid: 5c284614ae66740468b57d46ca17e608,
     type: 3}
