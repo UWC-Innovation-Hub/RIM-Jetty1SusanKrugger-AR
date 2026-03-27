@@ -98,6 +98,9 @@ public class GridSpawner : MonoBehaviour
                     trackedImage.transform.rotation
                 );
 
+                // Trigger UI update
+                UIFlowManager.Instance.OnQRCodeScanned();
+
                 cube.transform.localScale =
                     new Vector3(cellSize, cubeHeight, cellSize);
 
