@@ -28,14 +28,20 @@ Through tablet AR experiences, visitors can discover stories, visuals, and archi
 ├── README.md/
 ├── RIMARApp/
     ├── Assets/
+        ├── Assets/
+            ├── Fonts/
+            ├── LocationPin/
+        ├── Audio/
         ├── Editor/
             ├── Migration/
             ├── Vuforia/
         ├── Images/
+            ├── Locations/
             ├── LogoIcons/
             ├── Materials/
             ├── QRCodes/
         ├── Map Data/
+        ├── Markers/
         ├── Materials/
         ├── MobileARTemplateAssets/
             ├── AffordanceThemes/
@@ -50,6 +56,8 @@ Through tablet AR experiences, visitors can discover stories, visuals, and archi
         ├── Plugins/
             ├── Android/
         ├── Prefabs/
+            ├── Export/
+            ├── InfoPanels/
             ├── QRCodes/
         ├── RIMJetty1Ex/
             ├── 3DContent/
@@ -58,14 +66,18 @@ Through tablet AR experiences, visitors can discover stories, visuals, and archi
             ├── Script/
             ├── Scripts/
         ├── Resources/
+            ├── Prefabs/
             ├── VuforiaModels/
         ├── Samples/
             ├── XR Interaction Toolkit/
         ├── Scenes/
+            ├── AR_Cell_InteractionV1/
+            ├── Grid_AR-Interaction/
             ├── Jetty1Zones/
             ├── SusanKrugerZones/
             ├── Templates/
         ├── Scripts/
+            ├── Marquette/
         ├── Settings/
             ├── Build Profiles/
             ├── Project Configuration/
@@ -78,7 +90,9 @@ Through tablet AR experiences, visitors can discover stories, visuals, and archi
             ├── Resources/
             ├── Shaders/
             ├── Sprites/
+        ├── Textures/
         ├── Videos/
+            ├── Locations/
         ├── XR/
             ├── Loaders/
             ├── Resources/
@@ -89,8 +103,11 @@ Through tablet AR experiences, visitors can discover stories, visuals, and archi
             ├── Settings/
     ├── Keystore/
     ├── Packages/
+        ├── com.bezi.sidekick/
+            ├── Editor/
     ├── ProjectSettings/
             ├── com.unity.learn.iet-framework/
+            ├── com.unity.probuilder/
             ├── com.unity.template-authoring/
             ├── com.unity.testtools.codecoverage/
 ```
@@ -127,17 +144,54 @@ Through tablet AR experiences, visitors can discover stories, visuals, and archi
 | `QuickBuildFix.cs` | `Assets/RIMJetty1Ex/Scripts/QuickBuildFix.cs` |
 | `ReferenceObjectHelper.cs` | `Assets/RIMJetty1Ex/Scripts/ReferenceObjectHelper.cs` |
 | `SimpleObjectRecognition.cs` | `Assets/RIMJetty1Ex/Scripts/SimpleObjectRecognition.cs` |
+| `ARContentAnimator.cs` | `Assets/Scripts/ARContentAnimator.cs` |
+| `ARDebugManager.cs` | `Assets/Scripts/ARDebugManager.cs` |
+| `ARFoundationImageTracker.cs` | `Assets/Scripts/ARFoundationImageTracker.cs` |
+| `ARGridManager.cs` | `Assets/Scripts/ARGridManager.cs` |
+| `ARImageTrackerTest.cs` | `Assets/Scripts/ARImageTrackerTest.cs` |
 | `ARPlacementManager.cs` | `Assets/Scripts/ARPlacementManager.cs` |
-| `ARPopupHandler.cs` | `Assets/Scripts/ARPopupHandler.cs` |
-| `BillboardCamera.cs` | `Assets/Scripts/BillboardCamera.cs` |
-| `CountdownTimer.cs` | `Assets/Scripts/CountdownTimer.cs` |
-| `GestureManager.cs` | `Assets/Scripts/GestureManager.cs` |
-| `GridSpawner.cs` | `Assets/Scripts/GridSpawner.cs` |
-| `ImageTrackingController.cs` | `Assets/Scripts/ImageTrackingController.cs` |
-| `MarkerTap.cs` | `Assets/Scripts/MarkerTap.cs` |
-| `ProgressTracker.cs` | `Assets/Scripts/ProgressTracker.cs` |
+| `ARScenePrefabExporter.cs` | `Assets/Scripts/ARScenePrefabExporter.cs` |
+| `ARTouchHandler.cs` | `Assets/Scripts/ARTouchHandler.cs` |
+| `ARTouchInteraction.cs` | `Assets/Scripts/ARTouchInteraction.cs` |
+| `CellSpawner.cs` | `Assets/Scripts/CellSpawner.cs` |
+| `CleanupSpawnedObjects.cs` | `Assets/Scripts/CleanupSpawnedObjects.cs` |
+| `ClickDiagnostic.cs` | `Assets/Scripts/ClickDiagnostic.cs` |
+| `ClickableCube.cs` | `Assets/Scripts/ClickableCube.cs` |
+| `ClosePanel.cs` | `Assets/Scripts/ClosePanel.cs` |
+| `FingerprintInteraction.cs` | `Assets/Scripts/FingerprintInteraction.cs` |
+| `GridClickSetup.cs` | `Assets/Scripts/GridClickSetup.cs` |
+| `GridCoordinateSystem.cs` | `Assets/Scripts/GridCoordinateSystem.cs` |
+| `GridDuplicationFix.cs` | `Assets/Scripts/GridDuplicationFix.cs` |
+| `GridMeshGenerator.cs` | `Assets/Scripts/GridMeshGenerator.cs` |
+| `ImageSpawnManager.cs` | `Assets/Scripts/ImageSpawnManager.cs` |
+| `ImageTrackingHandler.cs` | `Assets/Scripts/ImageTrackingHandler.cs` |
+| `InfoPanelController.cs` | `Assets/Scripts/InfoPanelController.cs` |
+| `LabelManager.cs` | `Assets/Scripts/LabelManager.cs` |
+| `MarkerInteraction.cs` | `Assets/Scripts/MarkerInteraction.cs` |
+| `BillboardCamera.cs` | `Assets/Scripts/Marquette/BillboardCamera.cs` |
+| `GridSpawner.cs` | `Assets/Scripts/Marquette/GridSpawner.cs` |
+| `ARLocationMarker.cs` | `Assets/Scripts/Marquette/Location Info Panels/ARLocationMarker.cs` |
+| `BillboardUI.cs` | `Assets/Scripts/Marquette/Location Info Panels/BillboardUI.cs` |
+| `DistanceScaler.cs` | `Assets/Scripts/Marquette/Location Info Panels/DistanceScaler.cs` |
+| `InfoPanelSpawner.cs` | `Assets/Scripts/Marquette/Location Info Panels/InfoPanelSpawner.cs` |
+| `InfoPanelUI.cs` | `Assets/Scripts/Marquette/Location Info Panels/InfoPanelUI.cs` |
+| `LocationData.cs` | `Assets/Scripts/Marquette/Location Info Panels/LocationData.cs` |
+| `LocationDatabase.cs` | `Assets/Scripts/Marquette/Location Info Panels/LocationDatabase.cs` |
+| `CountdownTimer.cs` | `Assets/Scripts/Marquette/MarquetteUI/CountdownTimer.cs` |
+| `GalleryManager.cs` | `Assets/Scripts/Marquette/MarquetteUI/GalleryManager.cs` |
+| `GameManager.cs` | `Assets/Scripts/Marquette/MarquetteUI/GameManager.cs` |
+| `ProgressTracker.cs` | `Assets/Scripts/Marquette/MarquetteUI/ProgressTracker.cs` |
+| `UIFlowManager.cs` | `Assets/Scripts/Marquette/MarquetteUI/UIFlowManager.cs` |
+| `ScreenshotManager.cs` | `Assets/Scripts/Marquette/ScreenshotFeature/ScreenshotManager.cs` |
+| `ScreenshotPreview.cs` | `Assets/Scripts/Marquette/ScreenshotFeature/ScreenshotPreview.cs` |
+| `ProximityReveal.cs` | `Assets/Scripts/ProximityReveal.cs` |
+| `QRCodeAnchor.cs` | `Assets/Scripts/QRCodeAnchor.cs` |
 | `QRCodeSpawner.cs` | `Assets/Scripts/QRCodeSpawner.cs` |
-| `SceneLoader.cs` | `Assets/Scripts/SceneLoader.cs` |
+| `QRSceneSpawner.cs` | `Assets/Scripts/QRSceneSpawner.cs` |
+| `SceneLayoutHelper.cs` | `Assets/Scripts/SceneLayoutHelper.cs` |
+| `SimpleARUI.cs` | `Assets/Scripts/SimpleARUI.cs` |
+| `VideoManager.cs` | `Assets/Scripts/VideoManager.cs` |
+| `WorldAnchor.cs` | `Assets/Scripts/WorldAnchor.cs` |
 | `SceneTemplate_RotateCube.cs` | `Assets/Settings/Project Configuration/SceneTemplate_RotateCube.cs` |
 <!-- AUTO-SCRIPTS-END -->
 
