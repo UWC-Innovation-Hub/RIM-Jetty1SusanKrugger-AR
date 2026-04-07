@@ -17,6 +17,8 @@ public class InfoPanelSpawner : MonoBehaviour
 
     private GameObject currentPanel;
 
+    private LocationData currentLocationData;
+
 
     private void Awake()
     {
@@ -39,6 +41,9 @@ public class InfoPanelSpawner : MonoBehaviour
         currentPanel = Instantiate(prefab, spawnPos, Quaternion.identity);
 
         currentPanel.GetComponent<InfoPanelUI>().Setup(data);
+
+        // Store current location
+        currentLocationData = data;
     }
 
 
@@ -61,6 +66,7 @@ public class InfoPanelSpawner : MonoBehaviour
         {
             Destroy(currentPanel);
             currentPanel = null;
+            currentLocationData = null; // important
         }
     }
 
@@ -69,5 +75,11 @@ public class InfoPanelSpawner : MonoBehaviour
     public bool HasActivePanel()
     {
         return currentPanel != null;
+    }
+
+
+    public LocationData GetCurrentLocation()
+    {
+        return currentLocationData;
     }
 }

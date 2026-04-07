@@ -98,12 +98,18 @@ public class GridSpawner : MonoBehaviour
                     trackedImage.transform.rotation
                 );
 
+                // Trigger UI update
+                UIFlowManager.Instance.OnQRCodeScanned();
+                GameManager.Instance.StartGame();
+                FindFirstObjectByType<CountdownTimer>().StartTimer();
+
                 cube.transform.localScale =
                     new Vector3(cellSize, cubeHeight, cellSize);
 
                 cube.transform.parent = currentGridParent.transform;
 
                 // Colour all quadrants
+                /*
                 bool leftSide = x < columns / 2;
                 bool bottomSide = z < rows / 2;
 
@@ -115,6 +121,9 @@ public class GridSpawner : MonoBehaviour
                     cube.GetComponent<Renderer>().material.color = Color.blue;
                 else
                     cube.GetComponent<Renderer>().material.color = Color.yellow;
+                */
+
+                cube.GetComponent<Renderer>().enabled = false;
 
                 gridArray[x, z] = cube;
             }

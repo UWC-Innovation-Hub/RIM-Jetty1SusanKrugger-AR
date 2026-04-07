@@ -31,6 +31,9 @@ public class ScreenshotManager : MonoBehaviour
     [SerializeField] private float lastTimeTap; // 0f
     [SerializeField] private float doubleTapThreshold; // 0.3f
 
+    [Header("UI")]
+    [SerializeField] private Transform previewParent;
+
 
     private void Awake()
     {
@@ -54,7 +57,7 @@ public class ScreenshotManager : MonoBehaviour
             {
                 // Check if tap is on empty space
                 if (IsTouchOnUI(touch.position)) return;
-                if (IsTouchOnMarker(touch.position)) return;
+                if (!IsCorrectScreenshot()) return;
 
                 float timeSinceLastTap = Time.time - lastTimeTap;
 
@@ -103,21 +106,29 @@ public class ScreenshotManager : MonoBehaviour
 
     IEnumerator CaptureScreenshot()
     {
-        // Show and play the flash + sound first
-        StartCoroutine(FlashEffect());
-
-        if (shutterAudio != null)
-            shutterAudio.Play();
-        
+        // Wait for frame to finish rendering (clean frame, no flash yet)
         yield return new WaitForEndOfFrame();
 
+        // Capture screeshot FIRST
         Texture2D screen = new Texture2D(Screen.width, Screen.height, TextureFormat.RGB24, false);
         screen.ReadPixels(new Rect(0, 0, Screen.width, Screen.height), 0, 0);
         screen.Apply();
 
         screenshots.Add(screen);
 
+        // NOW play feedback effects
+        StartCoroutine(FlashEffect());
+
+        if (shutterAudio != null)
+            shutterAudio.Play();
+
+        // Wait slightly so flash effect finishes and feels natural
+        yield return new WaitForSeconds(flashDuration * 0.5f);
+
         ShowPreview(screen);
+
+        // Notify game system that a screenshot has been successfully taken
+        GameManager.Instance.OnSuccessfulScreenshot();
     }
 
 
@@ -151,10 +162,17 @@ public class ScreenshotManager : MonoBehaviour
 
     void ShowPreview(Texture2D texture)
     {
-        GameObject panel = Instantiate(screenshotPreviewPrefab);
+        GameObject panel = Instantiate(screenshotPreviewPrefab, previewParent);
+
+        // Reset transform so it displays correctly
+        RectTransform rect = panel.GetComponent<RectTransform>();  
+        rect.localScale = Vector3.one;
+        rect.anchoredPosition = Vector2.zero;
 
         ScreenshotPreview preview = panel.GetComponent<ScreenshotPreview>();
         preview.SetImage(texture);
+
+        Debug.Log("Showing screenshot preview");
     }
 
 
@@ -162,4 +180,40 @@ public class ScreenshotManager : MonoBehaviour
     {
         return screenshots;
     }
+
+
+    bool IsCorrectScreenshot()
+    {
+        // Must have a panel open
+        if (!InfoPanelSpawner.Instance.HasActivePanel())
+            return false;
+
+        LocationData activeLocation = InfoPanelSpawner.Instance.GetCurrentLocation();
+        LocationData targetLocation = GameManager.Instance.GetCurrentTargetLocation();
+
+        return activeLocation == targetLocation;
+    }
+
+
+    /*
+    bool IsCorrectLocation(Vector2 screenPos)
+    {
+        Ray ray = Camera.main.ScreenPointToRay(screenPos);
+        RaycastHit hit;
+
+        if (Physics.Raycast(ray, out hit))
+        {
+            ARLocationMarker marker = hit.collider.GetComponent<ARLocationMarker>();
+
+            if (marker != null)
+            {
+                int correctID = GameManager.Instance.GetCurrentLocationID();
+
+                return marker.locationID == correctID;
+            }
+        }
+
+        return false;
+    }
+    */
 }

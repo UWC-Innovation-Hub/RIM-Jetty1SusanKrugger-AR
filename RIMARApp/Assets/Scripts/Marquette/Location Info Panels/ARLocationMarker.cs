@@ -9,6 +9,8 @@ public class ARLocationMarker : MonoBehaviour
 {
     private LocationData locationData;
 
+    public int locationID; // unique per marker
+
 
     public void Initialize(LocationData data)
     {

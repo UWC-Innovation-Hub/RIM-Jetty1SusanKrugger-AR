@@ -1484,6 +1484,8 @@ MonoBehaviour:
   shutterAudio: {fileID: 1921942082}
   lastTimeTap: 0
   doubleTapThreshold: 0.3
+  previewParent: {fileID: 2654154281453234216, guid: 8aee5ea441e5a87418c651ac77eb7a93,
+    type: 3}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
