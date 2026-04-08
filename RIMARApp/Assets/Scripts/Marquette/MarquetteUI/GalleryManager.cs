@@ -30,11 +30,17 @@ public class GalleryManager : MonoBehaviour
 
         List<Texture2D> screenshots = ScreenshotManager.Instance.GetScreenshots();
 
+        Debug.Log("Screenshots count: " +  screenshots.Count);
+
         foreach (Texture2D tex in screenshots)
         {
             GameObject item = Instantiate(imageItemPrefab, contentParent);
+
             RawImage img = item.GetComponent<RawImage>();
             img.texture = tex;
+
+            // Optional: scale nicely
+            img.rectTransform.sizeDelta = new Vector2(300, 500);
         }
     }
 

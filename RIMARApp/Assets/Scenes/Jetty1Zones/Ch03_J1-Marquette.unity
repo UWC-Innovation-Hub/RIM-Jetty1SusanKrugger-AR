@@ -665,15 +665,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7f5a22f263fd7f34a8841c98c4d05425, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ScreenshotManager
-  screenshotPreviewPrefab: {fileID: 7421055247489416103, guid: 8aee5ea441e5a87418c651ac77eb7a93,
-    type: 3}
   flashImage: {fileID: 538626050}
   flashDuration: 0.18
   shutterAudio: {fileID: 1029883572}
   lastTimeTap: 0
   doubleTapThreshold: 0.3
-  previewParent: {fileID: 2654154281453234216, guid: 8aee5ea441e5a87418c651ac77eb7a93,
-    type: 3}
 --- !u!1 &410087039
 GameObject:
   m_ObjectHideFlags: 0
@@ -999,7 +995,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: -2341.7856, y: -755.66223}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &538626050
 MonoBehaviour:

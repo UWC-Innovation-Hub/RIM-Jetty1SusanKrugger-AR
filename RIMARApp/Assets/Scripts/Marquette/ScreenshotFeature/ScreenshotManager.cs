@@ -13,9 +13,6 @@ public class ScreenshotManager : MonoBehaviour
 {
     public static ScreenshotManager Instance;
 
-    [Header ("Preview")]
-    public GameObject screenshotPreviewPrefab;
-
     [Header("Flash Effect")]
     // Visual element to confirm screenshot has been taken
     public Image flashImage;
@@ -30,9 +27,6 @@ public class ScreenshotManager : MonoBehaviour
     [Header ("Double Tap Durations")]
     [SerializeField] private float lastTimeTap; // 0f
     [SerializeField] private float doubleTapThreshold; // 0.3f
-
-    [Header("UI")]
-    [SerializeField] private Transform previewParent;
 
 
     private void Awake()
@@ -125,8 +119,6 @@ public class ScreenshotManager : MonoBehaviour
         // Wait slightly so flash effect finishes and feels natural
         yield return new WaitForSeconds(flashDuration * 0.5f);
 
-        ShowPreview(screen);
-
         // Notify game system that a screenshot has been successfully taken
         GameManager.Instance.OnSuccessfulScreenshot();
     }
@@ -160,25 +152,20 @@ public class ScreenshotManager : MonoBehaviour
     }
 
 
-    void ShowPreview(Texture2D texture)
+    public List<Texture2D> GetScreenshots()
     {
-        GameObject panel = Instantiate(screenshotPreviewPrefab, previewParent);
-
-        // Reset transform so it displays correctly
-        RectTransform rect = panel.GetComponent<RectTransform>();  
-        rect.localScale = Vector3.one;
-        rect.anchoredPosition = Vector2.zero;
-
-        ScreenshotPreview preview = panel.GetComponent<ScreenshotPreview>();
-        preview.SetImage(texture);
-
-        Debug.Log("Showing screenshot preview");
+        return new List<Texture2D>(screenshots); // Return copy (safe)
     }
 
 
-    public List<Texture2D> GetScreenshots()
+    public void ClearScreenshots()
     {
-        return screenshots;
+        foreach (Texture2D tex in screenshots)
+        {
+            Destroy(tex); // Prevent memory leaks
+        }
+
+        screenshots.Clear();
     }
 
 
