@@ -73,21 +73,6 @@ public class ScreenshotManager : MonoBehaviour
     }
 
 
-    bool IsTouchOnMarker(Vector2 screenPos)
-    {
-        Ray ray = Camera.main.ScreenPointToRay(screenPos);
-        RaycastHit hit;
-
-        if (Physics.Raycast(ray, out hit))
-        {
-            if (hit.collider.GetComponent<ARLocationMarker>() != null)
-                return true;
-        }
-
-        return false;
-    }
-
-
     void TryTakeScreenshot()
     {
         // Only allow screenshot to be taken if info panel is open
@@ -121,6 +106,8 @@ public class ScreenshotManager : MonoBehaviour
 
         // Notify game system that a screenshot has been successfully taken
         GameManager.Instance.OnSuccessfulScreenshot();
+
+        Debug.Log("Screenshot count: " + screenshots.Count);
     }
 
 
@@ -152,6 +139,19 @@ public class ScreenshotManager : MonoBehaviour
     }
 
 
+    bool IsCorrectScreenshot()
+    {
+        // Must have a panel open
+        if (!InfoPanelSpawner.Instance.HasActivePanel())
+            return false;
+
+        LocationData activeLocation = InfoPanelSpawner.Instance.GetCurrentLocation();
+        LocationData targetLocation = GameManager.Instance.GetCurrentTargetLocation();
+
+        return activeLocation == targetLocation;
+    }
+
+
     public List<Texture2D> GetScreenshots()
     {
         return new List<Texture2D>(screenshots); // Return copy (safe)
@@ -167,40 +167,4 @@ public class ScreenshotManager : MonoBehaviour
 
         screenshots.Clear();
     }
-
-
-    bool IsCorrectScreenshot()
-    {
-        // Must have a panel open
-        if (!InfoPanelSpawner.Instance.HasActivePanel())
-            return false;
-
-        LocationData activeLocation = InfoPanelSpawner.Instance.GetCurrentLocation();
-        LocationData targetLocation = GameManager.Instance.GetCurrentTargetLocation();
-
-        return activeLocation == targetLocation;
-    }
-
-
-    /*
-    bool IsCorrectLocation(Vector2 screenPos)
-    {
-        Ray ray = Camera.main.ScreenPointToRay(screenPos);
-        RaycastHit hit;
-
-        if (Physics.Raycast(ray, out hit))
-        {
-            ARLocationMarker marker = hit.collider.GetComponent<ARLocationMarker>();
-
-            if (marker != null)
-            {
-                int correctID = GameManager.Instance.GetCurrentLocationID();
-
-                return marker.locationID == correctID;
-            }
-        }
-
-        return false;
-    }
-    */
 }

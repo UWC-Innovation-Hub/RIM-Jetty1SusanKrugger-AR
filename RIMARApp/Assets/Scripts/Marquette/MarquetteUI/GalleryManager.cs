@@ -36,12 +36,19 @@ public class GalleryManager : MonoBehaviour
         {
             GameObject item = Instantiate(imageItemPrefab, contentParent);
 
-            RawImage img = item.GetComponent<RawImage>();
-            img.texture = tex;
+            RawImage img = item.GetComponentInChildren<RawImage>();
 
-            // Optional: scale nicely
-            img.rectTransform.sizeDelta = new Vector2(300, 500);
+            if (img != null)
+            {
+                img.texture = tex;
+            }
+            else
+            {
+                Debug.Log("No RawImage found in prefab!");
+            }
         }
+
+        LayoutRebuilder.ForceRebuildLayoutImmediate(contentParent.GetComponent<RectTransform>());
     }
 
 
