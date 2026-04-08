@@ -101,7 +101,7 @@ public class GridSpawner : MonoBehaviour
                 // Trigger UI update
                 UIFlowManager.Instance.OnQRCodeScanned();
                 GameManager.Instance.StartGame();
-                FindFirstObjectByType<CountdownTimer>().StartTimer();
+                //FindFirstObjectByType<CountdownTimer>().StartTimer();
 
                 cube.transform.localScale =
                     new Vector3(cellSize, cubeHeight, cellSize);

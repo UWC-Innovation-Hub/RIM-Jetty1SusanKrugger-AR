@@ -18,6 +18,7 @@ public class CountdownTimer : MonoBehaviour
     private float currentTime;
     private bool isRunning = false;
     private bool isFlashing = false;
+    private Coroutine flashCoroutine;
 
 
     private void Awake()
@@ -28,14 +29,37 @@ public class CountdownTimer : MonoBehaviour
 
     private void Start()
     {
-        currentTime = countdownTime;
-        UpdateTimerDisplay();
+        ResetTimer();
     }
 
 
     public void StartTimer()
     {
         isRunning = true;
+    }
+
+
+    public void StopTimer()
+    {
+        isRunning = false;
+    }
+
+
+    public void ResetTimer()
+    {
+        currentTime = countdownTime;
+        isRunning = false;
+
+        if (flashCoroutine != null)
+        {
+            StopCoroutine(flashCoroutine);
+            flashCoroutine = null;
+        }
+
+        isFlashing = false;
+        timerText.color = Color.white;
+
+        UpdateTimerDisplay();
     }
 
 
@@ -49,8 +73,10 @@ public class CountdownTimer : MonoBehaviour
         {
             currentTime = 0;
             isRunning = false;
+            UpdateTimerDisplay();
 
             GameManager.Instance.EndGame();
+            return;
         }
 
         UpdateTimerDisplay();
@@ -58,7 +84,7 @@ public class CountdownTimer : MonoBehaviour
         // Start flashing red when <= 30 seconds
         if (currentTime <= 30f && !isFlashing)
         {
-            StartCoroutine(FlashRed());
+            flashCoroutine = StartCoroutine(FlashRed());
         }
     }
 
@@ -74,6 +100,8 @@ public class CountdownTimer : MonoBehaviour
     // Reduce time on successful screenshot
     public void ReduceTime(float seconds)
     {
+        if (!isRunning) return;
+        
         currentTime -= seconds;
 
         if (currentTime < 0)
@@ -81,10 +109,19 @@ public class CountdownTimer : MonoBehaviour
 
         UpdateTimerDisplay();
 
+        if (currentTime <= 0)
+        {
+            currentTime = 0;
+            isRunning = false;
+
+            GameManager.Instance.EndGame();
+            return;
+        }
+
         // If reduction pushes it into danger zone, start flashing
         if (currentTime <= 30f && !isFlashing)
         {
-            StartCoroutine(FlashRed());
+            flashCoroutine = StartCoroutine(FlashRed());
         }
     }
 
@@ -104,5 +141,6 @@ public class CountdownTimer : MonoBehaviour
 
         timerText.color = Color.white;
         isFlashing = false;
+        flashCoroutine = null;
     }
 }

@@ -27,6 +27,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] private int winThreshold; // 6 (50%)
 
     private int successfulCaptures = 0;
+    private bool gameEnded = false;
 
 
     private void Awake()
@@ -37,11 +38,18 @@ public class GameManager : MonoBehaviour
 
     public void StartGame()
     {
-        SelectRandomClues();
+        gameEnded = false;
         currentClueIndex = 0;
         successfulCaptures = 0;
 
+        SelectRandomClues();
         UpdateClueUI();
+
+        if (CountdownTimer.Instance != null )
+        {
+            CountdownTimer.Instance.ResetTimer();
+            CountdownTimer.Instance.StartTimer();
+        }
     }
 
 
@@ -62,6 +70,8 @@ public class GameManager : MonoBehaviour
 
     public void OnSuccessfulScreenshot()
     {
+        if (gameEnded) return;
+        
         successfulCaptures++;
 
         UIFlowManager.Instance.SetInstruction("Intel captured! Find the next clue.");
@@ -96,7 +106,16 @@ public class GameManager : MonoBehaviour
 
     public void EndGame()
     {
+        if (gameEnded) return;
+
+        gameEnded = true;
+        
         Debug.Log("Game Ended");
+
+        if (CountdownTimer.Instance != null)
+        {
+            CountdownTimer.Instance.StopTimer();
+        }
 
         // Show gallery BEFORE win/lose
         GalleryManager.Instance.ShowGallery();
@@ -111,17 +130,20 @@ public class GameManager : MonoBehaviour
     }
 
 
-    /*
-    public int GetCurrentLocationID()
-    {
-        return selectedClues[currentClueIndex].locationID;
-    }
-    */
-
-
     public LocationData GetCurrentTargetLocation()
     {
+        if (gameEnded) return null;
+
+        if (currentClueIndex < 0 || currentClueIndex >= selectedClues.Count)
+            return null;
+
         return selectedClues[currentClueIndex].locationData;
+    }
+
+
+    public bool HasGameEnded()
+    {
+        return gameEnded;
     }
 }
 
