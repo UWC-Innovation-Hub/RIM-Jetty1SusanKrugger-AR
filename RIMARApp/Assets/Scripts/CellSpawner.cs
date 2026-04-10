@@ -21,12 +21,19 @@ public class CellSpawner : MonoBehaviour
 
     [Header("Fingerprint Prefab")]
     public GameObject fingerprintPrefab;
-    public int fingerprintsCount = 4;
-    public float minDistanceBetweenPrefabs = 0.05f;
     public float prefabSmoothTime = 0.1f;
 
+    [Header("Fixed Positions (LOCAL to grid)")]
+    public List<Vector3> fixedPositions = new List<Vector3>()
+    {
+        new Vector3(-0.5f, 0.001f, -0.2f),
+        new Vector3(0.3f, 0.001f, 0.1f),
+        new Vector3(0.6f, 0.001f, -0.3f),
+        new Vector3(-0.2f, 0.001f, 0.4f)
+    };
+
     [Header("Video Settings")]
-    public VideoClip[] videoClips; // Assign in Inspector
+    public VideoClip[] videoClips;
 
     private GameObject currentGrid = null;
     private string currentQRCode = null;
@@ -58,7 +65,8 @@ public class CellSpawner : MonoBehaviour
                 prefab.transform.localPosition,
                 targetPos,
                 ref velocity,
-                prefabSmoothTime);
+                prefabSmoothTime
+            );
 
             prefabVelocities[prefab] = velocity;
         }
@@ -120,9 +128,8 @@ public class CellSpawner : MonoBehaviour
         gridParent.transform.SetParent(anchor.transform);
 
         float cubeHeight = 0.001f;
-        float buffer = gridYOffset;
 
-        gridParent.transform.localPosition = new Vector3(0f, buffer, 0f);
+        gridParent.transform.localPosition = new Vector3(0f, gridYOffset, 0f);
         gridParent.transform.localRotation = Quaternion.identity;
 
         float totalWidth = columns * cellSize;
@@ -135,6 +142,11 @@ public class CellSpawner : MonoBehaviour
         );
 
         float extraScale = 0.02f;
+
+        // Shared material (performance improvement)
+        Material sharedMat = new Material(Shader.Find("Universal Render Pipeline/Lit"));
+        sharedMat.color = gridColor;
+        sharedMat.SetFloat("_SurfaceType", 1);
 
         for (int x = 0; x < columns; x++)
         {
@@ -149,10 +161,7 @@ public class CellSpawner : MonoBehaviour
                 cube.transform.localScale = new Vector3(cellSize + extraScale, cubeHeight, cellSize + extraScale);
 
                 Renderer rend = cube.GetComponent<Renderer>();
-                Material mat = new Material(Shader.Find("Universal Render Pipeline/Lit"));
-                mat.color = gridColor;
-                mat.SetFloat("_SurfaceType", 1);
-                rend.material = mat;
+                rend.material = sharedMat;
 
                 Destroy(cube.GetComponent<Collider>());
                 cube.tag = "GridCell";
@@ -166,44 +175,26 @@ public class CellSpawner : MonoBehaviour
     {
         prefabTargets.Clear();
         prefabVelocities.Clear();
-        List<Vector3> placedPositions = new List<Vector3>();
 
-        for (int i = 0; i < fingerprintsCount; i++)
+        for (int i = 0; i < fixedPositions.Count; i++)
         {
-            Vector3 randomPos;
-            int attempts = 0;
-
-            do
-            {
-                float randomX = Random.Range(-gridWidth / 2f, gridWidth / 2f);
-                float randomZ = Random.Range(-gridHeight / 2f, gridHeight / 2f);
-                randomPos = new Vector3(randomX, 0.001f, randomZ);
-                attempts++;
-            }
-            while (!IsPositionValid(randomPos, placedPositions) && attempts < 50);
-
-            placedPositions.Add(randomPos);
+            Vector3 localPos = fixedPositions[i];
 
             GameObject fingerprint = Instantiate(fingerprintPrefab, gridParent.transform);
 
-            fingerprint.transform.localPosition = randomPos;
+            fingerprint.transform.localPosition = localPos;
             fingerprint.transform.localRotation = Quaternion.Euler(0, Random.Range(0, 360), 0);
-            fingerprint.transform.localScale = Vector3.one * (cellSize * 0.01f);
+            fingerprint.transform.localScale = Vector3.one * 0.02f;
             fingerprint.tag = "Interactable";
 
-            // Ensure collider exists
-            Collider col = fingerprint.GetComponent<Collider>();
-            if (col == null)
-                col = fingerprint.AddComponent<BoxCollider>();
+            // Ensure collider
+            if (!fingerprint.TryGetComponent(out BoxCollider box))
+                box = fingerprint.AddComponent<BoxCollider>();
 
-            // Make collider easier to tap
-            if (col is BoxCollider box)
-                box.size = new Vector3(0.1f, 0.02f, 0.1f);
+            box.size = new Vector3(0.1f, 0.02f, 0.1f);
 
-            // 🎥 Assign random video
-            VideoPlayer vp = fingerprint.GetComponent<VideoPlayer>();
-
-            if (vp != null && videoClips != null && videoClips.Length > 0)
+            // Assign video
+            if (fingerprint.TryGetComponent(out VideoPlayer vp) && videoClips != null && videoClips.Length > 0)
             {
                 int index = Random.Range(0, videoClips.Length);
                 vp.clip = videoClips[index];
@@ -213,18 +204,8 @@ public class CellSpawner : MonoBehaviour
                 Debug.LogWarning("Missing VideoPlayer or video clips!");
             }
 
-            prefabTargets.Add(fingerprint, randomPos);
+            prefabTargets.Add(fingerprint, localPos);
             prefabVelocities.Add(fingerprint, Vector3.zero);
         }
-    }
-
-    private bool IsPositionValid(Vector3 pos, List<Vector3> placedPositions)
-    {
-        foreach (var p in placedPositions)
-        {
-            if (Vector3.Distance(pos, p) < minDistanceBetweenPrefabs)
-                return false;
-        }
-        return true;
     }
 }
