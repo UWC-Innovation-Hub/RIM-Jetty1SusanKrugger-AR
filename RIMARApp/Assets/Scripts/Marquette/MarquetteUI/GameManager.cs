@@ -47,9 +47,16 @@ public class GameManager : MonoBehaviour
 
         if (CountdownTimer.Instance != null )
         {
-            CountdownTimer.Instance.ResetTimer();
-            CountdownTimer.Instance.StartTimer();
+            CountdownTimer.Instance.BeginNewRun();
         }
+        else
+        {
+            Debug.LogError("CountdownTimer.Instance is NULL in Start");
+        }
+
+        Debug.Log("Game started.");
+        
+        UIFlowManager.Instance.SetInstruction("Tap on the correct location and capture the intel.");
     }
 
 
@@ -79,8 +86,9 @@ public class GameManager : MonoBehaviour
         // Update progress bar
         ProgressTracker.Instance.AddProgress();
 
-        // Reduce timer
-        CountdownTimer.Instance.ReduceTime(10f);
+        if (CountdownTimer.Instance != null)
+            // Reduce timer
+            CountdownTimer.Instance.ReduceTime(10f);
 
         // Move to next clue
         currentClueIndex++;
@@ -138,12 +146,6 @@ public class GameManager : MonoBehaviour
             return null;
 
         return selectedClues[currentClueIndex].locationData;
-    }
-
-
-    public bool HasGameEnded()
-    {
-        return gameEnded;
     }
 }
 

@@ -13,17 +13,19 @@ public class GridSpawner : MonoBehaviour
     public GameObject locationMarkerPrefab;
     public GameObject locationTextPrefab;
 
-    [SerializeField] private float marquetteWidth; // 2 meters
+    [SerializeField] private float marquetteWidth;  // 2 meters
     [SerializeField] private float marquetteHeight; // 1 meter
-    [SerializeField] private float cellSize; // 2.5cm
-    [SerializeField] private float cubeHeight; // 0.002f
-    [SerializeField] private float qrSize; // 0.025f | 0.0125f for spawning at the corner of the qr code
+    [SerializeField] private float cellSize;        // 2.5cm
+    [SerializeField] private float cubeHeight;      // 0.002f
+    [SerializeField] private float qrSize;          // 0.025f | 0.0125f for spawning at the corner of the qr code
 
     private GameObject currentGridParent; // parent all the cubes under one object so can delete them easily.
 
     private GameObject[,] gridArray;
 
     public LocationDatabase locationDatabase;
+
+    private bool hasSpawnedGrid = false;
 
 
     [System.Serializable]
@@ -53,7 +55,11 @@ public class GridSpawner : MonoBehaviour
     {
         foreach (var trackedImage in args.added)
         {
-            SpawnGrid(trackedImage);
+            if (!hasSpawnedGrid)
+            {
+                SpawnGrid(trackedImage);
+                hasSpawnedGrid = true;
+            }
         }
     }
 
@@ -98,11 +104,6 @@ public class GridSpawner : MonoBehaviour
                     trackedImage.transform.rotation
                 );
 
-                // Trigger UI update
-                UIFlowManager.Instance.OnQRCodeScanned();
-                GameManager.Instance.StartGame();
-                //FindFirstObjectByType<CountdownTimer>().StartTimer();
-
                 cube.transform.localScale =
                     new Vector3(cellSize, cubeHeight, cellSize);
 
@@ -133,6 +134,12 @@ public class GridSpawner : MonoBehaviour
         currentGridParent.transform.position = currentGridParent.transform.position;
 
         MapAllLocations();
+
+        // Trigger UI update; Start the experience ONLY ONCE after the full grid has spawned
+        UIFlowManager.Instance.OnQRCodeScanned();
+        GameManager.Instance.StartGame();
+
+        Debug.Log("Grid spawned and game started.");
     }
 
 
@@ -156,10 +163,10 @@ public class GridSpawner : MonoBehaviour
                     Vector3 markerPosition = cube.transform.position + Vector3.up * 0.02f;
 
                     GameObject marker = Instantiate(
-                    locationMarkerPrefab,
-                    markerPosition,
-                    Quaternion.identity,
-                    currentGridParent.transform
+                        locationMarkerPrefab,
+                        markerPosition,
+                        Quaternion.identity,
+                        currentGridParent.transform
                     );
 
                     ARLocationMarker markerScript = marker.GetComponent<ARLocationMarker>();
@@ -204,6 +211,13 @@ public class GridSpawner : MonoBehaviour
         }
 
         return cubeList;
+    }
+
+
+    // Optional: Call this if you ever want to allow the QR to start a completely new grid session again
+    public void ResetGridSpawnState()
+    {
+        hasSpawnedGrid = false;
     }
 }
 

@@ -29,19 +29,132 @@ public class CountdownTimer : MonoBehaviour
 
     private void Start()
     {
-        ResetTimer();
+        currentTime = countdownTime;
+        UpdateTimerDisplay();
+        Debug.Log("CountdownTimer initialized.");
     }
 
 
-    public void StartTimer()
+    private void Update()
     {
+        if (!isRunning) return;
+
+        currentTime -= Time.deltaTime;
+
+        if (currentTime <= 0f)
+        {
+            currentTime = 0f;
+            UpdateTimerDisplay();
+
+            isRunning = false;
+            Debug.Log("Timer reached zero.");
+
+            GameManager.Instance.EndGame();
+            return;
+        }
+
+        UpdateTimerDisplay();
+
+        // Start flashing red when <= 30 seconds
+        if (currentTime <= 30f && !isFlashing)
+        {
+            flashCoroutine = StartCoroutine(FlashRed());
+        }
+    }
+
+
+    public void BeginNewRun()
+    {
+        currentTime = countdownTime;
         isRunning = true;
+
+        if (flashCoroutine != null)
+        {
+            StopCoroutine(flashCoroutine);
+            flashCoroutine = null;
+        }
+
+        isFlashing = false;
+
+        if (timerText != null)
+            timerText.color = Color.white;
+
+        UpdateTimerDisplay();
+
+        Debug.Log("Timer started. Current time: " + currentTime);
     }
 
 
     public void StopTimer()
     {
         isRunning = false;
+    }
+
+
+    // Reduce time on successful screenshot
+    public void ReduceTime(float seconds)
+    {
+        currentTime -= seconds;
+
+        if (currentTime < 0f)
+            currentTime = 0f;
+
+        UpdateTimerDisplay();
+
+        Debug.Log("Timer reduced by: " + seconds + " seconds. Current time: " + currentTime);
+
+        // If reduction pushes it into danger zone, start flashing
+        if (currentTime <= 30f && !isFlashing)
+        {
+            flashCoroutine = StartCoroutine(FlashRed());
+        }
+
+        if (currentTime <= 0f)
+        {
+            isRunning = false;
+            GameManager.Instance.EndGame();
+        }
+    }
+
+
+    void UpdateTimerDisplay()
+    {
+        if (timerText == null) return;
+
+        int minutes = Mathf.FloorToInt(currentTime / 60f);
+        int seconds = Mathf.FloorToInt(currentTime % 60f);
+        timerText.text = $"{minutes:00}:{seconds:00}";
+    }
+
+
+    IEnumerator FlashRed()
+    {
+        isFlashing = true;
+
+        while (currentTime > 0f && currentTime <= 30f)
+        {
+            if (timerText != null)            
+                timerText.color = Color.red;
+
+            yield return new WaitForSeconds(0.5f);
+
+            if (timerText != null)
+                timerText.color = Color.white;
+
+            yield return new WaitForSeconds(0.5f);
+        }
+
+        if (timerText != null)
+            timerText.color = Color.white;
+
+        isFlashing = false;
+        flashCoroutine = null;
+    }
+    /*
+
+    public void StartTimer()
+    {
+        isRunning = true;
     }
 
 
@@ -61,86 +174,5 @@ public class CountdownTimer : MonoBehaviour
 
         UpdateTimerDisplay();
     }
-
-
-    private void Update()
-    {
-        if (!isRunning) return;
-
-        currentTime -= Time.deltaTime;
-
-        if (currentTime <= 0)
-        {
-            currentTime = 0;
-            isRunning = false;
-            UpdateTimerDisplay();
-
-            GameManager.Instance.EndGame();
-            return;
-        }
-
-        UpdateTimerDisplay();
-
-        // Start flashing red when <= 30 seconds
-        if (currentTime <= 30f && !isFlashing)
-        {
-            flashCoroutine = StartCoroutine(FlashRed());
-        }
-    }
-
-
-    void UpdateTimerDisplay()
-    {
-        int minutes = Mathf.FloorToInt(currentTime / 60);
-        int seconds = Mathf.FloorToInt(currentTime % 60);
-        timerText.text = $"{minutes:00}:{seconds:00}";
-    }
-
-
-    // Reduce time on successful screenshot
-    public void ReduceTime(float seconds)
-    {
-        if (!isRunning) return;
-        
-        currentTime -= seconds;
-
-        if (currentTime < 0)
-            currentTime = 0;
-
-        UpdateTimerDisplay();
-
-        if (currentTime <= 0)
-        {
-            currentTime = 0;
-            isRunning = false;
-
-            GameManager.Instance.EndGame();
-            return;
-        }
-
-        // If reduction pushes it into danger zone, start flashing
-        if (currentTime <= 30f && !isFlashing)
-        {
-            flashCoroutine = StartCoroutine(FlashRed());
-        }
-    }
-
-
-    IEnumerator FlashRed()
-    {
-        isFlashing = true;
-
-        while (currentTime > 0 && currentTime <= 30f)
-        {
-            timerText.color = Color.red;
-            yield return new WaitForSeconds(0.5f);
-
-            timerText.color = Color.white;
-            yield return new WaitForSeconds(0.5f);
-        }
-
-        timerText.color = Color.white;
-        isFlashing = false;
-        flashCoroutine = null;
-    }
+    */
 }

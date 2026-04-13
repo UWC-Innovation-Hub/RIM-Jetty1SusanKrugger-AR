@@ -26,6 +26,8 @@ public class GalleryManager : MonoBehaviour
 
     public void ShowGallery()
     {
+        ClearGalleryUI();
+        
         galleryPanel.SetActive(true);
 
         List<Texture2D> screenshots = ScreenshotManager.Instance.GetScreenshots();
@@ -54,19 +56,24 @@ public class GalleryManager : MonoBehaviour
 
     public void CloseGallery()
     {
-        // Clear UI items
-        foreach (Transform child in contentParent)
-        {
-            Destroy(child.gameObject);
-        }
-
+        ClearGalleryUI();
+        
         // Clear screenshots
-        ScreenshotManager.Instance.GetScreenshots().Clear();
+        ScreenshotManager.Instance.ClearScreenshots();
 
         galleryPanel.SetActive(false);
 
         // Restart experience
-        GameManager.Instance.StartGame();
         ProgressTracker.Instance.ResetProgress();
+        GameManager.Instance.StartGame();
+    }
+
+
+    private void ClearGalleryUI()
+    {
+        for (int i = contentParent.childCount - 1; i >= 0; i--)
+        {
+            Destroy(contentParent.GetChild(i).gameObject);
+        }
     }
 }
