@@ -13,6 +13,11 @@ public class ScreenshotManager : MonoBehaviour
 {
     public static ScreenshotManager Instance;
 
+    [Header("Panel Capture")]
+    [SerializeField] private Camera panelCaptureCamera;
+    [SerializeField] private int captureWidth; // 1024
+    [SerializeField] private int captureHeight; // 1024
+
     [Header("Flash Effect")]
     // Visual element to confirm screenshot has been taken
     public Image flashImage;
@@ -79,35 +84,90 @@ public class ScreenshotManager : MonoBehaviour
         if (!InfoPanelSpawner.Instance.HasActivePanel())
             return;
 
-        StartCoroutine(CaptureScreenshot());
+        if (panelCaptureCamera == null)
+        {
+            Debug.LogError("Panel Capture Camera is not assigned on ScreenshotManager.");
+            return;
+        }
+
+        StartCoroutine(CapturePanelScreenshot());
     }
 
 
-    IEnumerator CaptureScreenshot()
+    IEnumerator CapturePanelScreenshot()
     {
         // Wait for frame to finish rendering (clean frame, no flash yet)
         yield return new WaitForEndOfFrame();
 
-        // Capture screeshot FIRST
-        Texture2D screen = new Texture2D(Screen.width, Screen.height, TextureFormat.RGB24, false);
-        screen.ReadPixels(new Rect(0, 0, Screen.width, Screen.height), 0, 0);
-        screen.Apply();
+        GameObject panel = InfoPanelSpawner.Instance.GetCurrentPanel();
 
-        screenshots.Add(screen);
+        if (panel == null)
+        {
+            Debug.LogWarning("No active panel found for capture.");
+            yield break;
+        }
 
-        // NOW play feedback effects
+        PositionCaptureCamera(panel);
+
+        RenderTexture rt = new RenderTexture(captureWidth, captureHeight, 24);
+        panelCaptureCamera.targetTexture = rt;
+
+        Texture2D screenshot = new Texture2D(captureWidth, captureHeight, TextureFormat.RGBA32, false);
+
+        RenderTexture currentRT = RenderTexture.active;
+        RenderTexture.active = rt;
+
+        panelCaptureCamera.Render();
+
+        screenshot.ReadPixels(new Rect(0, 0, captureWidth, captureHeight), 0, 0);
+        screenshot.Apply();
+
+        panelCaptureCamera.targetTexture = null;
+        RenderTexture.active = currentRT;
+
+        rt.Release();
+        Destroy(rt);
+
+        screenshots.Add(screenshot);
+        Debug.Log("Panel screenshot count: " +  screenshots.Count);
+
         StartCoroutine(FlashEffect());
 
         if (shutterAudio != null)
             shutterAudio.Play();
 
-        // Wait slightly so flash effect finishes and feels natural
         yield return new WaitForSeconds(flashDuration * 0.5f);
 
-        // Notify game system that a screenshot has been successfully taken
         GameManager.Instance.OnSuccessfulScreenshot();
+    }
 
-        Debug.Log("Screenshot count: " + screenshots.Count);
+
+    void PositionCaptureCamera(GameObject panel)
+    {
+        Renderer[] renderers = panel.GetComponentsInChildren<Renderer>();
+        
+        if (renderers.Length == 0)
+        {
+            // fallback
+            panelCaptureCamera.transform.position = panel.transform.position - panel.transform.forward * 0.5f;
+            panelCaptureCamera.transform.rotation = Quaternion.LookRotation(panel.transform.forward);
+            return;
+        }
+
+        Bounds bounds = renderers[0].bounds;
+        for (int i = 1; i < renderers.Length; i++)
+        {
+            bounds.Encapsulate(renderers[i].bounds);
+        }
+
+        Vector3 panelForward = panel.transform.forward;
+        Vector3 center = bounds.center;
+        float size = Mathf.Max(bounds.size.x, bounds.size.y, bounds.size.z);
+
+        float distance = Mathf.Max(0.5f, size * 1.5f);
+
+        panelCaptureCamera.transform.position = center - panelForward * distance;
+        panelCaptureCamera.transform.rotation = Quaternion.LookRotation(panelForward, Vector3.up);
     }
 
 

@@ -15,14 +15,23 @@ public class InfoPanelSpawner : MonoBehaviour
     public GameObject videoPanelPrefab;
     public GameObject modelPanelPrefab;
 
-    private GameObject currentPanel;
+    [Header("Panel Capture")]
+    [SerializeField] private string panelCaptureLayerName; // "PanelCapture"
 
+    private GameObject currentPanel;
     private LocationData currentLocationData;
+    private int panelCaptureLayer = -1;
 
 
     private void Awake()
     {
         Instance = this;
+        panelCaptureLayer = LayerMask.NameToLayer(panelCaptureLayerName);
+
+        if (panelCaptureLayer == -1)
+        {
+            Debug.LogError($"Layer '{panelCaptureLayerName}' does not exist. Please create it in Unity.");
+        }
     }
 
 
@@ -35,15 +44,18 @@ public class InfoPanelSpawner : MonoBehaviour
         }
 
         GameObject prefab = GetPrefab(data.contentType);
-
         Vector3 spawnPos = markerPos + Vector3.up * 0.2f;
 
         currentPanel = Instantiate(prefab, spawnPos, Quaternion.identity);
-
         currentPanel.GetComponent<InfoPanelUI>().Setup(data);
 
         // Store current location
         currentLocationData = data;
+
+        if (panelCaptureLayer != -1)
+        {
+            SetLayerRecursively(currentPanel, panelCaptureLayer);
+        }
     }
 
 
@@ -81,5 +93,22 @@ public class InfoPanelSpawner : MonoBehaviour
     public LocationData GetCurrentLocation()
     {
         return currentLocationData;
+    }
+
+
+    public GameObject GetCurrentPanel()
+    {
+        return currentPanel;
+    }
+
+
+    private void SetLayerRecursively(GameObject obj, int layer)
+    {
+        obj.layer = layer;
+
+        foreach (Transform child in obj.transform)
+        {
+            SetLayerRecursively(child.gameObject, layer);
+        }
     }
 }
