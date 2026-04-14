@@ -9,25 +9,35 @@ public class GridSpawner : MonoBehaviour
 {
     [SerializeField] private ARTrackedImageManager imageManager;
 
+    [Header("Prefabs")]
     public GameObject cubePrefab;
     public GameObject locationMarkerPrefab;
     public GameObject locationTextPrefab;
 
+    [Header("Marquette Settings")]
     [SerializeField] private float marquetteWidth;  // 2 meters
     [SerializeField] private float marquetteHeight; // 1 meter
     [SerializeField] private float cellSize;        // 2.5cm
     [SerializeField] private float cubeHeight;      // 0.002f
     [SerializeField] private float qrSize;          // 0.025f | 0.0125f for spawning at the corner of the qr code
 
-    private GameObject currentGridParent; // parent all the cubes under one object so can delete them easily.
-
-    private GameObject[,] gridArray;
-
+    [Header("Location Data")]
     public LocationDatabase locationDatabase;
 
+    private GameObject currentGridParent; // parent all the cubes under one object so can delete them easily.
+    private GameObject[,] gridArray;
     private bool hasSpawnedGrid = false;
 
 
+    public enum MarquetteCorner
+    {
+        BottomLeft,
+        BottomRight,
+        TopLeft,
+        TopRight
+    }
+
+    /*
     [System.Serializable]
     public class LocationPoint
     {
@@ -37,7 +47,7 @@ public class GridSpawner : MonoBehaviour
     }
 
     public List<LocationPoint> locations = new List<LocationPoint>();
-
+    */
 
     private void OnEnable()
     {
@@ -70,76 +80,158 @@ public class GridSpawner : MonoBehaviour
         if (currentGridParent != null)
             Destroy(currentGridParent);
 
-        currentGridParent = new GameObject("GridParent");
-
         int columns = Mathf.RoundToInt(marquetteWidth / cellSize);
         int rows = Mathf.RoundToInt(marquetteHeight /  cellSize);
 
         gridArray = new GameObject[columns, rows];
 
-        float halfQR = qrSize / 2f;
-
-        Vector3 qrCenter = trackedImage.transform.position;
         Vector3 xDirection = trackedImage.transform.right;
         Vector3 zDirection = trackedImage.transform.forward;
+        Vector3 yDirection = trackedImage.transform.up;
 
-        Vector3 startCorner = qrCenter
-            - (xDirection * halfQR)
-            - (zDirection * halfQR);
+        float detectedQRWidth = trackedImage.size.x > 0 ? trackedImage.size.x : qrSize;
+        float detectedQRHeight = trackedImage.size.y > 0 ? trackedImage.size.y : qrSize;
 
-        string qrName = trackedImage.referenceImage.name;
+        MarquetteCorner scannedCorner = GetScannedCornerFromReferenceName(trackedImage.referenceImage.name);
 
+        // Get the exact world-space corner point of the scanned QR
+        Vector3 qrCornerWorld = GetQRCodeCornerWorldPosition(
+            trackedImage.transform.position,
+            xDirection,
+            zDirection,
+            detectedQRWidth,
+            detectedQRHeight,
+            scannedCorner
+        );
+
+        // Convert whichever scanned corner it is into the marquette's true bottom-left world point
+        Vector3 bottomLeftWorld = GetMarquetteBottomLeftWorld(
+            qrCornerWorld,
+            xDirection,
+            zDirection,
+            scannedCorner
+        );
+
+        // Create one stable root object in world space
+        currentGridParent = new GameObject("GridParent");
+        currentGridParent.transform.position = bottomLeftWorld;
+        currentGridParent.transform.rotation = trackedImage.transform.rotation;
+
+        // Spawn cubes locally under the parent
         for (int x = 0; x < columns; x++)
         {
-            for (int z =0; z < rows; z++)
+            for (int z = 0; z < rows; z++)
             {
-                Vector3 spawnPosition =
-                    startCorner +
-                    (xDirection * x * cellSize) +
-                    (zDirection * z * cellSize);
-
-                GameObject cube = Instantiate(
-                    cubePrefab,
-                    spawnPosition,
-                    trackedImage.transform.rotation
+                Vector3 localCubePos = new Vector3(
+                    x * cellSize + cellSize * 0.5f,
+                    cubeHeight,
+                    z * cellSize + cellSize * 0.5f
                 );
 
-                cube.transform.localScale =
-                    new Vector3(cellSize, cubeHeight, cellSize);
+                GameObject cube = Instantiate(cubePrefab, currentGridParent.transform);
+                cube.transform.localPosition = localCubePos;
+                cube.transform.localRotation = Quaternion.identity;
+                cube.transform.localScale = new Vector3(cellSize, cubeHeight, cellSize);
 
-                cube.transform.parent = currentGridParent.transform;
-
-                // Colour all quadrants
-                /*
-                bool leftSide = x < columns / 2;
-                bool bottomSide = z < rows / 2;
-
-                if (leftSide && !bottomSide)
-                    cube.GetComponent<Renderer>().material.color = Color.red;
-                else if (!leftSide && !bottomSide)
-                    cube.GetComponent<Renderer>().material.color = Color.green;
-                else if (leftSide && bottomSide)
-                    cube.GetComponent<Renderer>().material.color = Color.blue;
-                else
-                    cube.GetComponent<Renderer>().material.color = Color.yellow;
-                */
-
-                cube.GetComponent<Renderer>().enabled = false;
+                Renderer cubeRenderer = cube.GetComponent<Renderer>();
+                if (cubeRenderer != null)
+                {
+                    cubeRenderer.enabled = false;
+                }
 
                 gridArray[x, z] = cube;
             }
         }
-
-        // Make grid stable by detaching from tracking updates
-        currentGridParent.transform.position = currentGridParent.transform.position;
-
+     
         MapAllLocations();
 
         // Trigger UI update; Start the experience ONLY ONCE after the full grid has spawned
         UIFlowManager.Instance.OnQRCodeScanned();
         GameManager.Instance.StartGame();
 
-        Debug.Log("Grid spawned and game started.");
+        Debug.Log($"Grid spawned from {scannedCorner} QR. Bottom-left world point: {bottomLeftWorld}");
+    }
+
+
+    private MarquetteCorner GetScannedCornerFromReferenceName(string referenceImageName)
+    {
+        switch (referenceImageName)
+        {
+            case "QR_BottomLeft":
+                return MarquetteCorner.BottomLeft;
+
+            case "QR_BottomRight":
+                return MarquetteCorner.BottomRight;
+
+            case "QR_TopLeft":
+                return MarquetteCorner.TopLeft;
+
+            case "QR_TopRight":
+                return MarquetteCorner.TopRight;
+
+            default:
+                Debug.LogWarning($"Unknown reference image name '{referenceImageName}'. Defaulting to BottomLeft.");
+                return MarquetteCorner.BottomLeft;
+        }
+    }
+
+
+    private Vector3 GetQRCodeCornerWorldPosition(
+        Vector3 imageCenter,
+        Vector3 xDirection,
+        Vector3 zDirection,
+        float qrWidth,
+        float qrHeight,
+        MarquetteCorner qrCorner
+    )
+    {
+        float halfWidth = qrWidth * 0.5f;
+        float halfHeight = qrHeight * 0.5f;
+
+        switch (qrCorner)
+        {
+            case MarquetteCorner.BottomLeft:
+                return imageCenter - xDirection * halfWidth - zDirection * halfWidth;
+
+            case MarquetteCorner.BottomRight:
+                return imageCenter + xDirection * halfWidth - zDirection * halfHeight;
+
+            case MarquetteCorner.TopLeft:
+                return imageCenter - xDirection * halfWidth + zDirection * halfHeight;
+
+            case MarquetteCorner.TopRight:
+                return imageCenter + xDirection * halfWidth + zDirection * halfHeight;
+
+            default:
+                return imageCenter;
+        }
+    }
+
+
+    private Vector3 GetMarquetteBottomLeftWorld(
+        Vector3 scannedQRCornerWorld,
+        Vector3 xDirection,
+        Vector3 zDirection,
+        MarquetteCorner scannedCorner
+    )
+    {
+        switch (scannedCorner)
+        {
+            case MarquetteCorner.BottomLeft:
+                return scannedQRCornerWorld;
+
+            case MarquetteCorner.BottomRight:
+                return scannedQRCornerWorld - xDirection * marquetteWidth;
+
+            case MarquetteCorner.TopLeft:
+                return scannedQRCornerWorld - zDirection * marquetteHeight;
+
+            case MarquetteCorner.TopRight:
+                return scannedQRCornerWorld - xDirection * marquetteWidth - zDirection * marquetteHeight;
+
+            default:
+                return scannedQRCornerWorld;
+        }
     }
 
 
@@ -160,7 +252,7 @@ public class GridSpawner : MonoBehaviour
                     // Restore the magenta colour
                     cube.GetComponent<Renderer>().material.color = Color.magenta;
 
-                    Vector3 markerPosition = cube.transform.position + Vector3.up * 0.02f;
+                    Vector3 markerPosition = cube.transform.position + Vector3.up * 0.001f;
 
                     GameObject marker = Instantiate(
                         locationMarkerPrefab,
@@ -204,6 +296,9 @@ public class GridSpawner : MonoBehaviour
     {
         List<GameObject> cubeList = new List<GameObject>();
 
+        if (gridArray == null)
+            return cubeList;
+
         foreach (GameObject cube in gridArray)
         {
             if (cube != null)
@@ -218,6 +313,14 @@ public class GridSpawner : MonoBehaviour
     public void ResetGridSpawnState()
     {
         hasSpawnedGrid = false;
+
+        if (currentGridParent != null)
+        {
+            Destroy(currentGridParent);
+            currentGridParent = null;
+        }
+
+        gridArray = null;
     }
 }
 
