@@ -3669,6 +3669,9 @@ GameObject:
   - component: {fileID: 2512387470422636642}
   - component: {fileID: 2512387470422636671}
   - component: {fileID: 2512387470422636673}
+  - component: {fileID: 2512387470422636676}
+  - component: {fileID: 2512387470422636675}
+  - component: {fileID: 2512387470422636674}
   m_Layer: 0
   m_Name: XR Origin (AR Rig)
   m_TagString: Untagged
@@ -3708,6 +3711,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GridSpawner
   imageManager: {fileID: 2512387470422636671}
+  raycastManager: {fileID: 2512387470422636675}
+  anchorManager: {fileID: 2512387470422636674}
   cubePrefab: {fileID: 87318543940164220, guid: 5db131787ba021146a8fe71664307c09,
     type: 3}
   locationMarkerPrefab: {fileID: 8569939986355884676, guid: 3d998e01722eb0449b21d3e5d70116d2,
@@ -3720,97 +3725,55 @@ MonoBehaviour:
   cubeHeight: 0.002
   qrSize: 0.025
   locationDatabase: {fileID: 11400000, guid: c6fdfedbc369fa84aba140058c4aeb78, type: 2}
-  locations:
-  - locationName: 01. Murrays Bay Harbour
-    x_cm: 158
-    z_cm: 25
-  - locationName: 02. Visitors Centre
-    x_cm: 160
-    z_cm: 39
-  - locationName: 03. Maximum Security Prison
-    x_cm: 155
-    z_cm: 58
-  - locationName: 04. Kramat
-    x_cm: 168
-    z_cm: 55
-  - locationName: 05. Field of Banishment
-    x_cm: 173
-    z_cm: 45
-  - locationName: 06. Penguin Protected Colony
-    x_cm: 172
-    z_cm: 40
-  - locationName: 07. Die Ou Tronk
-    x_cm: 194
-    z_cm: 52
-  - locationName: 08. Cornelia Battery
-    x_cm: 213
-    z_cm: 55
-  - locationName: 09. Bluestone Quarry
-    x_cm: 224
-    z_cm: 95
-  - locationName: 10. Old Rifle Range
-    x_cm: 197
-    z_cm: 122
-  - locationName: 11. Bath of Bethesda
-    x_cm: 164
-    z_cm: 145
-  - locationName: 12. Landing Strip
-    x_cm: 166
-    z_cm: 104
-  - locationName: 13. Agricultural Precinct
-    x_cm: 127
-    z_cm: 76
-  - locationName: 14. Limestone Quarry
-    x_cm: 114
-    z_cm: 57
-  - locationName: 15. De Waal Battery
-    x_cm: 91
-    z_cm: 92
-  - locationName: 16. Lighthouse
-    x_cm: 47
-    z_cm: 73
-  - locationName: 17. Van Riebeeck's Quarry
-    x_cm: 29
-    z_cm: 63
-  - locationName: 18. Alpha One
-    x_cm: 8
-    z_cm: 49
-  - locationName: 19. Guest House
-    x_cm: 45
-    z_cm: 32
-  - locationName: 20. Faure Jetty
-    x_cm: 51
-    z_cm: 24
-  - locationName: 21. School
-    x_cm: 53
-    z_cm: 35
-  - locationName: 22. Garrison Church
-    x_cm: 67
-    z_cm: 37
-  - locationName: 23. General Infirmary
-    x_cm: 66
-    z_cm: 25
-  - locationName: 24. Warden Houses
-    x_cm: 69
-    z_cm: 42
-  - locationName: 25. Medium B Security Prison
-    x_cm: 99
-    z_cm: 34
-  - locationName: 26. Church of the Good Shepherd
-    x_cm: 108
-    z_cm: 38
-  - locationName: 27. Sobukwe House Complex
-    x_cm: 123
-    z_cm: 38
-  - locationName: 28. Leper Graveyard
-    x_cm: 139
-    z_cm: 52
-  - locationName: 29. Leper Pond
-    x_cm: 146
-    z_cm: 69
-  - locationName: 30. Krotoa's Garden
-    x_cm: 145
-    z_cm: 43
+--- !u!114 &2512387470422636674
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2512387470422636669}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 728ad7fae8e460a4ba41265c7308d757, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.XR.ARFoundation::UnityEngine.XR.ARFoundation.ARAnchorManager
+  <trackablesChanged>k__BackingField:
+    m_PersistentCalls:
+      m_Calls: []
+  m_AnchorPrefab: {fileID: 0}
+--- !u!114 &2512387470422636675
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2512387470422636669}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fa17d122634046b4a8e23048891fafc5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.XR.ARFoundation::UnityEngine.XR.ARFoundation.ARRaycastManager
+  <trackablesChanged>k__BackingField:
+    m_PersistentCalls:
+      m_Calls: []
+  m_RaycastPrefab: {fileID: 0}
+--- !u!114 &2512387470422636676
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2512387470422636669}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e1760703bbd54c04488a8d10600262ab, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.XR.ARFoundation::UnityEngine.XR.ARFoundation.ARPlaneManager
+  <trackablesChanged>k__BackingField:
+    m_PersistentCalls:
+      m_Calls: []
+  m_PlanePrefab: {fileID: 0}
+  m_DetectionMode: -1
 --- !u!4 &2512387470860572925
 Transform:
   m_ObjectHideFlags: 0

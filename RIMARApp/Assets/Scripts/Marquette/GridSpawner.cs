@@ -7,7 +7,10 @@ using TMPro;
 
 public class GridSpawner : MonoBehaviour
 {
+    [Header("AR Managers")]
     [SerializeField] private ARTrackedImageManager imageManager;
+    [SerializeField] private ARRaycastManager raycastManager;
+    [SerializeField] private ARAnchorManager anchorManager;
 
     [Header("Prefabs")]
     public GameObject cubePrefab;
@@ -25,8 +28,11 @@ public class GridSpawner : MonoBehaviour
     public LocationDatabase locationDatabase;
 
     private GameObject currentGridParent; // parent all the cubes under one object so can delete them easily.
+    private ARAnchor currentAnchor;
     private GameObject[,] gridArray;
     private bool hasSpawnedGrid = false;
+
+    private static List<ARRaycastHit> raycastHits = new List<ARRaycastHit>();
 
 
     public enum MarquetteCorner
@@ -36,18 +42,6 @@ public class GridSpawner : MonoBehaviour
         TopLeft,
         TopRight
     }
-
-    /*
-    [System.Serializable]
-    public class LocationPoint
-    {
-        public string locationName;
-        public float x_cm;
-        public float z_cm;
-    }
-
-    public List<LocationPoint> locations = new List<LocationPoint>();
-    */
 
     private void OnEnable()
     {
@@ -67,36 +61,74 @@ public class GridSpawner : MonoBehaviour
         {
             if (!hasSpawnedGrid)
             {
-                SpawnGrid(trackedImage);
-                hasSpawnedGrid = true;
+                TrySpawnGrid(trackedImage);
             }
         }
     }
 
 
-    void SpawnGrid(ARTrackedImage trackedImage)
+    private void TrySpawnGrid(ARTrackedImage trackedImage)
     {
-        // Delete old grid if exists
-        if (currentGridParent != null)
-            Destroy(currentGridParent);
+        if (trackedImage == null) return;
+        if (raycastManager == null)
+        {
+            Debug.LogError("ARRaycastManager is missing on GridSpawner.");
+            return;
+        }
+
+        Vector2 screenPoint = Camera.main.WorldToScreenPoint(trackedImage.transform.position);
+
+        if (!raycastManager.Raycast(screenPoint, raycastHits, TrackableType.PlaneWithinPolygon))
+        {
+            Debug.LogWarning("No AR plane found under tracked image yet. Try scanning again when the plane is detected.");
+            return;
+        }
+
+        Pose planePose = raycastHits[0].pose;
+
+        SpawnGrid(trackedImage, planePose);
+        hasSpawnedGrid = true;
+    }
+
+
+    void SpawnGrid(ARTrackedImage trackedImage, Pose planePose)
+    {
+        ClearExistingGrid();
 
         int columns = Mathf.RoundToInt(marquetteWidth / cellSize);
         int rows = Mathf.RoundToInt(marquetteHeight /  cellSize);
 
         gridArray = new GameObject[columns, rows];
 
-        Vector3 xDirection = trackedImage.transform.right;
-        Vector3 zDirection = trackedImage.transform.forward;
-        Vector3 yDirection = trackedImage.transform.up;
+        MarquetteCorner scannedCorner = GetScannedCornerFromReferenceName(trackedImage.referenceImage.name);
+
+        Vector3 xDirection = trackedImage.transform.right.normalized;
+
+        // Use the detected plane's up direction so the grid sits flat on the real surface
+        Vector3 planeUp = planePose.up.normalized;
+
+        // Project tracked image forward onto the plane to keep orientation but remove tilt instability
+        Vector3 projectedForward = Vector3.ProjectOnPlane(trackedImage.transform.forward, planeUp).normalized;
+
+        if (projectedForward.sqrMagnitude < 0.001f)
+        {
+            projectedForward = Vector3.Cross(planeUp, xDirection).normalized;
+        }
+
+        xDirection = Vector3.ProjectOnPlane(xDirection, planeUp).normalized;
+        Vector3 zDirection = projectedForward;
+
+        Quaternion gridRotation = Quaternion.LookRotation(zDirection, planeUp);
 
         float detectedQRWidth = trackedImage.size.x > 0 ? trackedImage.size.x : qrSize;
         float detectedQRHeight = trackedImage.size.y > 0 ? trackedImage.size.y : qrSize;
 
-        MarquetteCorner scannedCorner = GetScannedCornerFromReferenceName(trackedImage.referenceImage.name);
+        // Use the plane hit position as the stable base point on the surface
+        Vector3 qrCenterOnPlane = planePose.position;
 
         // Get the exact world-space corner point of the scanned QR
         Vector3 qrCornerWorld = GetQRCodeCornerWorldPosition(
-            trackedImage.transform.position,
+            qrCenterOnPlane,
             xDirection,
             zDirection,
             detectedQRWidth,
@@ -112,10 +144,26 @@ public class GridSpawner : MonoBehaviour
             scannedCorner
         );
 
-        // Create one stable root object in world space
-        currentGridParent = new GameObject("GridParent");
-        currentGridParent.transform.position = bottomLeftWorld;
-        currentGridParent.transform.rotation = trackedImage.transform.rotation;
+        Pose anchorPose = new Pose(bottomLeftWorld, gridRotation);
+
+        if (anchorManager != null && anchorManager.isActiveAndEnabled)
+        {
+            currentAnchor = CreateAnchorAtPose(anchorPose);
+        }
+
+        if (currentAnchor != null)
+        {
+            currentGridParent = new GameObject("GridParent");
+            currentGridParent.transform.SetParent(currentAnchor.transform, false);
+            currentGridParent.transform.localPosition = Vector3.zero;
+            currentGridParent.transform.localRotation = Quaternion.identity;
+        }
+        else
+        {
+            Debug.LogWarning("Could not create ARAnchor. Grid will spawn without anchor.");
+            currentGridParent = new GameObject("GridParent");
+            currentGridParent.transform.SetPositionAndRotation(anchorPose.position, anchorPose.rotation);
+        }
 
         // Spawn cubes locally under the parent
         for (int x = 0; x < columns; x++)
@@ -124,7 +172,7 @@ public class GridSpawner : MonoBehaviour
             {
                 Vector3 localCubePos = new Vector3(
                     x * cellSize + cellSize * 0.5f,
-                    cubeHeight,
+                    cubeHeight * 0.5f,
                     z * cellSize + cellSize * 0.5f
                 );
 
@@ -149,7 +197,7 @@ public class GridSpawner : MonoBehaviour
         UIFlowManager.Instance.OnQRCodeScanned();
         GameManager.Instance.StartGame();
 
-        Debug.Log($"Grid spawned from {scannedCorner} QR. Bottom-left world point: {bottomLeftWorld}");
+        Debug.Log($"Grid spawned from {scannedCorner} on plane surface at {bottomLeftWorld}");
     }
 
 
@@ -252,7 +300,7 @@ public class GridSpawner : MonoBehaviour
                     // Restore the magenta colour
                     cube.GetComponent<Renderer>().material.color = Color.magenta;
 
-                    Vector3 markerPosition = cube.transform.position + Vector3.up * 0.001f;
+                    Vector3 markerPosition = cube.transform.position + Vector3.up * 0.02f;
 
                     GameObject marker = Instantiate(
                         locationMarkerPrefab,
@@ -291,6 +339,24 @@ public class GridSpawner : MonoBehaviour
     }
 
 
+    private void ClearExistingGrid()
+    {
+        if (currentGridParent != null)
+        {
+            Destroy(currentGridParent);
+            currentGridParent = null;
+        }
+
+        if (currentAnchor != null)
+        {
+            Destroy(currentAnchor.gameObject);
+            currentAnchor = null;
+        }
+
+        gridArray = null;
+    }
+
+
     // Optional: Pull full list of cubes
     public List<GameObject> GetAllCubes()
     {
@@ -313,14 +379,25 @@ public class GridSpawner : MonoBehaviour
     public void ResetGridSpawnState()
     {
         hasSpawnedGrid = false;
+        ClearExistingGrid();
+    }
 
-        if (currentGridParent != null)
+
+    private ARAnchor CreateAnchorAtPose(Pose pose)
+    {
+        GameObject anchorObject = new GameObject("MarquetteAnchor");
+        anchorObject.transform.SetPositionAndRotation(pose.position, pose.rotation);
+
+        ARAnchor anchor = anchorObject.AddComponent<ARAnchor>();
+
+        if (anchor == null)
         {
-            Destroy(currentGridParent);
-            currentGridParent = null;
+            Debug.LogWarning("Failed to create ARAmchor.");
+            Destroy(anchorObject);
+            return null;
         }
 
-        gridArray = null;
+        return anchor;
     }
 }
 
