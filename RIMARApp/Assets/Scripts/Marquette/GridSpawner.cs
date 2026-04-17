@@ -7,10 +7,8 @@ using TMPro;
 
 public class GridSpawner : MonoBehaviour
 {
-    [Header("AR Managers")]
+    [Header("AR")]
     [SerializeField] private ARTrackedImageManager imageManager;
-    [SerializeField] private ARRaycastManager raycastManager;
-    [SerializeField] private ARAnchorManager anchorManager;
 
     [Header("Prefabs")]
     public GameObject cubePrefab;
@@ -24,15 +22,17 @@ public class GridSpawner : MonoBehaviour
     [SerializeField] private float cubeHeight;      // 0.002f
     [SerializeField] private float qrSize;          // 0.025f | 0.0125f for spawning at the corner of the qr code
 
+    [Header("Vertical Offsets")]
+    [SerializeField] private float gridSurfaceOffset = 0.0001f;
+    [SerializeField] private float markerHeightOffset = 0.02f;
+    [SerializeField] private float textHeightOffset = 0.05f;
+
     [Header("Location Data")]
     public LocationDatabase locationDatabase;
 
     private GameObject currentGridParent; // parent all the cubes under one object so can delete them easily.
-    private ARAnchor currentAnchor;
     private GameObject[,] gridArray;
     private bool hasSpawnedGrid = false;
-
-    private static List<ARRaycastHit> raycastHits = new List<ARRaycastHit>();
 
 
     public enum MarquetteCorner
@@ -45,90 +45,80 @@ public class GridSpawner : MonoBehaviour
 
     private void OnEnable()
     {
-        imageManager.trackablesChanged.AddListener(OnTrackedImagesChanged);
+        if (imageManager != null)
+            imageManager.trackablesChanged.AddListener(OnTrackedImagesChanged);
     }
 
 
     private void OnDisable()
     {
-        imageManager.trackablesChanged.RemoveListener(OnTrackedImagesChanged);
+        if (imageManager != null)
+            imageManager.trackablesChanged.RemoveListener(OnTrackedImagesChanged);
     }
 
 
     private void OnTrackedImagesChanged(ARTrackablesChangedEventArgs<ARTrackedImage> args)
     {
+        if (hasSpawnedGrid) return;
+        
+        // Try newly added images first
         foreach (var trackedImage in args.added)
         {
-            if (!hasSpawnedGrid)
+            if (trackedImage.trackingState == TrackingState.Tracking)
             {
-                TrySpawnGrid(trackedImage);
+                Debug.Log("Tracked image added: " + trackedImage.referenceImage.name);
+                SpawnGrid(trackedImage);
+                return;
+            }
+        }
+
+        // If not yet spawned, also try updated images
+        foreach (var trackedImage in args.updated)
+        {
+            if (trackedImage.trackingState == TrackingState.Tracking)
+            {
+                Debug.Log("Tracked image updated: " + trackedImage.referenceImage.name);
+                SpawnGrid(trackedImage);
+                return;
             }
         }
     }
 
 
-    private void TrySpawnGrid(ARTrackedImage trackedImage)
+    private void SpawnGrid(ARTrackedImage trackedImage)
     {
         if (trackedImage == null) return;
-        if (raycastManager == null)
-        {
-            Debug.LogError("ARRaycastManager is missing on GridSpawner.");
-            return;
-        }
 
-        Vector2 screenPoint = Camera.main.WorldToScreenPoint(trackedImage.transform.position);
-
-        if (!raycastManager.Raycast(screenPoint, raycastHits, TrackableType.PlaneWithinPolygon))
-        {
-            Debug.LogWarning("No AR plane found under tracked image yet. Try scanning again when the plane is detected.");
-            return;
-        }
-
-        Pose planePose = raycastHits[0].pose;
-
-        SpawnGrid(trackedImage, planePose);
         hasSpawnedGrid = true;
-    }
-
-
-    void SpawnGrid(ARTrackedImage trackedImage, Pose planePose)
-    {
+        
         ClearExistingGrid();
 
         int columns = Mathf.RoundToInt(marquetteWidth / cellSize);
-        int rows = Mathf.RoundToInt(marquetteHeight /  cellSize);
-
+        int rows = Mathf.RoundToInt(marquetteHeight / cellSize);
         gridArray = new GameObject[columns, rows];
 
         MarquetteCorner scannedCorner = GetScannedCornerFromReferenceName(trackedImage.referenceImage.name);
 
+        Vector3 qrCenter = trackedImage.transform.position;
         Vector3 xDirection = trackedImage.transform.right.normalized;
+        Vector3 zDirection = trackedImage.transform.forward.normalized;
+        Vector3 upDirection = trackedImage.transform.up.normalized;
 
-        // Use the detected plane's up direction so the grid sits flat on the real surface
-        Vector3 planeUp = planePose.up.normalized;
-
-        // Project tracked image forward onto the plane to keep orientation but remove tilt instability
-        Vector3 projectedForward = Vector3.ProjectOnPlane(trackedImage.transform.forward, planeUp).normalized;
-
-        if (projectedForward.sqrMagnitude < 0.001f)
+        // IMPORTANT:
+        // Top QR codes are physically rotated 180 degrees compared to the bottom ones,
+        // so flip both axes to keep the grid growing inward across the marquette
+        if (scannedCorner == MarquetteCorner.TopLeft || scannedCorner == MarquetteCorner.TopRight)
         {
-            projectedForward = Vector3.Cross(planeUp, xDirection).normalized;
+            xDirection *= -1f;
+            zDirection *= -1f;
         }
-
-        xDirection = Vector3.ProjectOnPlane(xDirection, planeUp).normalized;
-        Vector3 zDirection = projectedForward;
-
-        Quaternion gridRotation = Quaternion.LookRotation(zDirection, planeUp);
 
         float detectedQRWidth = trackedImage.size.x > 0 ? trackedImage.size.x : qrSize;
         float detectedQRHeight = trackedImage.size.y > 0 ? trackedImage.size.y : qrSize;
 
-        // Use the plane hit position as the stable base point on the surface
-        Vector3 qrCenterOnPlane = planePose.position;
-
-        // Get the exact world-space corner point of the scanned QR
+        // Get the exact QR corner based on the tracked image center
         Vector3 qrCornerWorld = GetQRCodeCornerWorldPosition(
-            qrCenterOnPlane,
+            qrCenter,
             xDirection,
             zDirection,
             detectedQRWidth,
@@ -136,7 +126,7 @@ public class GridSpawner : MonoBehaviour
             scannedCorner
         );
 
-        // Convert whichever scanned corner it is into the marquette's true bottom-left world point
+        // Convert scanned corner to the marquette's true bottom-left
         Vector3 bottomLeftWorld = GetMarquetteBottomLeftWorld(
             qrCornerWorld,
             xDirection,
@@ -144,35 +134,18 @@ public class GridSpawner : MonoBehaviour
             scannedCorner
         );
 
-        Pose anchorPose = new Pose(bottomLeftWorld, gridRotation);
+        Quaternion gridRotation = Quaternion.LookRotation(zDirection, upDirection);
 
-        if (anchorManager != null && anchorManager.isActiveAndEnabled)
-        {
-            currentAnchor = CreateAnchorAtPose(anchorPose);
-        }
+        currentGridParent = new GameObject("GridParent");
+        currentGridParent.transform.SetPositionAndRotation(bottomLeftWorld, gridRotation);
 
-        if (currentAnchor != null)
-        {
-            currentGridParent = new GameObject("GridParent");
-            currentGridParent.transform.SetParent(currentAnchor.transform, false);
-            currentGridParent.transform.localPosition = Vector3.zero;
-            currentGridParent.transform.localRotation = Quaternion.identity;
-        }
-        else
-        {
-            Debug.LogWarning("Could not create ARAnchor. Grid will spawn without anchor.");
-            currentGridParent = new GameObject("GridParent");
-            currentGridParent.transform.SetPositionAndRotation(anchorPose.position, anchorPose.rotation);
-        }
-
-        // Spawn cubes locally under the parent
         for (int x = 0; x < columns; x++)
         {
             for (int z = 0; z < rows; z++)
             {
                 Vector3 localCubePos = new Vector3(
                     x * cellSize + cellSize * 0.5f,
-                    cubeHeight * 0.5f,
+                    gridSurfaceOffset + cubeHeight * 0.5f,
                     z * cellSize + cellSize * 0.5f
                 );
 
@@ -183,21 +156,18 @@ public class GridSpawner : MonoBehaviour
 
                 Renderer cubeRenderer = cube.GetComponent<Renderer>();
                 if (cubeRenderer != null)
-                {
                     cubeRenderer.enabled = false;
-                }
 
                 gridArray[x, z] = cube;
             }
         }
-     
+
         MapAllLocations();
 
-        // Trigger UI update; Start the experience ONLY ONCE after the full grid has spawned
         UIFlowManager.Instance.OnQRCodeScanned();
         GameManager.Instance.StartGame();
 
-        Debug.Log($"Grid spawned from {scannedCorner} on plane surface at {bottomLeftWorld}");
+        Debug.Log($"Grid spawned from {scannedCorner} at {bottomLeftWorld}.");
     }
 
 
@@ -205,18 +175,14 @@ public class GridSpawner : MonoBehaviour
     {
         switch (referenceImageName)
         {
-            case "QR_BottomLeft":
+            case "BottomLeft":
                 return MarquetteCorner.BottomLeft;
-
-            case "QR_BottomRight":
+            case "BottomRight":
                 return MarquetteCorner.BottomRight;
-
-            case "QR_TopLeft":
+            case "TopLeft":
                 return MarquetteCorner.TopLeft;
-
-            case "QR_TopRight":
+            case "TopRight":
                 return MarquetteCorner.TopRight;
-
             default:
                 Debug.LogWarning($"Unknown reference image name '{referenceImageName}'. Defaulting to BottomLeft.");
                 return MarquetteCorner.BottomLeft;
@@ -285,6 +251,9 @@ public class GridSpawner : MonoBehaviour
 
     void MapAllLocations()
     {
+        if (locationDatabase == null || locationDatabase.locations == null || gridArray == null)
+            return;
+
         foreach (LocationData location in locationDatabase.locations)
         {
             int xIndex = Mathf.RoundToInt(location.x_cm / 2.5f);
@@ -300,7 +269,7 @@ public class GridSpawner : MonoBehaviour
                     // Restore the magenta colour
                     cube.GetComponent<Renderer>().material.color = Color.magenta;
 
-                    Vector3 markerPosition = cube.transform.position + Vector3.up * 0.02f;
+                    Vector3 markerPosition = cube.transform.position + currentGridParent.transform.up * markerHeightOffset;
 
                     GameObject marker = Instantiate(
                         locationMarkerPrefab,
@@ -314,7 +283,7 @@ public class GridSpawner : MonoBehaviour
 
                     if (locationTextPrefab != null)
                     {
-                        Vector3 textPosition = marker.transform.position + Vector3.up * 0.05f;
+                        Vector3 textPosition = marker.transform.position + currentGridParent.transform.up * textHeightOffset;
 
                         GameObject textObj = Instantiate(
                             locationTextPrefab,
@@ -347,13 +316,15 @@ public class GridSpawner : MonoBehaviour
             currentGridParent = null;
         }
 
-        if (currentAnchor != null)
-        {
-            Destroy(currentAnchor.gameObject);
-            currentAnchor = null;
-        }
-
         gridArray = null;
+    }
+
+
+    // Optional: Call this if you ever want to allow the QR to start a completely new grid session again
+    public void ResetGridSpawnState()
+    {
+        hasSpawnedGrid = false;
+        ClearExistingGrid();
     }
 
 
@@ -373,31 +344,4 @@ public class GridSpawner : MonoBehaviour
 
         return cubeList;
     }
-
-
-    // Optional: Call this if you ever want to allow the QR to start a completely new grid session again
-    public void ResetGridSpawnState()
-    {
-        hasSpawnedGrid = false;
-        ClearExistingGrid();
-    }
-
-
-    private ARAnchor CreateAnchorAtPose(Pose pose)
-    {
-        GameObject anchorObject = new GameObject("MarquetteAnchor");
-        anchorObject.transform.SetPositionAndRotation(pose.position, pose.rotation);
-
-        ARAnchor anchor = anchorObject.AddComponent<ARAnchor>();
-
-        if (anchor == null)
-        {
-            Debug.LogWarning("Failed to create ARAmchor.");
-            Destroy(anchorObject);
-            return null;
-        }
-
-        return anchor;
-    }
 }
-
