@@ -91,6 +91,26 @@ public class CountdownTimer : MonoBehaviour
     }
 
 
+    public void ResetTimer()
+    {
+        isRunning = false;
+        currentTime = countdownTime;
+
+        if (flashCoroutine != null)
+        {
+            StopCoroutine(flashCoroutine);
+            flashCoroutine = null;
+        }
+
+        isFlashing = false;
+
+        if (timerText != null)
+            timerText.color = Color.white;
+
+        UpdateTimerDisplay();
+    }
+
+
     // Reduce time on successful screenshot
     public void ReduceTime(float seconds)
     {
@@ -150,29 +170,4 @@ public class CountdownTimer : MonoBehaviour
         isFlashing = false;
         flashCoroutine = null;
     }
-    /*
-
-    public void StartTimer()
-    {
-        isRunning = true;
-    }
-
-
-    public void ResetTimer()
-    {
-        currentTime = countdownTime;
-        isRunning = false;
-
-        if (flashCoroutine != null)
-        {
-            StopCoroutine(flashCoroutine);
-            flashCoroutine = null;
-        }
-
-        isFlashing = false;
-        timerText.color = Color.white;
-
-        UpdateTimerDisplay();
-    }
-    */
 }

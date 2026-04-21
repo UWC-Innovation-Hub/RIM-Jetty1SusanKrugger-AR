@@ -8,6 +8,7 @@ using TMPro;
  * 1. Clue selection (random 12)
  * 2. Current clue index
  * 3. Game state (playing / finished)
+ * 4. Final win/lose result
  */
 
 public class GameManager : MonoBehaviour
@@ -28,6 +29,7 @@ public class GameManager : MonoBehaviour
 
     private int successfulCaptures = 0;
     private bool gameEnded = false;
+    private bool playerWon = false;
 
 
     private void Awake()
@@ -39,6 +41,7 @@ public class GameManager : MonoBehaviour
     public void StartGame()
     {
         gameEnded = false;
+        playerWon = false;
         currentClueIndex = 0;
         successfulCaptures = 0;
 
@@ -56,7 +59,7 @@ public class GameManager : MonoBehaviour
 
         Debug.Log("Game started.");
         
-        UIFlowManager.Instance.SetInstruction("Tap on the correct location and capture the intel.");
+        //UIFlowManager.Instance.SetInstruction("Tap on the correct location and capture the intel.");
     }
 
 
@@ -88,7 +91,7 @@ public class GameManager : MonoBehaviour
 
         if (CountdownTimer.Instance != null)
             // Reduce timer
-            CountdownTimer.Instance.ReduceTime(10f);
+            CountdownTimer.Instance.ReduceTime(20f);
 
         // Move to next clue
         currentClueIndex++;
@@ -125,16 +128,21 @@ public class GameManager : MonoBehaviour
             CountdownTimer.Instance.StopTimer();
         }
 
+        playerWon = successfulCaptures >= winThreshold;
+
         // Show gallery BEFORE win/lose
         GalleryManager.Instance.ShowGallery();
 
-        // Decide win/lose
-        bool win = successfulCaptures >= winThreshold;
-
-        if (win)
+        if (playerWon)
             Debug.Log("PLAYER WINS");
         else
             Debug.Log("PLAYER LOSES");
+    }
+
+
+    public bool DidPlayerWin()
+    {
+        return playerWon;
     }
 
 
@@ -146,6 +154,15 @@ public class GameManager : MonoBehaviour
             return null;
 
         return selectedClues[currentClueIndex].locationData;
+    }
+
+
+    public void ResetExperienceState()
+    {
+        gameEnded = false;
+        playerWon = false;
+        currentClueIndex = 0;
+        successfulCaptures = 0;
     }
 }
 

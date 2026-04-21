@@ -63,9 +63,8 @@ public class GalleryManager : MonoBehaviour
 
         galleryPanel.SetActive(false);
 
-        // Restart experience
-        ProgressTracker.Instance.ResetProgress();
-        GameManager.Instance.StartGame();
+        bool didWin = GameManager.Instance.DidPlayerWin();
+        WinLosePopupManager.Instance.ShowResultPopup(didWin);
     }
 
 
