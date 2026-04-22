@@ -585,6 +585,7 @@ GameObject:
   - component: {fileID: 1408000231430664151}
   - component: {fileID: 5630206648994916924}
   - component: {fileID: 4570029268676798533}
+  - component: {fileID: 7185158881042250990}
   m_Layer: 6
   m_Name: CloseButton
   m_TagString: Untagged
@@ -706,6 +707,18 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+--- !u!114 &7185158881042250990
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7444532617929745755}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 52faf03445ba5304b9e8bb1c4620f11d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ExcludeFromPanelCapture
 --- !u!1 &8522536366044656652
 GameObject:
   m_ObjectHideFlags: 0
@@ -795,7 +808,7 @@ MonoBehaviour:
   m_FallbackScreenDPI: 96
   m_DefaultSpriteDPI: 96
   m_DynamicPixelsPerUnit: 1
-  m_PresetInfoIsWorld: 0
+  m_PresetInfoIsWorld: 1
 --- !u!114 &2849279646868686133
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -117,6 +117,10 @@ public class InfoPanelSpawner : MonoBehaviour
 
     private void SetLayerRecursively(GameObject obj, int layer)
     {
+        // Skip excluded objects and their children
+        if (obj.GetComponent<ExcludeFromPanelCapture>() != null)
+            return;
+        
         obj.layer = layer;
 
         foreach (Transform child in obj.transform)

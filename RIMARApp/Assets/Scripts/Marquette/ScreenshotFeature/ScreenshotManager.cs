@@ -7,7 +7,8 @@ using UnityEngine.UI;
 /*
  * This script manages the behavior and implementation of the screenshotting feature 
  * that the users would trigger when they double tap to collect intel.
- * It now captures only the active panel and closes that panel automatically after capture.
+ * It captures only the active panel and closes that panel automatically after capture.
+ * It also temporarily hides excluded UI (such as close buttons) before rendering.
  */
 
 public class ScreenshotManager : MonoBehaviour
@@ -108,6 +109,9 @@ public class ScreenshotManager : MonoBehaviour
             yield break;
         }
 
+        // Hide excluded objects (like close buttons) before capture
+        List<GameObject> hiddenObjects = HideExcludedObjects(panel);
+
         PositionCaptureCamera(panel);
 
         RenderTexture rt = new RenderTexture(captureWidth, captureHeight, 24);
@@ -129,6 +133,9 @@ public class ScreenshotManager : MonoBehaviour
         rt.Release();
         Destroy(rt);
 
+        // Restore excluded objects after capture
+        RestoreHiddenObjects(hiddenObjects);
+
         screenshots.Add(screenshot);
         Debug.Log("Panel screenshot count: " +  screenshots.Count);
 
@@ -146,6 +153,37 @@ public class ScreenshotManager : MonoBehaviour
         yield return new WaitForSeconds(flashDuration * 0.5f);
 
         GameManager.Instance.OnSuccessfulScreenshot();
+    }
+
+
+    private List<GameObject> HideExcludedObjects(GameObject panel)
+    {
+        List<GameObject> hiddenObjects = new List<GameObject>();
+
+        ExcludeFromPanelCapture[] exclusions = panel.GetComponentsInChildren<ExcludeFromPanelCapture>(true);
+
+        foreach (ExcludeFromPanelCapture exclusion in exclusions)
+        {
+            if (exclusion != null && exclusion.gameObject.activeSelf)
+            {
+                exclusion.gameObject.SetActive(false);
+                hiddenObjects.Add(exclusion.gameObject);
+            }
+        }
+
+        return hiddenObjects;
+    }
+
+
+    private void RestoreHiddenObjects(List<GameObject> hiddenObjects)
+    {
+        foreach (GameObject obj  in hiddenObjects)
+        {
+            if (obj != null)
+            {
+                obj.SetActive(false);
+            }
+        }
     }
 
 
