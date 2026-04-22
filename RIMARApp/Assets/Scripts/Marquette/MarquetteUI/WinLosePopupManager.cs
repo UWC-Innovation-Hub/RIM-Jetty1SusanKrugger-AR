@@ -49,6 +49,9 @@ public class WinLosePopupManager : MonoBehaviour
 
     private IEnumerator ShowPopupRoutine(bool didWin)
     {
+        if (UIFlowManager.Instance != null)
+            UIFlowManager.Instance.HideGameplayHUD();
+        
         if (winLosePopupGroup != null)
             winLosePopupGroup.SetActive(true);
 

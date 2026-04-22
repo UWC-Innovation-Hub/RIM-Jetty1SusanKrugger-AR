@@ -27,6 +27,9 @@ public class GalleryManager : MonoBehaviour
     public void ShowGallery()
     {
         ClearGalleryUI();
+
+        if (UIFlowManager.Instance != null) 
+            UIFlowManager.Instance.HideGameplayHUD();
         
         galleryPanel.SetActive(true);
 

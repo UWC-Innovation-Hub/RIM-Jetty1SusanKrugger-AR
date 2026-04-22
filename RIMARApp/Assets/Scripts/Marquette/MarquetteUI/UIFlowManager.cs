@@ -243,8 +243,7 @@ public class UIFlowManager : MonoBehaviour
 
         gameplayStarted = true;
 
-        if (commonInstructionGroup != null)
-            commonInstructionGroup.SetActive(true);
+        ShowGameplayHUD();
 
         if (gameplayUIGroup  != null)
             gameplayUIGroup.SetActive(true);
@@ -253,6 +252,26 @@ public class UIFlowManager : MonoBehaviour
             disabledTokenIcon.SetActive(false);
 
         SetInstruction("Tap once on the location marker to view the intel, double tap to collect the intel.");
+    }
+
+
+    public void ShowGameplayHUD()
+    {
+        if (commonInstructionGroup != null)
+            commonInstructionGroup.SetActive(true);
+
+        if (gameplayUIGroup != null)
+            gameplayUIGroup.SetActive(true);
+    }
+
+
+    public void HideGameplayHUD()
+    {
+        if (commonInstructionGroup != null)
+            commonInstructionGroup.SetActive(false);
+
+        if (gameplayUIGroup != null)
+            gameplayUIGroup.SetActive(false);
     }
 
 
