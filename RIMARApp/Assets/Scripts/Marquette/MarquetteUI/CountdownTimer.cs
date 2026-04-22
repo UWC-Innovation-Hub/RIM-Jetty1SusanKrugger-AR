@@ -1,10 +1,14 @@
 using UnityEngine;
 using TMPro;
 using System.Collections;
+using Microsoft.Win32.SafeHandles;
 
 
 /*
- * This script handles the countdown timer behaviours
+ * This script handles the countdown timer behaviours including:
+ * 1. Countdown
+ * 2. Red flashing at 30 seconds remaining
+ * 3. Shake feedback when time is reduced
  */
 
 public class CountdownTimer : MonoBehaviour
@@ -15,10 +19,19 @@ public class CountdownTimer : MonoBehaviour
     public int countdownTime = 300; // 5 minutes = 300 seconds
     public TextMeshProUGUI timerText;
 
+    [Header("Shake Settings")]
+    [SerializeField] private RectTransform timerShakeTarget;
+    [SerializeField] private float shakeDuration = 0.2f;
+    [SerializeField] private float shakeMagnitude = 12f;
+    [SerializeField] private int shakeVibrato = 12;
+
     private float currentTime;
     private bool isRunning = false;
     private bool isFlashing = false;
     private Coroutine flashCoroutine;
+    private Coroutine shakeCoroutine;
+
+    private Vector2 originalShakeAnchoredPosition;
 
 
     private void Awake()
@@ -31,6 +44,12 @@ public class CountdownTimer : MonoBehaviour
     {
         currentTime = countdownTime;
         UpdateTimerDisplay();
+
+        if (timerShakeTarget != null )
+        {
+            originalShakeAnchoredPosition = timerShakeTarget.anchoredPosition;
+        }
+
         Debug.Log("CountdownTimer initialized.");
     }
 
@@ -74,10 +93,19 @@ public class CountdownTimer : MonoBehaviour
             flashCoroutine = null;
         }
 
+        if (shakeCoroutine != null)
+        {
+            StopCoroutine(shakeCoroutine);
+            shakeCoroutine = null;
+        }
+
         isFlashing = false;
 
         if (timerText != null)
             timerText.color = Color.white;
+
+        if (timerShakeTarget != null ) 
+            timerShakeTarget.anchoredPosition = originalShakeAnchoredPosition;
 
         UpdateTimerDisplay();
 
@@ -88,6 +116,7 @@ public class CountdownTimer : MonoBehaviour
     public void StopTimer()
     {
         isRunning = false;
+        Debug.Log("Timer stopeed.");
     }
 
 
@@ -102,10 +131,19 @@ public class CountdownTimer : MonoBehaviour
             flashCoroutine = null;
         }
 
+        if (shakeCoroutine != null)
+        {
+            StopCoroutine(shakeCoroutine);
+            shakeCoroutine = null;
+        }
+
         isFlashing = false;
 
         if (timerText != null)
             timerText.color = Color.white;
+
+        if (timerShakeTarget != null)
+            timerShakeTarget.anchoredPosition= originalShakeAnchoredPosition;
 
         UpdateTimerDisplay();
     }
@@ -122,6 +160,15 @@ public class CountdownTimer : MonoBehaviour
         UpdateTimerDisplay();
 
         Debug.Log("Timer reduced by: " + seconds + " seconds. Current time: " + currentTime);
+
+        // Trigger shake every time time is reduced
+        if (timerShakeTarget != null)
+        {
+            if (shakeCoroutine != null)
+                StopCoroutine(shakeCoroutine);
+
+            shakeCoroutine = StartCoroutine(ShakeTimer());
+        }
 
         // If reduction pushes it into danger zone, start flashing
         if (currentTime <= 30f && !isFlashing)
@@ -169,5 +216,30 @@ public class CountdownTimer : MonoBehaviour
 
         isFlashing = false;
         flashCoroutine = null;
+    }
+
+
+    private IEnumerator ShakeTimer()
+    {
+        float elapsed = 0f;
+
+        while (elapsed < shakeDuration)
+        {
+            elapsed += Time.deltaTime;
+
+            float damper = 1f - Mathf.Clamp01(elapsed / shakeDuration);
+            float x = Random.Range(-1f, 1f) * shakeMagnitude * damper;
+            float y = Random.Range(-0.25f, 0.25f) * shakeMagnitude * 0.25f * damper;
+
+            if (timerShakeTarget != null)
+                timerShakeTarget.anchoredPosition = originalShakeAnchoredPosition + new Vector2(x, y);
+
+            yield return null;
+        }
+
+        if (timerShakeTarget != null)
+            timerShakeTarget.anchoredPosition = originalShakeAnchoredPosition;
+
+        shakeCoroutine = null;
     }
 }
