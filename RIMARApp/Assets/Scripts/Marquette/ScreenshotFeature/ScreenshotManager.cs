@@ -5,8 +5,9 @@ using UnityEngine.UI;
 
 
 /*
- * This script manages the behavior and implementation of the screenshotting feature that the users would trigger 
- * once they double tap on an empty space on the screen.
+ * This script manages the behavior and implementation of the screenshotting feature 
+ * that the users would trigger when they double tap to collect intel.
+ * It now captures only the active panel and closes that panel automatically after capture.
  */
 
 public class ScreenshotManager : MonoBehaviour
@@ -20,18 +21,18 @@ public class ScreenshotManager : MonoBehaviour
 
     [Header("Flash Effect")]
     // Visual element to confirm screenshot has been taken
-    public Image flashImage;
+    [SerializeField] private Image flashImage;
     [SerializeField] private float flashDuration; // 0.15f
 
     [Header("Audio")]
     // Audio element to confirm screenshot has been taken
     public AudioSource shutterAudio;
 
-    private List<Texture2D> screenshots = new List<Texture2D>();
-
-    [Header ("Double Tap Durations")]
+    [Header("Double Tap Durations")]
     [SerializeField] private float lastTimeTap; // 0f
     [SerializeField] private float doubleTapThreshold; // 0.3f
+
+    private List<Texture2D> screenshots = new List<Texture2D>();
 
 
     private void Awake()
@@ -130,6 +131,12 @@ public class ScreenshotManager : MonoBehaviour
 
         screenshots.Add(screenshot);
         Debug.Log("Panel screenshot count: " +  screenshots.Count);
+
+        // Close the panel automatically AFTER the screenshot is captured
+        if (InfoPanelSpawner.Instance != null)
+        {
+            InfoPanelSpawner.Instance.CloseCurrentPanel();
+        }
 
         StartCoroutine(FlashEffect());
 

@@ -76,9 +76,22 @@ public class InfoPanelSpawner : MonoBehaviour
     {
         if (currentPanel != null)
         {
-            Destroy(currentPanel);
-            currentPanel = null;
-            currentLocationData = null; // important
+            InfoPanelCloseAnimator animator = currentPanel.GetComponent<InfoPanelCloseAnimator>();
+
+            if (animator != null)
+            {
+                animator.PlayClose(() =>
+                {
+                    currentPanel = null;
+                });
+            }
+            else
+            {
+                Destroy(currentPanel);
+                currentPanel = null;
+            }
+            
+            //currentLocationData = null; // important
         }
     }
 

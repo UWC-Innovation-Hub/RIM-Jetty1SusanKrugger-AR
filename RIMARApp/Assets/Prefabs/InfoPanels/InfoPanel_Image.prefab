@@ -721,6 +721,8 @@ GameObject:
   - component: {fileID: 956483841781029}
   - component: {fileID: 2773713790940858023}
   - component: {fileID: 673202522397808027}
+  - component: {fileID: 3049292631546743109}
+  - component: {fileID: 575019049614679640}
   m_Layer: 6
   m_Name: InfoPanel_Image
   m_TagString: Untagged
@@ -857,6 +859,31 @@ MonoBehaviour:
   maxScale: 0.00015
   minDistance: 0.2
   maxDistance: 1.5
+--- !u!225 &3049292631546743109
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8522536366044656652}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
+--- !u!114 &575019049614679640
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8522536366044656652}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a1d2d901f6b093846901c65f46c78a3d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::InfoPanelCloseAnimator
+  closeDuration: 0.5
 --- !u!1 &9114790453527682009
 GameObject:
   m_ObjectHideFlags: 0
