@@ -48,6 +48,7 @@ public class UIFlowManager : MonoBehaviour
     private bool isTransitioning = false;
     private bool hasEnteredScanPrompt = false;
     private bool gameplayStarted = false;
+    private bool canScanQRCode = false;
 
 
     private void Awake()
@@ -71,6 +72,7 @@ public class UIFlowManager : MonoBehaviour
         isTransitioning = false;
         hasEnteredScanPrompt = false;
         gameplayStarted = false;
+        canScanQRCode = false;
 
         if (startScreenGroup != null)
             startScreenGroup.SetActive(true);
@@ -129,6 +131,7 @@ public class UIFlowManager : MonoBehaviour
     private IEnumerator PlayIntroTransition()
     {
         isTransitioning = true;
+        canScanQRCode = false;
 
         if (disabledTokenIcon != null)
             disabledTokenIcon.SetActive(false);
@@ -171,6 +174,9 @@ public class UIFlowManager : MonoBehaviour
 
         hasEnteredScanPrompt = true;
         isTransitioning = false;
+
+        // QR scanning becomes allowed ONLY after the scan prompt is visible.
+        canScanQRCode = true;
     }
 
 
@@ -242,6 +248,7 @@ public class UIFlowManager : MonoBehaviour
             return;
 
         gameplayStarted = true;
+        canScanQRCode = false;
 
         ShowGameplayHUD();
 
@@ -272,6 +279,12 @@ public class UIFlowManager : MonoBehaviour
 
         if (gameplayUIGroup != null)
             gameplayUIGroup.SetActive(false);
+    }
+
+
+    public bool CanScanQRCode()
+    {
+        return canScanQRCode;
     }
 
 

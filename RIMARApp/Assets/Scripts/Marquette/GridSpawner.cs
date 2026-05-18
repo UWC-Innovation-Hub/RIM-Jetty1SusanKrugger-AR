@@ -60,6 +60,10 @@ public class GridSpawner : MonoBehaviour
     private void OnTrackedImagesChanged(ARTrackablesChangedEventArgs<ARTrackedImage> args)
     {
         if (hasSpawnedGrid) return;
+
+        // Do not allow QR scanning while the start screen if open
+        if (UIFlowManager.Instance == null || !UIFlowManager.Instance.CanScanQRCode())
+            return;
         
         // Try newly added images first
         foreach (var trackedImage in args.added)
