@@ -10,9 +10,9 @@ public class ProgressTracker : MonoBehaviour
 {
     public static ProgressTracker Instance;
 
-    public Slider progressBar;
-    [SerializeField] private int totalCheckpoints; // 12
+    [SerializeField] private Slider progressBar;
 
+    private int totalCheckpoints = 0;
     private int completedCheckpoints = 0;
 
 
@@ -24,28 +24,50 @@ public class ProgressTracker : MonoBehaviour
 
     private void Start()
     {
-        progressBar.minValue = 0;
-        progressBar.maxValue = totalCheckpoints;
-        progressBar.value = 0;
+        ResetProgress();
+    }
+
+
+    public void SetTotalCheckpoints(int total)
+    {
+        totalCheckpoints = Mathf.Max(1, total);
+        completedCheckpoints = 0;
+
+        if (progressBar != null)
+        {
+            progressBar.minValue = 0;
+            progressBar.maxValue = totalCheckpoints;
+            progressBar.value = 0;
+        }
     }
 
 
     public void AddProgress()
     {
         completedCheckpoints++;
-        progressBar.value = completedCheckpoints;
+
+        if (progressBar != null)
+            progressBar.value = completedCheckpoints;
     }
 
 
     public void ResetProgress()
     {
         completedCheckpoints = 0;
-        progressBar.value = 0;
+
+        if (progressBar != null)
+            progressBar.value = 0;
     }
 
 
     public int GetProgress()
     {
         return completedCheckpoints;
+    }
+
+
+    public int GetTotalCheckpoints()
+    {
+        return totalCheckpoints;
     }
 }

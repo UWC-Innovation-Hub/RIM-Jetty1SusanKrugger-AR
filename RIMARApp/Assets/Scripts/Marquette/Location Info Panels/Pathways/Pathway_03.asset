@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a9b1e4e7e3104cf46ac3b818d0535317, type: 3}
+  m_Name: Pathway_03
+  m_EditorClassIdentifier: Assembly-CSharp::PathwayData
+  pathwayName: Military
+  pathwayDescription: 
+  steps:
+  - clueText: Find the Kramat.
+    locationData: {fileID: 11400000, guid: 917dcc3b25b7f444e9b36bba9c761e15, type: 2}
+  - clueText: Find the Leper Graveyard.
+    locationData: {fileID: 11400000, guid: 0bca716ce940e0b4cadb872fb1685e3f, type: 2}
+  - clueText: Find the Lighthouse.
+    locationData: {fileID: 11400000, guid: 9f4ecbdce66ee174bbf2da21d217a00e, type: 2}
+  - clueText: Find the Landing Strip.
+    locationData: {fileID: 11400000, guid: 83c29559e1f1f004bb779326bcac9fe3, type: 2}
+  - clueText: Find the Van Riebeeck's Quarry,
+    locationData: {fileID: 11400000, guid: 249e3beb76c78d34a8539cf496ac4084, type: 2}
+  - clueText: Find the Cornelia Battery.
+    locationData: {fileID: 11400000, guid: 71958123a034455429c6e71897799e1f, type: 2}

@@ -2851,7 +2851,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   progressBar: {fileID: 774903540}
-  totalCheckpoints: 12
 --- !u!114 &1152569395
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4581,70 +4580,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2d1214a9900bbcf45af83d7bcdf2463d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameManager
-  allClues:
-  - clueText: Find the Murrays Bay Harbour.
-    locationData: {fileID: 11400000, guid: 77b9564c1b180e64fafbebc91ec5f739, type: 2}
-  - clueText: Find the Visitors Centre.
-    locationData: {fileID: 11400000, guid: 64ec6ebb43cdee943bc7554f2fc9d99e, type: 2}
-  - clueText: Find the Maximum Security Prison.
-    locationData: {fileID: 11400000, guid: b19298ce748ce01448419eedcea44532, type: 2}
-  - clueText: Find the Kramat.
-    locationData: {fileID: 11400000, guid: 917dcc3b25b7f444e9b36bba9c761e15, type: 2}
-  - clueText: Find the Field of Banishment.
-    locationData: {fileID: 11400000, guid: 1a81ee888cc550e488e5cceba81c39c6, type: 2}
-  - clueText: Find the Penguin Protected Colony.
-    locationData: {fileID: 11400000, guid: 6441fa3c34f8d3d4a99a964527f86a67, type: 2}
-  - clueText: Find Die Ou Tronk.
-    locationData: {fileID: 11400000, guid: e37e45199cfc40f41a46fa58c54eac3b, type: 2}
-  - clueText: Find the Cornelia Battery.
-    locationData: {fileID: 11400000, guid: 71958123a034455429c6e71897799e1f, type: 2}
-  - clueText: Find the Bluestone Quarry.
-    locationData: {fileID: 11400000, guid: 81be192efdd571a449f21a8f567c71a5, type: 2}
-  - clueText: Find the Old Rifle Range.
-    locationData: {fileID: 11400000, guid: 782faf20bb60f6c4eb8958ba39bb2021, type: 2}
-  - clueText: Find the Bath of Bathesda.
-    locationData: {fileID: 11400000, guid: 8dc7028eef1257749beaceb01fada1ef, type: 2}
-  - clueText: Find the Landing Strip.
-    locationData: {fileID: 11400000, guid: 83c29559e1f1f004bb779326bcac9fe3, type: 2}
-  - clueText: Find the Agricultural Precinct.
-    locationData: {fileID: 11400000, guid: 68fc231502ca19b41b7914b12eaa0374, type: 2}
-  - clueText: Find the Limestone Quarry.
-    locationData: {fileID: 11400000, guid: ddb3955d1d0bfcf438e1e4936ba551de, type: 2}
-  - clueText: Find the De Waal Battery.
-    locationData: {fileID: 11400000, guid: 063f5c688362ca74ab0b133fb18daea1, type: 2}
-  - clueText: Find the Lighthouse.
-    locationData: {fileID: 11400000, guid: 9f4ecbdce66ee174bbf2da21d217a00e, type: 2}
-  - clueText: Find the Van Riebeeck's Quarry.
-    locationData: {fileID: 11400000, guid: 249e3beb76c78d34a8539cf496ac4084, type: 2}
-  - clueText: Find the Alpha One.
-    locationData: {fileID: 11400000, guid: 7e3d39512552d564fab160b92345faf1, type: 2}
-  - clueText: Find the Guest House.
-    locationData: {fileID: 11400000, guid: 9363744bfe9b3124ba201671e533af3a, type: 2}
-  - clueText: Find the Faure Jetty.
-    locationData: {fileID: 11400000, guid: 50dc6f167dcf880478b14d4810c17fed, type: 2}
-  - clueText: Find the School.
-    locationData: {fileID: 11400000, guid: 9208c379feb569947a9aeec0724c8f37, type: 2}
-  - clueText: Find the Garrison Church.
-    locationData: {fileID: 11400000, guid: b6b758d6fdc5f194fa0a41f307e2c394, type: 2}
-  - clueText: Find the General Infirmary.
-    locationData: {fileID: 11400000, guid: 3faf9e68c2b76604cb19433a6cf5d8a1, type: 2}
-  - clueText: Find the Warden Houses.
-    locationData: {fileID: 11400000, guid: 4c9ba59c6b744cc4eb57427c9fe0b336, type: 2}
-  - clueText: Find the Medium B Security Prison.
-    locationData: {fileID: 11400000, guid: a348948e48322624c9f98a2ac368f49a, type: 2}
-  - clueText: Find the Church of the Good Shepherd.
-    locationData: {fileID: 11400000, guid: 23168132bd07db346bc8226649b4d0a7, type: 2}
-  - clueText: Find the Sobukwe House Complex.
-    locationData: {fileID: 11400000, guid: 80fe73d1f1a416d40b0f00500b4db83d, type: 2}
-  - clueText: Find the Leper Graveyard.
-    locationData: {fileID: 11400000, guid: 0bca716ce940e0b4cadb872fb1685e3f, type: 2}
-  - clueText: Find the Leper Pond.
-    locationData: {fileID: 11400000, guid: 119f482da21848b4682790a0d9dd9501, type: 2}
-  - clueText: Find the Krotoa's Garden
-    locationData: {fileID: 11400000, guid: aa9691f19318eec479534d64a9b8ae7b, type: 2}
+  pathways:
+  - {fileID: 11400000, guid: 5d990d22700f33f45a41f050cc4a68b8, type: 2}
+  - {fileID: 11400000, guid: 6e5c0e53698610646a73640bd8ee3f2c, type: 2}
+  - {fileID: 11400000, guid: 9b44f2a58b4cce646b84cfde422c48c9, type: 2}
   clueText: {fileID: 86171439}
-  cluesPerGame: 12
-  winThreshold: 6
+  reduceTimeOnSuccess: 1
+  timeReductionOnSuccess: 20
 --- !u!4 &1899549824
 Transform:
   m_ObjectHideFlags: 0

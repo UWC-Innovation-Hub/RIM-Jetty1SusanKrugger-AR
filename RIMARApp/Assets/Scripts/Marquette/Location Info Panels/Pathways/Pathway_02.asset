@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a9b1e4e7e3104cf46ac3b818d0535317, type: 3}
+  m_Name: Pathway_02
+  m_EditorClassIdentifier: Assembly-CSharp::PathwayData
+  pathwayName: Life on Robben Island
+  pathwayDescription: 
+  steps:
+  - clueText: Find the Murrays Bay Harbour.
+    locationData: {fileID: 11400000, guid: 77b9564c1b180e64fafbebc91ec5f739, type: 2}
+  - clueText: Find the Warden Houses.
+    locationData: {fileID: 11400000, guid: 4c9ba59c6b744cc4eb57427c9fe0b336, type: 2}
+  - clueText: Find the Church of the Good Shepherd.
+    locationData: {fileID: 11400000, guid: 23168132bd07db346bc8226649b4d0a7, type: 2}
+  - clueText: Find the Garrison Church.
+    locationData: {fileID: 11400000, guid: b6b758d6fdc5f194fa0a41f307e2c394, type: 2}
+  - clueText: Find the School.
+    locationData: {fileID: 11400000, guid: 9208c379feb569947a9aeec0724c8f37, type: 2}
+  - clueText: Find the Maximum Security Prison.
+    locationData: {fileID: 11400000, guid: b19298ce748ce01448419eedcea44532, type: 2}
+  - clueText: Find the Faure Jetty.
+    locationData: {fileID: 11400000, guid: 50dc6f167dcf880478b14d4810c17fed, type: 2}

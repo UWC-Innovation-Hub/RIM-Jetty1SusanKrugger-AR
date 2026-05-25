@@ -5,8 +5,8 @@ using TMPro;
 
 /*
  * This script handles:
- * 1. Clue selection (random 12)
- * 2. Current clue index
+ * 1. Random pathway selection
+ * 2. Ordered clue progression inside the selected pathway
  * 3. Game state (playing / finished)
  * 4. Final win/lose result
  */
@@ -15,19 +15,22 @@ public class GameManager : MonoBehaviour
 {
     public static GameManager Instance;
 
-    [Header("Clue Settings")]
-    public ClueData[] allClues; // 30 total clues (one for each location)
-    private List<ClueData> selectedClues = new List<ClueData>(); // Chosen 12 clues (going to be randomly chosen
+    [Header("Pathway Settings")]
+    [SerializeField] private PathwayData[] pathways;
 
+    private PathwayData selectedPathway;
+    private int currentStepIndex = 0;
+
+    [Header("UI References")]
     [SerializeField] private TextMeshProUGUI clueText;
 
-    private int currentClueIndex = 0;
-
     [Header("Game Settings")]
-    [SerializeField] private int cluesPerGame; // 12
-    [SerializeField] private int winThreshold; // 6 (50%)
+    [SerializeField] private bool reduceTimeOnSuccess = true;
+    [SerializeField] private float timeReductionOnSuccess = 20f;
 
+    private int winThreshold = 0;
     private int successfulCaptures = 0;
+
     private bool gameEnded = false;
     private bool playerWon = false;
 
@@ -42,39 +45,50 @@ public class GameManager : MonoBehaviour
     {
         gameEnded = false;
         playerWon = false;
-        currentClueIndex = 0;
+        currentStepIndex = 0;
         successfulCaptures = 0;
 
-        SelectRandomClues();
+        SelectRandomPathway();
+
+        if (selectedPathway == null || selectedPathway.steps == null || selectedPathway.steps.Length == 0)
+        {
+            Debug.LogError("No valid pathway selected. Please assign pathway data in GameManager.");
+            return;
+        }
+        
+        winThreshold = Mathf.CeilToInt(selectedPathway.steps.Length / 2f);
+
+        if (ProgressTracker.Instance != null)
+        {
+            ProgressTracker.Instance.SetTotalCheckpoints(selectedPathway.steps.Length);
+        }
+
         UpdateClueUI();
 
-        if (CountdownTimer.Instance != null )
+        if (CountdownTimer.Instance != null)
         {
             CountdownTimer.Instance.BeginNewRun();
         }
         else
         {
-            Debug.LogError("CountdownTimer.Instance is NULL in Start");
+            Debug.LogError("CountdownTimer.Instance is NULL in StartGame.");
         }
 
-        Debug.Log("Game started.");
-        
-        //UIFlowManager.Instance.SetInstruction("Tap on the correct location and capture the intel.");
+        Debug.Log("Game started with pathway: " + selectedPathway.pathwayName);
+        Debug.Log("Win threshold: " + winThreshold);
     }
 
 
-    void SelectRandomClues()
+    void SelectRandomPathway()
     {
-        selectedClues.Clear();
-
-        List<ClueData> tempList = new List<ClueData>(allClues);
-
-        for (int i = 0; i < cluesPerGame; i++)
+        if (pathways == null || pathways.Length == 0)
         {
-            int randIndex = Random.Range(0, tempList.Count);
-            selectedClues.Add(tempList[randIndex]);
-            tempList.RemoveAt(randIndex);
+            selectedPathway = null;
+            return;
         }
+
+        int randomIndex = Random.Range(0, pathways.Length);
+        selectedPathway = pathways[randomIndex];
     }
 
 
@@ -84,19 +98,21 @@ public class GameManager : MonoBehaviour
         
         successfulCaptures++;
 
-        UIFlowManager.Instance.SetInstruction("Intel captured! Find the next clue.");
+        if (UIFlowManager.Instance != null)
+            UIFlowManager.Instance.SetInstruction("Intel captured! Find the next clue.");
 
-        // Update progress bar
-        ProgressTracker.Instance.AddProgress();
+        if (ProgressTracker.Instance != null)
+            // Update progress bar
+            ProgressTracker.Instance.AddProgress();
 
-        if (CountdownTimer.Instance != null)
+        if (reduceTimeOnSuccess && CountdownTimer.Instance != null)
             // Reduce timer
-            CountdownTimer.Instance.ReduceTime(20f);
+            CountdownTimer.Instance.ReduceTime(timeReductionOnSuccess);
 
         // Move to next clue
-        currentClueIndex++;
+        currentStepIndex++;
 
-        if (currentClueIndex >= selectedClues.Count)
+        if (currentStepIndex >= selectedPathway.steps.Length)
         {
             EndGame();
             return;
@@ -108,10 +124,11 @@ public class GameManager : MonoBehaviour
 
     void UpdateClueUI()
     {
-        if (clueText != null && currentClueIndex < selectedClues.Count)
-        {
-            clueText.text = selectedClues[currentClueIndex].clueText;
-        }
+        if (clueText == null) return;
+        if (selectedPathway == null) return;
+        if (currentStepIndex < 0 || currentStepIndex >= selectedPathway.steps.Length) return;
+
+        clueText.text = selectedPathway.steps[currentStepIndex].clueText;
     }
 
 
@@ -130,8 +147,9 @@ public class GameManager : MonoBehaviour
 
         playerWon = successfulCaptures >= winThreshold;
 
-        // Show gallery BEFORE win/lose
-        GalleryManager.Instance.ShowGallery();
+        if (GalleryManager.Instance != null)
+            // Show gallery BEFORE win/lose
+            GalleryManager.Instance.ShowGallery();
 
         if (playerWon)
             Debug.Log("PLAYER WINS");
@@ -149,11 +167,11 @@ public class GameManager : MonoBehaviour
     public LocationData GetCurrentTargetLocation()
     {
         if (gameEnded) return null;
+        if (selectedPathway == null) return null;
+        if (selectedPathway.steps == null) return null;
+        if (currentStepIndex < 0 || currentStepIndex >= selectedPathway.steps.Length) return null;
 
-        if (currentClueIndex < 0 || currentClueIndex >= selectedClues.Count)
-            return null;
-
-        return selectedClues[currentClueIndex].locationData;
+        return selectedPathway.steps[currentStepIndex].locationData;
     }
 
 
@@ -161,15 +179,11 @@ public class GameManager : MonoBehaviour
     {
         gameEnded = false;
         playerWon = false;
-        currentClueIndex = 0;
+        currentStepIndex = 0;
         successfulCaptures = 0;
+        selectedPathway = null;
+
+        if (clueText != null)
+            clueText.text = "";
     }
-}
-
-
-[System.Serializable]
-public class ClueData
-{
-    public string clueText;
-    public LocationData locationData; // This is key
 }
